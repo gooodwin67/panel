@@ -73,6 +73,7 @@ async function initFunctions() {
 
   if (panelRed) {
     panelRed.addEventListener('pointerdown', (e) => {
+      
         // Предотвращаем стандартное выделение текста и т.д.
         e.preventDefault(); 
         // Запускаем процесс в 3D

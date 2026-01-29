@@ -234,6 +234,8 @@ export class SceneClass {
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     const intersects = this.raycaster.intersectObjects(this.walls);
 
+    
+
     if (intersects.length > 0) {
       const hit = intersects[0];
       const wall = hit.object;
