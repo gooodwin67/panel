@@ -3,6 +3,9 @@ import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
 import { InitClass } from './src/main/init';
 import { SceneClass } from './src/main/scene';
+import { GuiClass } from './src/main/gui';
+import { PanelsClass } from './src/main/panels';
+
 
 console.clear();
 
@@ -32,14 +35,20 @@ async function startScene() {
 ========================================= */
 async function initClases() {
 
+  gameContext.gui = new GUI();
+
   gameContext.initClass = new InitClass(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
+  gameContext.panelsClass = new PanelsClass(gameContext);
 
   gameContext.scene = gameContext.initClass.scene;
   gameContext.camera = gameContext.initClass.camera;
   gameContext.renderer = gameContext.initClass.renderer;
+  gameContext.renderer.localClippingEnabled = true; 
 
-  gameContext.gui = new GUI();
+  
+  const sceneGui = new GuiClass(gameContext);
+  
 }
 
 /* =========================================
@@ -48,9 +57,35 @@ async function initClases() {
 async function initFunctions() {
 
   if (location.hostname === 'localhost') {
-    const sceneFolder = gameContext.gui.addFolder('Scene');
-    sceneFolder.add(gameContext.camera.position, 'z', 1, 20);
+    // gameContext.sceneFolder = gameContext.gui.addFolder('Scene');
+    // const myScene = gameContext.sceneClass;
+    // gameContext.sceneFolder.add(myScene.walls[myScene.activeWallIndex].material.map.offset, 'x', 0, 1, 0.1).name('Сдвиг сетки по x');
+    // gameContext.sceneFolder.add(myScene.walls[myScene.activeWallIndex].material.map.offset, 'y', 0, 1, 0.1).name('Сдвиг сетки по y');
+
+    // gameContext.sceneClass.updateGui();
   }
+
+
+  const panelRed = document.querySelector('.panel1');
+  const panelGreen = document.querySelector('.panel2');
+
+  const myScene = gameContext.sceneClass;
+
+  if (panelRed) {
+    panelRed.addEventListener('pointerdown', (e) => {
+        // Предотвращаем стандартное выделение текста и т.д.
+        e.preventDefault(); 
+        // Запускаем процесс в 3D
+        myScene.startDrag('red');
+    });
+}
+
+if (panelGreen) {
+    panelGreen.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        myScene.startDrag('green');
+    });
+}
 
 
 
