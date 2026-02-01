@@ -27,6 +27,7 @@ export class InitClass {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    this.gameContext.controls = this.controls;
 
     window.addEventListener('resize', this.onWindowResize);
     this.onWindowResize();
