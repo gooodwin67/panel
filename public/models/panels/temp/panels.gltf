@@ -15,23 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Panel_Base.001"
-        }
-    ],
-    "materials" : [
-        {
-            "doubleSided" : true,
-            "name" : "green",
-            "pbrMetallicRoughness" : {
-                "baseColorFactor" : [
-                    0.0021024325396865606,
-                    0.013310463167726994,
-                    0.0030536844860762358,
-                    1
-                ],
-                "metallicFactor" : 0,
-                "roughnessFactor" : 0.6000000238418579
-            }
+            "name" : "Panel_Base_1"
         }
     ],
     "meshes" : [
@@ -44,8 +28,7 @@
                         "NORMAL" : 1,
                         "TEXCOORD_0" : 2
                     },
-                    "indices" : 3,
-                    "material" : 0
+                    "indices" : 3
                 }
             ]
         }

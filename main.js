@@ -5,6 +5,8 @@ import { InitClass } from './src/main/init';
 import { SceneClass } from './src/main/scene';
 import { GuiClass } from './src/main/gui';
 import { PanelsClass } from './src/main/panels';
+import { AssetsManager } from './src/assets/assets-manager';
+
 
 
 console.clear();
@@ -37,13 +39,19 @@ async function initClases() {
 
   gameContext.gui = new GUI();
 
-  gameContext.initClass = new InitClass(gameContext);
-  gameContext.sceneClass = new SceneClass(gameContext);
-  gameContext.panelsClass = new PanelsClass(gameContext);
+  
 
+  gameContext.initClass = new InitClass(gameContext);
   gameContext.scene = gameContext.initClass.scene;
   gameContext.camera = gameContext.initClass.camera;
   gameContext.renderer = gameContext.initClass.renderer;
+  gameContext.assetManager = new AssetsManager(gameContext);
+  gameContext.sceneClass = new SceneClass(gameContext);
+  gameContext.panelsClass = new PanelsClass(gameContext);
+  
+
+  
+  
   gameContext.renderer.localClippingEnabled = true; 
 
   
@@ -65,30 +73,22 @@ async function initFunctions() {
     // gameContext.sceneClass.updateGui();
   }
 
-
-  const panelRed = document.querySelector('.panel1');
-  const panelGreen = document.querySelector('.panel2');
+  // Ждем загрузку моделей перед тем, как разрешить взаимодействие
+  await gameContext.assetManager.loadModels();
 
   const myScene = gameContext.sceneClass;
 
-  if (panelRed) {
-    panelRed.addEventListener('pointerdown', (e) => {
-      
-        // Предотвращаем стандартное выделение текста и т.д.
-        e.preventDefault(); 
-        // Запускаем процесс в 3D
-        myScene.startDrag('red');
-    });
-}
-
-if (panelGreen) {
-    panelGreen.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        myScene.startDrag('green');
-    });
-}
-
-
+  // Цикл по 4 панелям
+  for (let i = 1; i <= 4; i++) {
+      const panelBtn = document.querySelector(`.panel${i}`);
+      if (panelBtn) {
+          panelBtn.addEventListener('pointerdown', (e) => {
+              e.preventDefault();
+              // Передаем индекс (i-1), чтобы было 0, 1, 2, 3
+              myScene.startDrag(i - 1); 
+          });
+      }
+  }
 
   gameContext.sceneClass.createScene();
 }
