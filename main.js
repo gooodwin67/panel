@@ -7,8 +7,6 @@ import { GuiClass } from './src/main/gui';
 import { PanelsClass } from './src/main/panels';
 import { AssetsManager } from './src/assets/assets-manager';
 
-
-
 console.clear();
 
 const gameContext = {};
@@ -19,9 +17,6 @@ gameContext.clock = new THREE.Clock();
 ========================================= */
 startScene();
 
-/* =========================================
-   START
-========================================= */
 async function startScene() {
   try {
     await initClases();
@@ -32,14 +27,8 @@ async function startScene() {
   }
 }
 
-/* =========================================
-   INIT CLASSES
-========================================= */
 async function initClases() {
-
   gameContext.gui = new GUI();
-
-  
 
   gameContext.initClass = new InitClass(gameContext);
   gameContext.scene = gameContext.initClass.scene;
@@ -49,14 +38,8 @@ async function initClases() {
   gameContext.sceneClass = new SceneClass(gameContext);
   gameContext.panelsClass = new PanelsClass(gameContext);
   
-
-  
-  
   gameContext.renderer.localClippingEnabled = true; 
-
-  
   const sceneGui = new GuiClass(gameContext);
-  
 }
 
 /* =========================================
@@ -64,27 +47,20 @@ async function initClases() {
 ========================================= */
 async function initFunctions() {
 
-  if (location.hostname === 'localhost') {
-    // gameContext.sceneFolder = gameContext.gui.addFolder('Scene');
-    // const myScene = gameContext.sceneClass;
-    // gameContext.sceneFolder.add(myScene.walls[myScene.activeWallIndex].material.map.offset, 'x', 0, 1, 0.1).name('Сдвиг сетки по x');
-    // gameContext.sceneFolder.add(myScene.walls[myScene.activeWallIndex].material.map.offset, 'y', 0, 1, 0.1).name('Сдвиг сетки по y');
-
-    // gameContext.sceneClass.updateGui();
-  }
-
-  // Ждем загрузку моделей перед тем, как разрешить взаимодействие
   await gameContext.assetManager.loadModels();
+
+  // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
+  createSelectionUI();
+  // -----------------------------------------
 
   const myScene = gameContext.sceneClass;
 
-  // Цикл по 4 панелям
+  // Кнопки добавления панелей (Drag and Drop из меню)
   for (let i = 1; i <= 4; i++) {
       const panelBtn = document.querySelector(`.panel${i}`);
       if (panelBtn) {
           panelBtn.addEventListener('pointerdown', (e) => {
               e.preventDefault();
-              // Передаем индекс (i-1), чтобы было 0, 1, 2, 3
               myScene.startDrag(i - 1); 
           });
       }
@@ -93,44 +69,75 @@ async function initFunctions() {
   gameContext.sceneClass.createScene();
 }
 
-/* =========================================
-   SCENE CONTENT
-========================================= */
-function createTestScene() {
+// --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---
+function createSelectionUI() {
+  const div = document.createElement('div');
+  div.className = 'selection-ui';
+  div.style.position = 'absolute';
+  div.style.top = '20px';
+  div.style.left = '20px';
+  div.style.background = 'rgba(255, 255, 255, 0.9)';
+  div.style.padding = '15px';
+  div.style.borderRadius = '8px';
+  div.style.display = 'none'; // Скрыто по умолчанию
+  div.style.flexDirection = 'column';
+  div.style.gap = '10px';
+  div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+  div.style.fontFamily = 'sans-serif';
 
-  
+  div.innerHTML = `
+    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Панель</div>
+    <div style="display:flex; gap:10px;">
+      <button id="btn-rot-left" style="padding: 8px; cursor:pointer;">↺ Лев.</button>
+      <button id="btn-rot-right" style="padding: 8px; cursor:pointer;">Прав. ↻</button>
+    </div>
+    <button id="btn-close-sel" style="margin-top:5px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa;">Закрыть</button>
+  `;
+
+  document.body.appendChild(div);
+
+  // Логика кнопок
+  document.getElementById('btn-rot-left').onclick = () => {
+    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2); // 90 градусов
+  };
+
+  document.getElementById('btn-rot-right').onclick = () => {
+    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2); // -90 градусов
+  };
+
+  document.getElementById('btn-close-sel').onclick = () => {
+    gameContext.sceneClass.deselectPanel();
+  };
 }
 
-/* =========================================
-   UPDATE & RENDER
-========================================= */
+
 function update(delta) {
   if (gameContext.testMesh) {
     gameContext.testMesh.rotation.y += delta * 0.5;
   }
+
+  // --- ДОБАВЛЕНО: Обновление анимаций вращения ---
+  if (gameContext.sceneClass) {
+      gameContext.sceneClass.updateAnimations(delta);
+  }
+  // ----------------------------------------------
 }
 
 function render() {
   if (gameContext.initClass && gameContext.initClass.stats) {
     gameContext.initClass.stats.update();
   }
-
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
     gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
 }
 
-/* =========================================
-   LOOP
-========================================= */
 function startAnimationLoop() {
-
   let accumulator = 0;
   const dt = 1 / 60;
   const maxFrame = 0.1;
 
   gameContext.renderer.setAnimationLoop(() => {
-
     let frameDelta = gameContext.clock.getDelta();
     if (frameDelta > maxFrame) frameDelta = maxFrame;
     accumulator += frameDelta;
@@ -141,7 +148,6 @@ function startAnimationLoop() {
       accumulator -= dt;
       maxSteps--;
     }
-
     if (accumulator > dt) accumulator = 0;
     render();
   });
