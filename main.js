@@ -6,6 +6,7 @@ import { SceneClass } from './src/main/scene';
 import { GuiClass } from './src/main/gui';
 import { PanelsClass } from './src/main/panels';
 import { AssetsManager } from './src/assets/assets-manager';
+import { PreviewClass } from './src/main/preview'; 
 
 console.clear();
 
@@ -37,6 +38,8 @@ async function initClases() {
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
   gameContext.panelsClass = new PanelsClass(gameContext);
+
+  gameContext.previewClass = new PreviewClass(gameContext);
   
   gameContext.renderer.localClippingEnabled = true; 
   const sceneGui = new GuiClass(gameContext);
@@ -48,6 +51,11 @@ async function initClases() {
 async function initFunctions() {
 
   await gameContext.assetManager.loadModels();
+
+  // --- Передаем загруженные модели в PreviewClass ---
+  // Важно: assetManager.panels должны быть уже загружены
+  gameContext.previewClass.initPreviews(gameContext.assetManager.panels);
+  // ------------------------------------------------
 
   // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
@@ -73,37 +81,54 @@ async function initFunctions() {
 function createSelectionUI() {
   const div = document.createElement('div');
   div.className = 'selection-ui';
+  // ... (стили те же) ...
   div.style.position = 'absolute';
   div.style.top = '20px';
   div.style.left = '20px';
-  div.style.background = 'rgba(255, 255, 255, 0.9)';
+  div.style.background = 'rgba(255, 255, 255, 0.95)'; // Чуть менее прозрачный
   div.style.padding = '15px';
   div.style.borderRadius = '8px';
-  div.style.display = 'none'; // Скрыто по умолчанию
+  div.style.display = 'none';
   div.style.flexDirection = 'column';
   div.style.gap = '10px';
   div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
   div.style.fontFamily = 'sans-serif';
+  div.style.pointerEvents = 'auto'; // Важно, чтобы можно было тыкать
 
   div.innerHTML = `
-    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Панель</div>
-    <div style="display:flex; gap:10px;">
-      <button id="btn-rot-left" style="padding: 8px; cursor:pointer;">↺ Лев.</button>
-      <button id="btn-rot-right" style="padding: 8px; cursor:pointer;">Прав. ↻</button>
+    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Настройки</div>
+    
+    <!-- Вращение -->
+    <div style="display:flex; gap:10px; justify-content: space-between;">
+      <button id="btn-rot-left" style="flex:1; padding: 8px; cursor:pointer;">↺</button>
+      <button id="btn-rot-right" style="flex:1; padding: 8px; cursor:pointer;">↻</button>
     </div>
-    <button id="btn-close-sel" style="margin-top:5px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa;">Закрыть</button>
+
+    <!-- Цвет -->
+    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+        <span style="font-size:14px;">Цвет:</span>
+        <input type="color" id="panel-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">
+    </div>
+
+    <button id="btn-close-sel" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">Закрыть</button>
   `;
 
   document.body.appendChild(div);
 
-  // Логика кнопок
+  // 1. Логика кнопок вращения
   document.getElementById('btn-rot-left').onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2); // 90 градусов
+    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2); 
   };
 
   document.getElementById('btn-rot-right').onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2); // -90 градусов
+    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2); 
   };
+
+  // 2. Логика смены цвета (событие 'input' срабатывает сразу при перетаскивании ползунка)
+  const colorPicker = document.getElementById('panel-color-picker');
+  colorPicker.addEventListener('input', (event) => {
+      gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
+  });
 
   document.getElementById('btn-close-sel').onclick = () => {
     gameContext.sceneClass.deselectPanel();
@@ -120,15 +145,32 @@ function update(delta) {
   if (gameContext.sceneClass) {
       gameContext.sceneClass.updateAnimations(delta);
   }
+
+  if (gameContext.previewClass) {
+    gameContext.previewClass.animate(delta);
+}
   // ----------------------------------------------
 }
 
 function render() {
+  // 1. Сначала рендерим основную игру
+  if (gameContext.renderer && gameContext.scene && gameContext.camera) {
+      // Сбрасываем вьюпорт на полный экран перед рендером игры
+      gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      gameContext.renderer.render(gameContext.scene, gameContext.camera);
+  }
+
+  // 2. Теперь рендерим превьюшки поверх
+  if (gameContext.previewClass) {
+      // Важно: очищать буфер глубины не нужно вручную, так как previewScene
+      // имеет свой background (или если прозрачный, то нужно autoClear = false)
+      // Но проще всего просто вызвать render превью, он сам нарежет прямоугольники.
+      
+      gameContext.previewClass.render();
+  }
+  
   if (gameContext.initClass && gameContext.initClass.stats) {
     gameContext.initClass.stats.update();
-  }
-  if (gameContext.renderer && gameContext.scene && gameContext.camera) {
-    gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
 }
 

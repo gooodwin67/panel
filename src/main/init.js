@@ -11,7 +11,7 @@ export class InitClass {
     this.onWindowResize = this.onWindowResize.bind(this);
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x9E91FA);
+    // this.scene.background = new THREE.Color(0x9E91FA);
 
     this.camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.camera.position.x = 0;
@@ -22,6 +22,8 @@ export class InitClass {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    this.renderer.shadowMap.enabled = true;
 
     document.body.appendChild(this.renderer.domElement);
 

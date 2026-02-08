@@ -18,6 +18,9 @@ export class PanelDragHandler {
     this.currentWall = null;
     this.canPlace = false;
     this.pendingPanel = null;
+
+    // --- НОВОЕ: Хранение цвета при переносе ---
+    this.savedColor = null; 
   }
 
   // --- 1. Обработка нажатия ---
@@ -39,11 +42,9 @@ export class PanelDragHandler {
               this.pendingPanel = targetObj;
               this.mouseDownPointer.set(event.clientX, event.clientY);
 
-              // --- ИСПРАВЛЕНИЕ: Отключаем камеру СРАЗУ при нажатии на панель ---
               if (this.gameContext.controls) {
                   this.gameContext.controls.enabled = false;
               }
-              // -----------------------------------------------------------------
 
               return true; 
           }
@@ -68,11 +69,17 @@ export class PanelDragHandler {
 
     this.ghostMesh = template.clone();
     
+    // Сначала применяем свойства материала (прозрачность)
     this.applyMaterialProperties(this.ghostMesh, {
         transparent: true,
         opacity: 0.5,
         clippingPlanes: [] 
     });
+
+    // --- НОВОЕ: Если мы перетаскиваем окрашенную панель, красим призрака ---
+    if (this.savedColor !== null) {
+        this.applyColor(this.ghostMesh, this.savedColor);
+    }
 
     this.ghostMesh.traverse((child) => { child.raycast = () => {}; });
     
@@ -88,8 +95,6 @@ export class PanelDragHandler {
             Math.pow(event.clientY - this.mouseDownPointer.y, 2)
         );
 
-        // --- ИСПРАВЛЕНИЕ 1: Увеличиваем порог чувствительности ---
-        // Было 5, ставим 15. Это позволяет игнорировать мелкое дрожание руки при клике.
         if (dist > 15) {
             this.pickupPendingPanel(event);
         }
@@ -123,6 +128,17 @@ export class PanelDragHandler {
     const targetObj = this.pendingPanel;
     const index = targetObj.userData.panelIndex;
 
+    // --- НОВОЕ: Сохраняем цвет перед удалением ---
+    this.savedColor = null; // Сброс на всякий случай
+    targetObj.traverse((child) => {
+        // Ищем первый меш и берем его цвет
+        if (this.savedColor === null && child.isMesh && child.material) {
+            const mat = Array.isArray(child.material) ? child.material[0] : child.material;
+            this.savedColor = mat.color.getHex();
+        }
+    });
+    // ---------------------------------------------
+
     this.gameContext.sceneClass.deselectPanel();
 
     targetObj.parent.remove(targetObj);
@@ -150,7 +166,6 @@ export class PanelDragHandler {
       const cellX = Math.floor(rawGridU);
       const cellY = Math.floor(rawGridV);
 
-      // Исключаем саму себя (призрака) из проверки, но here we check children of wall
       const isOccupied = wall.children.some(child => 
         child.userData.isPanel && 
         child.userData.gridX === cellX && 
@@ -195,10 +210,11 @@ export class PanelDragHandler {
   onPointerUp(event) {
     if (this.gameContext.controls) this.gameContext.controls.enabled = true;
     
-    // Если pendingPanel осталась (значит мышь почти не двигалась) -> ЭТО ЧИСТЫЙ КЛИК
     if (this.pendingPanel) {
         this.gameContext.sceneClass.onPanelSelected(this.pendingPanel);
         this.pendingPanel = null;
+        // Если был просто клик, сбрасываем сохраненный цвет, чтобы он не применился к следующей панели из меню
+        this.savedColor = null; 
         return;
     }
 
@@ -232,6 +248,12 @@ export class PanelDragHandler {
         cloneMaterial: true 
     });
 
+    // --- НОВОЕ: Восстанавливаем цвет ---
+    if (this.savedColor !== null) {
+        this.applyColor(newPanel, this.savedColor);
+    }
+    // -----------------------------------
+
     const worldPosition = this.ghostMesh.position.clone();
     
     this.currentWall.add(newPanel);
@@ -241,10 +263,20 @@ export class PanelDragHandler {
     newPanel.rotation.set(0, 0, 0); 
     newPanel.rotateX(Math.PI / 2); 
 
-    // --- ИСПРАВЛЕНИЕ 2: Авто-выделение после установки ---
-    // Даже если это был случайный микро-драг, панель выделится
     this.gameContext.sceneClass.onPanelSelected(newPanel);
-    // -----------------------------------------------------
+  }
+
+  // --- Вспомогательная функция для покраски ---
+  applyColor(object, hexColor) {
+      object.traverse((child) => {
+          if (child.isMesh && child.material) {
+              if (Array.isArray(child.material)) {
+                  child.material.forEach(m => m.color.setHex(hexColor));
+              } else {
+                  child.material.color.setHex(hexColor);
+              }
+          }
+      });
   }
 
   applyMaterialProperties(object, { transparent, opacity, clippingPlanes, cloneMaterial }) {
@@ -273,6 +305,10 @@ export class PanelDragHandler {
     this.currentWall = null;
     this.canPlace = false;
     this.pendingPanel = null;
+    
+    // --- НОВОЕ: Сбрасываем цвет после завершения драга ---
+    this.savedColor = null;
+    // ----------------------------------------------------
     
     if (this.ghostMesh) {
       this.gameContext.scene.remove(this.ghostMesh);

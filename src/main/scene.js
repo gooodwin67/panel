@@ -12,9 +12,15 @@ export class SceneClass {
     this.selectedPanel = null;
     this.originalEmissives = new Map();
 
-    // --- НОВОЕ: Массив для панелей, которые сейчас крутятся ---
+    // Ссылки на объекты комнаты
+    this.floor = null;
+    this.ceiling = null;
+    
+    // Ссылки на свет
+    this.centerLight = null;
+    this.lightBulbMesh = null;
+
     this.animatingPanels = [];
-    // ----------------------------------------------------------
 
     this.config = {
         cellSize: 0.5,
@@ -24,9 +30,14 @@ export class SceneClass {
         widthWallSide: 4
     };
 
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // Направленный свет оставляем как дополнительный (солнце из окна), 
+    // но уменьшим его интенсивность, чтобы центральная лампа была главной.
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); 
     this.directionalLight.position.set(5, 5, 5);
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    
+    // Ambient свет делаем слабым, чтобы тени были глубокими
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.0);
+    
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -38,43 +49,109 @@ export class SceneClass {
 
   createScene() {
     this.loadWall();
-    this.addLight();
+    this.createFloorAndCeiling();
+    this.createCenterLight(); // <--- Создаем центральную лампу
+    // this.addLight();
     this.initEvents();
   }
 
-  // --- НОВЫЙ МЕТОД: Обновление анимаций (вызывать в update loop) ---
+  // --- НОВЫЙ МЕТОД: Центральная лампа ---
+  createCenterLight() {
+      const { heightWall } = this.config;
+
+      // 1. Визуальный шар (сама лампочка)
+      const bulbGeometry = new THREE.BoxGeometry(0.3,0.05,0.3);
+      const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee }); // Светло-желтый, самосветящийся
+      this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
+      
+      // Вешаем под потолок (высота потолка / 2 минус радиус шара)
+      const lightY = (heightWall / 2) - 0.05; 
+      this.lightBulbMesh.position.set(0, lightY, 0);
+      
+      this.gameContext.scene.add(this.lightBulbMesh);
+
+      // 2. Источник света (PointLight)
+      // Цвет, Интенсивность (в новых версиях Three.js это может быть канделы, ставим побольше), Дистанция, Затухание
+      this.centerLight = new THREE.PointLight(0xffffee, 15, 10, 2); 
+      this.centerLight.position.set(0, lightY, 0);
+      
+      // Включаем тени
+      this.centerLight.castShadow = true;
+      
+      // Настройки качества теней
+      this.centerLight.shadow.mapSize.width = 1024; // 2048 для лучшего качества
+      this.centerLight.shadow.mapSize.height = 1024;
+      this.centerLight.shadow.bias = -0.001; // Убирает артефакты (полосы) на стенах
+
+      this.gameContext.scene.add(this.centerLight);
+  }
+
+  createFloorAndCeiling() {
+    const { widthWallFront, widthWallSide, heightWall } = this.config;
+
+    const geometry = new THREE.PlaneGeometry(widthWallFront, widthWallSide);
+
+    // --- 1. ПОЛ ---
+    const floorMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x555555, 
+        roughness: 0.8,
+        metalness: 0.1,
+        side: THREE.FrontSide
+    });
+    this.floor = new THREE.Mesh(geometry, floorMaterial);
+    
+    this.floor.rotation.x = -Math.PI / 2; 
+    this.floor.position.y = -heightWall / 2;
+    
+    // ВАЖНО: Пол должен принимать тени
+    this.floor.receiveShadow = true; 
+
+    this.gameContext.scene.add(this.floor);
+
+    // --- 2. ПОТОЛОК ---
+    const ceilingMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xeeeeee, 
+        roughness: 0.9,
+        side: THREE.FrontSide
+    });
+    this.ceiling = new THREE.Mesh(geometry, ceilingMaterial);
+    
+    this.ceiling.rotation.x = Math.PI / 2; 
+    this.ceiling.position.y = heightWall / 2;
+    // Потолок тоже может принимать тень (от лампы вверх), но обычно это не нужно для PointLight в той же точке
+    this.ceiling.receiveShadow = true;
+
+    this.gameContext.scene.add(this.ceiling);
+  }
+  
+  setRoomColor(target, hexColor) {
+      if (target === 'floor' && this.floor) {
+          this.floor.material.color.setHex(hexColor);
+      } else if (target === 'ceiling' && this.ceiling) {
+          this.ceiling.material.color.setHex(hexColor);
+      }
+  }
+
   updateAnimations(delta) {
-    // Скорость вращения (чем больше, тем быстрее)
     const speed = 10; 
 
-    // Идем с конца, чтобы можно было безопасно удалять из массива
     for (let i = this.animatingPanels.length - 1; i >= 0; i--) {
         const panel = this.animatingPanels[i];
         
-        // Если у панели нет цели, убираем из списка
         if (!panel.userData.targetQuaternion) {
             this.animatingPanels.splice(i, 1);
             continue;
         }
 
-        // Плавный поворот к цели (slerp)
-        // delta * speed задает шаг интерполяции
         panel.quaternion.slerp(panel.userData.targetQuaternion, delta * speed);
 
-        // Проверяем, докрутили ли мы (угол между кватернионами почти 0)
         if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
-            // Фиксируем точно в цель
             panel.quaternion.copy(panel.userData.targetQuaternion);
-            // Удаляем из списка анимаций
             this.animatingPanels.splice(i, 1);
         }
     }
   }
 
-  // ... (методы createWalls, createWallPlane, loadWall, addLight, initEvents, startDrag, onPointerDown без изменений) ...
-  
-  // Код стен и прочего пропускаю для краткости, он не меняется
-  // Вставьте сюда весь код создания стен из старого файла
   createWalls() {
     const { widthWallFront, heightWall, widthWallSide } = this.config;
     this.wall = this.createWallPlane(widthWallFront, heightWall);
@@ -105,6 +182,10 @@ export class SceneClass {
       color: 0xcccccc, map: texture, opacity: 0.6, transparent: true, side: THREE.FrontSide
     });
     const mesh = new THREE.Mesh(geometry, material);
+    
+    // ВАЖНО: Стены должны принимать тени
+    mesh.receiveShadow = true;
+
     mesh.onBeforeRender = function(renderer, scene, camera) {
       mesh.getWorldPosition(_tempVec);
       _tempVec.subVectors(camera.position, _tempVec);
@@ -117,7 +198,7 @@ export class SceneClass {
 
   loadWall() {
     this.walls.forEach(wall => this.gameContext.scene.add(wall));
-    this.highlightActiveWall();
+    //this.highlightActiveWall();
   }
 
   addLight() {
@@ -151,19 +232,49 @@ export class SceneClass {
     if (this.selectedPanel === panelMesh) return;
     this.deselectPanel();
     this.selectedPanel = panelMesh;
-    console.log("Panel Selected:", panelMesh);
-    this.originalEmissives.clear();
+    
+    // 1. Получаем текущий цвет панели (берем у первого ребенка-меша)
+    let currentColor = '#ffffff';
     panelMesh.traverse((child) => {
         if (child.isMesh && child.material) {
+            // Сохраняем оригинальный emissive (подсветку выделения)
             const mat = Array.isArray(child.material) ? child.material[0] : child.material;
             this.originalEmissives.set(child.uuid, mat.emissive.getHex());
-            mat.emissive.setHex(0x555544); 
             
+            // Включаем подсветку выделения
+            //mat.emissive.setHex(0x555544);
+            
+            // Запоминаем цвет для UI
+            currentColor = '#' + mat.color.getHexString();
         }
     });
+
+    
+
+    // 2. Показываем UI и обновляем Color Picker
     const ui = document.querySelector('.selection-ui');
-    if (ui) ui.style.display = 'flex';
+    if (ui) {
+        ui.style.display = 'flex';
+        // Находим инпут цвета и ставим значение
+        const colorInput = document.getElementById('panel-color-picker');
+        if (colorInput) colorInput.value = currentColor;
+    }
   }
+
+  changeSelectedPanelColor(colorValue) {
+    if (!this.selectedPanel) return;
+
+    this.selectedPanel.traverse((child) => {
+        if (child.isMesh && child.material) {
+            // Если материалов массив (редко для GLTF, но бывает)
+            if (Array.isArray(child.material)) {
+                child.material.forEach(m => m.color.set(colorValue));
+            } else {
+                child.material.color.set(colorValue);
+            }
+        }
+    });
+}
 
   deselectPanel() {
     if (!this.selectedPanel) return;
@@ -180,24 +291,19 @@ export class SceneClass {
     if (ui) ui.style.display = 'none';
   }
 
-  // --- ОБНОВЛЕННЫЙ МЕТОД: Запуск анимации вращения ---
   rotateSelectedPanel(angle) {
     if (!this.selectedPanel) return;
     const panel = this.selectedPanel;
 
-    // 1. Инициализируем целевой поворот, если его еще нет
     if (!panel.userData.targetQuaternion) {
         panel.userData.targetQuaternion = panel.quaternion.clone();
     }
 
-    // 2. Создаем кватернион поворота (вокруг локальной оси Y)
     const deltaRotation = new THREE.Quaternion();
     deltaRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
 
-    // 3. Применяем поворот к ЦЕЛИ (умножаем текущую цель на дельту)
     panel.userData.targetQuaternion.multiply(deltaRotation);
 
-    // 4. Добавляем панель в список анимируемых (если её там нет)
     if (!this.animatingPanels.includes(panel)) {
         this.animatingPanels.push(panel);
     }
@@ -208,26 +314,27 @@ export class SceneClass {
     this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
+    // Ищем пересечения только со стенами, игнорируя пол и потолок
     const intersects = this.raycaster.intersectObjects(this.walls, false);
     if (intersects.length > 0) {
       const selectedWall = intersects[0].object;
-      this.setActiveWall(selectedWall);
+      //this.setActiveWall(selectedWall);
     }
   }
 
   setActiveWall(wallMesh) {
     const newIndex = this.walls.indexOf(wallMesh);
     this.activeWallIndex = newIndex;
-    this.highlightActiveWall();
+    // this.highlightActiveWall();
     if (this.onWallChanged) this.onWallChanged(this.walls[this.activeWallIndex]);
   }
 
   highlightActiveWall() {
     this.walls.forEach((wall, index) => {
       const isActive = (index === this.activeWallIndex);
-      wall.material.color.setHex(isActive ? 0xffffff : 0x888888);
-      wall.material.opacity = isActive ? 0.8 : 0.4;
-      wall.material.emissive.setHex(isActive ? 0x222222 : 0x000000);
+      wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
+      wall.material.opacity = !isActive ? 0.8 : 0.4;
+      wall.material.emissive.setHex(!isActive ? 0x222222 : 0x000000);
     });
   }
 
