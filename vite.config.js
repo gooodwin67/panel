@@ -4,6 +4,11 @@ import wasm from 'vite-plugin-wasm';
 import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
+  },
   plugins: [
     topLevelAwait(),
     legacy({
