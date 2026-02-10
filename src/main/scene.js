@@ -55,6 +55,24 @@ export class SceneClass {
     this.initEvents();
   }
 
+  toggleLight() {
+    if (!this.centerLight) return false;
+    
+    const isOn = this.centerLight.visible;
+    this.centerLight.visible = !isOn;
+    
+    if (this.lightBulbMesh) {
+      this.lightBulbMesh.material.color.setHex(isOn ? 0x333333 : 0xffffee);
+    }
+    
+    // Также влияем на AmbientLight если он есть
+    if (this.ambientLight) {
+        this.ambientLight.intensity = isOn ? 0.0 : 0.1;
+    }
+
+    return !isOn; // Возвращаем новый статус
+  }
+
   // --- НОВЫЙ МЕТОД: Центральная лампа ---
   createCenterLight() {
       const { heightWall } = this.config;

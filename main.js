@@ -75,6 +75,19 @@ async function initFunctions() {
   }
 
   gameContext.sceneClass.createScene();
+
+  // Логика кнопки включения света
+  const lightBtn = document.getElementById('light-toggle-btn');
+  if (lightBtn) {
+    lightBtn.onclick = () => {
+      const isLightOn = gameContext.sceneClass.toggleLight();
+      if (isLightOn) {
+        lightBtn.classList.remove('off');
+      } else {
+        lightBtn.classList.add('off');
+      }
+    };
+  }
 }
 
 // --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---

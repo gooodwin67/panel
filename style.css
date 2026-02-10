@@ -117,12 +117,40 @@ canvas {
     /* Опционально: центрирование контента внутри */
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* Изменено для размещения кнопки слева */
 
     background-color: rgba(255, 255, 255, 0.8); 
-
-    
 }
+
+.light_toggle_container {
+    padding-left: 20px;
+}
+
+.light_btn {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    cursor: pointer;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.light_btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.light_btn.off {
+    background: #555;
+    filter: grayscale(1);
+}
+
 .panels {
     display: flex;
     padding: 30px;
