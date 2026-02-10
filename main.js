@@ -79,13 +79,23 @@ async function initFunctions() {
   // Логика кнопки включения света
   const lightBtn = document.getElementById('light-toggle-btn');
   if (lightBtn) {
-    lightBtn.onclick = () => {
+    lightBtn.onclick = (e) => {
+      e.stopPropagation();
       const isLightOn = gameContext.sceneClass.toggleLight();
       if (isLightOn) {
         lightBtn.classList.remove('off');
       } else {
         lightBtn.classList.add('off');
       }
+    };
+  }
+
+  // Логика сворачивания панели
+  const bottomPanel = document.getElementById('main-bottom-panel');
+  const panelHandle = document.getElementById('panel-toggle-handle');
+  if (bottomPanel && panelHandle) {
+    panelHandle.onclick = () => {
+      bottomPanel.classList.toggle('collapsed');
     };
   }
 }

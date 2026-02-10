@@ -23,9 +23,19 @@ export class PanelDragHandler {
     this.savedColor = null; 
   }
 
+  updatePointer(event) {
+    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+    this.pointer.x = (clientX / window.innerWidth) * 2 - 1;
+    this.pointer.y = - (clientY / window.innerHeight) * 2 + 1;
+  }
+
   // --- 1. Обработка нажатия ---
   handlePointerDown(event) {
     this.updatePointer(event);
+    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+    
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
     const intersects = this.raycaster.intersectObjects(this.walls, true);
@@ -40,7 +50,7 @@ export class PanelDragHandler {
 
           if (targetObj.userData.isPanel) {
               this.pendingPanel = targetObj;
-              this.mouseDownPointer.set(event.clientX, event.clientY);
+              this.mouseDownPointer.set(clientX, clientY);
 
               if (this.gameContext.controls) {
                   this.gameContext.controls.enabled = false;
@@ -90,9 +100,12 @@ export class PanelDragHandler {
   onPointerMove(event) {
     // А) Логика "отложенного" драга (если кликнули на существующую панель)
     if (this.pendingPanel && !this.isDragging) {
+        const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+        const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+        
         const dist = Math.sqrt(
-            Math.pow(event.clientX - this.mouseDownPointer.x, 2) + 
-            Math.pow(event.clientY - this.mouseDownPointer.y, 2)
+            Math.pow(clientX - this.mouseDownPointer.x, 2) + 
+            Math.pow(clientY - this.mouseDownPointer.y, 2)
         );
 
         if (dist > 15) {

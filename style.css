@@ -103,12 +103,12 @@ canvas {
     width: 100%;
     
     /* Учитываем безопасную зону (челка/полоска iPhone), которую вы задали в :root */
-    height: calc(100px + var(--safe-bottom)); 
+    height: calc(80px + var(--safe-bottom)); 
     
     padding: 10px;
     
     
-    border: 1px solid red;
+    border-top: 1px solid rgba(0,0,0,0.1);
     z-index: 999999;
     
     /* ВАЖНО: */
@@ -119,17 +119,42 @@ canvas {
     align-items: center;
     justify-content: space-between; /* Изменено для размещения кнопки слева */
 
-    background-color: rgba(255, 255, 255, 0.8); 
+    background-color: rgba(255, 255, 255, 0.9); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom_panel.collapsed {
+    transform: translateY(calc(100% - 20px - var(--safe-bottom)));
+}
+
+.panel_handle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.handle_bar {
+    width: 40px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
 }
 
 .light_toggle_container {
-    padding-left: 20px;
+    padding-left: 10px;
 }
 
 .light_btn {
-    width: 60px;
-    height: 60px;
-    font-size: 30px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
     cursor: pointer;
     background: #fff;
     border: 2px solid #333;
@@ -153,14 +178,21 @@ canvas {
 
 .panels {
     display: flex;
-    padding: 30px;
-    gap: 30px;
+    padding: 10px;
+    gap: 15px;
+    overflow-x: auto;
+    max-width: calc(100% - 80px);
+    scrollbar-width: none;
+}
 
+.panels::-webkit-scrollbar {
+    display: none;
 }
 
 .panel {
-    width: 100px;
-    height: 100px;
+    flex: 0 0 60px;
+    width: 60px;
+    height: 60px;
     
     /* Убираем цветные заглушки */
     background-color: transparent; 
@@ -171,6 +203,23 @@ canvas {
     border-radius: 8px;
     
     /* Убираем специфичные цвета */
+}
+
+/* Мобильные адаптации */
+@media (max-width: 600px) {
+    .bottom_panel {
+        height: calc(70px + var(--safe-bottom));
+    }
+    .panel {
+        flex: 0 0 50px;
+        width: 50px;
+        height: 50px;
+    }
+    .light_btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
 }
 /* .panel1 {
     background-color: red;
