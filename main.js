@@ -67,10 +67,12 @@ async function initFunctions() {
   for (let i = 1; i <= 4; i++) {
       const panelBtn = document.querySelector(`.panel${i}`);
       if (panelBtn) {
-          panelBtn.addEventListener('pointerdown', (e) => {
+          const startDragHandler = (e) => {
               e.preventDefault();
-              myScene.startDrag(i - 1); 
-          });
+              myScene.startDrag(i - 1);
+          };
+          panelBtn.addEventListener('pointerdown', startDragHandler);
+          panelBtn.addEventListener('touchstart', startDragHandler, { passive: false });
       }
   }
 

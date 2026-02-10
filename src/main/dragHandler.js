@@ -23,6 +23,17 @@ export class PanelDragHandler {
     this.savedColor = null; 
   }
 
+  initEvents() {
+    const handleMove = (e) => this.onPointerMove(e);
+    const handleUp = (e) => this.onPointerUp(e);
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+    
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleUp, { passive: false });
+  }
+
   updatePointer(event) {
     const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
     const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;

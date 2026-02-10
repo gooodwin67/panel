@@ -225,9 +225,17 @@ export class SceneClass {
   }
 
   initEvents() {
-    window.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-    window.addEventListener('pointermove', (e) => this.dragHandler.onPointerMove(e));
-    window.addEventListener('pointerup', (e) => this.dragHandler.onPointerUp(e));
+    const onDown = (e) => this.onPointerDown(e);
+    const onMove = (e) => this.dragHandler.onPointerMove(e);
+    const onUp = (e) => this.dragHandler.onPointerUp(e);
+
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+
+    window.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp, { passive: false });
   }
 
   startDrag(type) {
