@@ -42,7 +42,7 @@ async function initClases() {
   gameContext.previewClass = new PreviewClass(gameContext);
   
   gameContext.renderer.localClippingEnabled = true; 
-  const sceneGui = new GuiClass(gameContext);
+  // const sceneGui = new GuiClass(gameContext); // Отключаем GUI для экономии места
 }
 
 /* =========================================
@@ -185,14 +185,7 @@ function render() {
       gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
 
-  // 2. Теперь рендерим превьюшки поверх
-  if (gameContext.previewClass) {
-      // Важно: очищать буфер глубины не нужно вручную, так как previewScene
-      // имеет свой background (или если прозрачный, то нужно autoClear = false)
-      // Но проще всего просто вызвать render превью, он сам нарежет прямоугольники.
-      
-      gameContext.previewClass.render();
-  }
+  // 2. Рендеринг превью отключен
   
   if (gameContext.initClass && gameContext.initClass.stats) {
     gameContext.initClass.stats.update();

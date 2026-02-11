@@ -151,24 +151,14 @@ export class SceneClass {
   }
 
   updateAnimations(delta) {
-    const speed = 10; 
-
-    for (let i = this.animatingPanels.length - 1; i >= 0; i--) {
-        const panel = this.animatingPanels[i];
-        
-        if (!panel.userData.targetQuaternion) {
-            this.animatingPanels.splice(i, 1);
-            continue;
-        }
-
-        panel.quaternion.slerp(panel.userData.targetQuaternion, delta * speed);
-
-        if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
-            panel.quaternion.copy(panel.userData.targetQuaternion);
-            this.animatingPanels.splice(i, 1);
-        }
-    }
+    // ... (без изменений)
   }
+
+  // --- УДАЛЕНО: Мы не рендерим превью в цикле ---
+  // if (gameContext.previewClass) {
+  //   gameContext.previewClass.animate(delta);
+  // }
+
 
   createWalls() {
     const { widthWallFront, heightWall, widthWallSide } = this.config;

@@ -193,17 +193,30 @@ canvas {
     flex: 0 0 60px;
     width: 60px;
     height: 60px;
-    
-    /* Убираем цветные заглушки */
-    background-color: transparent; 
-    
-    /* Добавляем рамку, чтобы видеть куда тыкать */
+    background-color: #f0f0f0; 
     border: 1px solid #ccc;
     box-sizing: border-box;
     border-radius: 8px;
-    
-    /* Убираем специфичные цвета */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    touch-action: none; 
 }
+
+.panel::after {
+    content: "Панель";
+    display: block;
+}
+
+.panel1::after { content: "Стена 1"; }
+.panel2::after { content: "Стена 2"; }
+.panel3::after { content: "Стена 3"; }
+.panel4::after { content: "Стена 4"; }
 
 /* Мобильные адаптации */
 @media (max-width: 600px) {
