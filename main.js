@@ -6,7 +6,6 @@ import { SceneClass } from './src/main/scene';
 import { GuiClass } from './src/main/gui';
 import { PanelsClass } from './src/main/panels';
 import { AssetsManager } from './src/assets/assets-manager';
-import { PreviewClass } from './src/main/preview'; 
 
 console.clear();
 
@@ -38,11 +37,9 @@ async function initClases() {
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
   gameContext.panelsClass = new PanelsClass(gameContext);
-
-  gameContext.previewClass = new PreviewClass(gameContext);
   
   gameContext.renderer.localClippingEnabled = true; 
-  // const sceneGui = new GuiClass(gameContext); // Отключаем GUI для экономии места
+  const sceneGui = new GuiClass(gameContext);
 }
 
 /* =========================================
@@ -52,65 +49,56 @@ async function initFunctions() {
 
   await gameContext.assetManager.loadModels();
 
-  // --- Передаем загруженные модели в PreviewClass ---
-  // Важно: assetManager.panels должны быть уже загружены
-  gameContext.previewClass.initPreviews(gameContext.assetManager.panels);
-  // ------------------------------------------------
-
   // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
+  
+  // --- ЛОГИКА СВОРАЧИВАНИЯ НИЖНЕЙ ПАНЕЛИ ---
+  initTogglePanel();
   // -----------------------------------------
 
   const myScene = gameContext.sceneClass;
 
-  // Кнопки добавления панелей (Drag and Drop из меню)
+  // Кнопки добавления панелей
   for (let i = 1; i <= 4; i++) {
       const panelBtn = document.querySelector(`.panel${i}`);
       if (panelBtn) {
-          const startDragHandler = (e) => {
-              e.preventDefault();
-              myScene.startDrag(i - 1);
-          };
-          panelBtn.addEventListener('pointerdown', startDragHandler);
-          panelBtn.addEventListener('touchstart', startDragHandler, { passive: false });
+          panelBtn.addEventListener('pointerdown', (e) => {
+              e.preventDefault(); 
+              myScene.startDrag(i - 1, e); 
+          });
       }
   }
 
   gameContext.sceneClass.createScene();
+}
 
-  // Логика кнопки включения света
-  const lightBtn = document.getElementById('light-toggle-btn');
-  if (lightBtn) {
-    lightBtn.onclick = (e) => {
-      e.stopPropagation();
-      const isLightOn = gameContext.sceneClass.toggleLight();
-      if (isLightOn) {
-        lightBtn.classList.remove('off');
-      } else {
-        lightBtn.classList.add('off');
-      }
-    };
-  }
+function initTogglePanel() {
+    const btn = document.getElementById('toggle-btn');
+    const panel = document.querySelector('.bottom_panel');
+    let isOpen = true;
 
-  // Логика сворачивания панели
-  const bottomPanel = document.getElementById('main-bottom-panel');
-  const panelHandle = document.getElementById('panel-toggle-handle');
-  if (bottomPanel && panelHandle) {
-    panelHandle.onclick = () => {
-      bottomPanel.classList.toggle('collapsed');
-    };
-  }
+    if (btn && panel) {
+        btn.addEventListener('click', () => {
+            isOpen = !isOpen;
+            if (isOpen) {
+                panel.classList.remove('closed');
+                btn.innerHTML = '▼'; // Стрелка вниз
+            } else {
+                panel.classList.add('closed');
+                btn.innerHTML = '▲'; // Стрелка вверх
+            }
+        });
+    }
 }
 
 // --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---
 function createSelectionUI() {
   const div = document.createElement('div');
   div.className = 'selection-ui';
-  // ... (стили те же) ...
   div.style.position = 'absolute';
   div.style.top = '20px';
   div.style.left = '20px';
-  div.style.background = 'rgba(255, 255, 255, 0.95)'; // Чуть менее прозрачный
+  div.style.background = 'rgba(255, 255, 255, 0.95)';
   div.style.padding = '15px';
   div.style.borderRadius = '8px';
   div.style.display = 'none';
@@ -118,7 +106,7 @@ function createSelectionUI() {
   div.style.gap = '10px';
   div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
   div.style.fontFamily = 'sans-serif';
-  div.style.pointerEvents = 'auto'; // Важно, чтобы можно было тыкать
+  div.style.pointerEvents = 'auto';
 
   div.innerHTML = `
     <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Настройки</div>
@@ -140,7 +128,6 @@ function createSelectionUI() {
 
   document.body.appendChild(div);
 
-  // 1. Логика кнопок вращения
   document.getElementById('btn-rot-left').onclick = () => {
     gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2); 
   };
@@ -149,7 +136,6 @@ function createSelectionUI() {
     gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2); 
   };
 
-  // 2. Логика смены цвета (событие 'input' срабатывает сразу при перетаскивании ползунка)
   const colorPicker = document.getElementById('panel-color-picker');
   colorPicker.addEventListener('input', (event) => {
       gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
@@ -166,26 +152,17 @@ function update(delta) {
     gameContext.testMesh.rotation.y += delta * 0.5;
   }
 
-  // --- ДОБАВЛЕНО: Обновление анимаций вращения ---
+  // --- Обновление анимаций вращения ---
   if (gameContext.sceneClass) {
       gameContext.sceneClass.updateAnimations(delta);
   }
-
-  if (gameContext.previewClass) {
-    gameContext.previewClass.animate(delta);
-}
-  // ----------------------------------------------
 }
 
 function render() {
-  // 1. Сначала рендерим основную игру
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
-      // Сбрасываем вьюпорт на полный экран перед рендером игры
       gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
-
-  // 2. Рендеринг превью отключен
   
   if (gameContext.initClass && gameContext.initClass.stats) {
     gameContext.initClass.stats.update();

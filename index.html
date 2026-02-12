@@ -12,40 +12,34 @@
    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
    <link href="style.css" rel="stylesheet" />
 
-
-
-
-   <!-- Подключение SDK Яндекс Игр (раскомментируйте перед билдом для продакшена) -->
-   <!-- <script src="/sdk.js"></script> -->
-
    <script type="module" src="./main.js"></script>
-
-
-
 </head>
 
 <body>
 
    <div class="main_screen">
 
-      <div id="main-bottom-panel" class="bottom_panel">
-         <div id="panel-toggle-handle" class="panel_handle">
-            <div class="handle_bar"></div>
-         </div>
-         <div class="light_toggle_container">
-            <button id="light-toggle-btn" class="light_btn">💡</button>
-         </div>
+
+      <div class="bottom_panel">
+         <!-- Кнопка сворачивания/разворачивания -->
+         <button id="toggle-btn">▼</button>
+
          <div class="panels">
-            <div class="panel1 panel"></div>
-            <div class="panel2 panel"></div>
-            <div class="panel3 panel"></div>
-            <div class="panel4 panel"></div>
+            <div class="panel panel1">
+               <img src="img/panel_1.png" alt="Panel 1">
+            </div>
+            <div class="panel panel2">
+               <img src="img/panel_2.png" alt="Panel 2">
+            </div>
+            <div class="panel panel3">
+               <img src="img/panel_3.png" alt="Panel 3">
+            </div>
+            <div class="panel panel4">
+               <img src="img/panel_4.png" alt="Panel 4">
+            </div>
          </div>
       </div>
    </div>
 
-
-
 </body>
-
 </html>

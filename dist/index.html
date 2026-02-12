@@ -9,20 +9,11 @@
 
    <base href="./" />
    <link rel="icon" type="image/x-icon" href="./assets/favicon-Bw0IQTl4.ico">
-   <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
-
-
-
-
-   <!-- Подключение SDK Яндекс Игр (раскомментируйте перед билдом для продакшена) -->
-   <!-- <script src="/sdk.js"></script> -->
-
-
-
-
-  <script type="module" crossorigin src="./assets/index-_ziz5Ouy.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/three-C9vkoLyI.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-BxXiNV9S.css">
+   <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
+
+  <script type="module" crossorigin src="./assets/index-DOFWDf_A.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/three-prv_GMvZ.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-B_hmwXf8.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
@@ -31,21 +22,30 @@
 
    <div class="main_screen">
 
+
       <div class="bottom_panel">
+         <!-- Кнопка сворачивания/разворачивания -->
+         <button id="toggle-btn">▼</button>
+
          <div class="panels">
-            <div class="panel1 panel"></div>
-            <div class="panel2 panel"></div>
-            <div class="panel3 panel"></div>
-            <div class="panel4 panel"></div>
+            <div class="panel panel1">
+               <img src="img/panel_1.png" alt="Panel 1">
+            </div>
+            <div class="panel panel2">
+               <img src="img/panel_2.png" alt="Panel 2">
+            </div>
+            <div class="panel panel3">
+               <img src="img/panel_3.png" alt="Panel 3">
+            </div>
+            <div class="panel panel4">
+               <img src="img/panel_4.png" alt="Panel 4">
+            </div>
          </div>
       </div>
    </div>
 
-
-
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-C_pwG7sO.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-gXxQ0lo4.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-TUGXiWrM.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-C8Zk0QcE.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
-
 </html>

@@ -23,30 +23,9 @@ export class PanelDragHandler {
     this.savedColor = null; 
   }
 
-  initEvents() {
-    const handleMove = (e) => this.onPointerMove(e);
-    const handleUp = (e) => this.onPointerUp(e);
-
-    window.addEventListener('pointermove', handleMove);
-    window.addEventListener('pointerup', handleUp);
-    
-    window.addEventListener('touchmove', handleMove, { passive: false });
-    window.addEventListener('touchend', handleUp, { passive: false });
-  }
-
-  updatePointer(event) {
-    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
-    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
-    this.pointer.x = (clientX / window.innerWidth) * 2 - 1;
-    this.pointer.y = - (clientY / window.innerHeight) * 2 + 1;
-  }
-
   // --- 1. Обработка нажатия ---
   handlePointerDown(event) {
-    this.updatePointer(event);
-    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
-    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
-    
+    this.updatePointer(event)
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
     const intersects = this.raycaster.intersectObjects(this.walls, true);
@@ -61,7 +40,7 @@ export class PanelDragHandler {
 
           if (targetObj.userData.isPanel) {
               this.pendingPanel = targetObj;
-              this.mouseDownPointer.set(clientX, clientY);
+              this.mouseDownPointer.set(event.clientX, event.clientY);
 
               if (this.gameContext.controls) {
                   this.gameContext.controls.enabled = false;
@@ -75,7 +54,8 @@ export class PanelDragHandler {
     return false;
   }
 
-  startDrag(panelIndex) {
+  // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Принимаем event ---
+  startDrag(panelIndex, event) {
     if (this.gameContext.controls) {
       this.gameContext.controls.enabled = false;
     }
@@ -90,14 +70,12 @@ export class PanelDragHandler {
 
     this.ghostMesh = template.clone();
     
-    // Сначала применяем свойства материала (прозрачность)
     this.applyMaterialProperties(this.ghostMesh, {
         transparent: true,
         opacity: 0.5,
         clippingPlanes: [] 
     });
 
-    // --- НОВОЕ: Если мы перетаскиваем окрашенную панель, красим призрака ---
     if (this.savedColor !== null) {
         this.applyColor(this.ghostMesh, this.savedColor);
     }
@@ -106,17 +84,20 @@ export class PanelDragHandler {
     
     this.gameContext.scene.add(this.ghostMesh);
     this.ghostMesh.visible = true; 
+
+    // --- ВАЖНО: Принудительное обновление позиции при старте ---
+    if (event) {
+        this.updatePointer(event); // Обновляем координаты вектора
+        this.onPointerMove(event); // Запускаем логику позиционирования
+    }
   }
 
   onPointerMove(event) {
     // А) Логика "отложенного" драга (если кликнули на существующую панель)
     if (this.pendingPanel && !this.isDragging) {
-        const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
-        const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
-        
         const dist = Math.sqrt(
-            Math.pow(clientX - this.mouseDownPointer.x, 2) + 
-            Math.pow(clientY - this.mouseDownPointer.y, 2)
+            Math.pow(event.clientX - this.mouseDownPointer.x, 2) + 
+            Math.pow(event.clientY - this.mouseDownPointer.y, 2)
         );
 
         if (dist > 15) {
@@ -152,26 +133,23 @@ export class PanelDragHandler {
     const targetObj = this.pendingPanel;
     const index = targetObj.userData.panelIndex;
 
-    // --- НОВОЕ: Сохраняем цвет перед удалением ---
-    this.savedColor = null; // Сброс на всякий случай
+    this.savedColor = null; 
     targetObj.traverse((child) => {
-        // Ищем первый меш и берем его цвет
         if (this.savedColor === null && child.isMesh && child.material) {
             const mat = Array.isArray(child.material) ? child.material[0] : child.material;
             this.savedColor = mat.color.getHex();
         }
     });
-    // ---------------------------------------------
 
     this.gameContext.sceneClass.deselectPanel();
 
     targetObj.parent.remove(targetObj);
     this.disposeModel(targetObj);
 
-    this.startDrag(index);
+    this.startDrag(index, event); // Передаем event и сюда, чтобы сразу подхватилось
     this.pendingPanel = null;
     
-    this.onPointerMove(event);
+    // onPointerMove уже вызовется внутри startDrag, но можно оставить и так
   }
 
   snapToGrid(hit, wall) {
@@ -237,7 +215,6 @@ export class PanelDragHandler {
     if (this.pendingPanel) {
         this.gameContext.sceneClass.onPanelSelected(this.pendingPanel);
         this.pendingPanel = null;
-        // Если был просто клик, сбрасываем сохраненный цвет, чтобы он не применился к следующей панели из меню
         this.savedColor = null; 
         return;
     }
@@ -272,11 +249,9 @@ export class PanelDragHandler {
         cloneMaterial: true 
     });
 
-    // --- НОВОЕ: Восстанавливаем цвет ---
     if (this.savedColor !== null) {
         this.applyColor(newPanel, this.savedColor);
     }
-    // -----------------------------------
 
     const worldPosition = this.ghostMesh.position.clone();
     
@@ -290,7 +265,6 @@ export class PanelDragHandler {
     this.gameContext.sceneClass.onPanelSelected(newPanel);
   }
 
-  // --- Вспомогательная функция для покраски ---
   applyColor(object, hexColor) {
       object.traverse((child) => {
           if (child.isMesh && child.material) {
@@ -330,9 +304,7 @@ export class PanelDragHandler {
     this.canPlace = false;
     this.pendingPanel = null;
     
-    // --- НОВОЕ: Сбрасываем цвет после завершения драга ---
     this.savedColor = null;
-    // ----------------------------------------------------
     
     if (this.ghostMesh) {
       this.gameContext.scene.remove(this.ghostMesh);
