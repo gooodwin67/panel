@@ -40,7 +40,9 @@ export class PanelDragHandler {
 
           if (targetObj.userData.isPanel) {
               this.pendingPanel = targetObj;
-              this.mouseDownPointer.set(event.clientX, event.clientY);
+              const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+              const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+              this.mouseDownPointer.set(clientX, clientY);
 
               if (this.gameContext.controls) {
                   this.gameContext.controls.enabled = false;
@@ -93,11 +95,14 @@ export class PanelDragHandler {
   }
 
   onPointerMove(event) {
+    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+
     // А) Логика "отложенного" драга (если кликнули на существующую панель)
     if (this.pendingPanel && !this.isDragging) {
         const dist = Math.sqrt(
-            Math.pow(event.clientX - this.mouseDownPointer.x, 2) + 
-            Math.pow(event.clientY - this.mouseDownPointer.y, 2)
+            Math.pow(clientX - this.mouseDownPointer.x, 2) + 
+            Math.pow(clientY - this.mouseDownPointer.y, 2)
         );
 
         if (dist > 15) {
@@ -221,7 +226,20 @@ export class PanelDragHandler {
 
     if (!this.isDragging) return;
 
-    if (this.ghostMesh && this.ghostMesh.visible && this.currentWall && this.canPlace) {
+    // ОБНОВЛЕНИЕ: При отпускании на тачскрине проверяем местоположение еще раз
+    this.updatePointer(event);
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+    const intersects = this.raycaster.intersectObjects(this.walls, false);
+
+    if (intersects.length > 0) {
+      const hit = intersects[0];
+      const wall = hit.object;
+      this.snapToGrid(hit, wall);
+      
+      if (this.ghostMesh.visible && this.canPlace) {
+        this.placePanel();
+      }
+    } else if (this.ghostMesh && this.ghostMesh.visible && this.currentWall && this.canPlace) {
       this.placePanel();
     }
 
@@ -329,8 +347,10 @@ export class PanelDragHandler {
   }
 
   updatePointer(event) {
-    this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    const clientX = (event.touches && event.touches[0]) ? event.touches[0].clientX : event.clientX;
+    const clientY = (event.touches && event.touches[0]) ? event.touches[0].clientY : event.clientY;
+    this.pointer.x = (clientX / window.innerWidth) * 2 - 1;
+    this.pointer.y = - (clientY / window.innerHeight) * 2 + 1;
   }
 
   getWallClippingPlanes(wall) {
