@@ -1,9 +1,7 @@
-
-
 /* =========================================
-   1. FONTS
+   1. FONTS & VARIABLES
    ========================================= */
-   @font-face {
+@font-face {
     font-family: 'Nunito Sans';
     font-style: normal;
     font-weight: 400;
@@ -19,53 +17,39 @@
     src: url('/fonts/nunito-sans-v18-cyrillic_latin-800.woff2') format('woff2');
 }
 
-/* =========================================
-   2. VARIABLES (минимум)
-   ========================================= */
 :root {
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
+    --panel-height: 100px; /* Базовая высота для расчетов */
 }
 
 /* =========================================
-   3. GLOBAL RESET (Game / Mobile)
+   3. GLOBAL RESET
    ========================================= */
 * {
-    
     margin: 0;
     padding: 0;
-
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
     -webkit-user-drag: none;
-
     touch-action: manipulation;
 }
 
 @media (hover: none) {
-    * {
-        cursor: default !important;
-    }
+    * { cursor: default !important; }
 }
 
-/* =========================================
-   4. CORE LAYOUT
-   ========================================= */
-html,
-body {
+html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
     background: #1C1D21;
     font-family: 'Nunito Sans', Tahoma, sans-serif;
-}
-
-body {
     position: fixed;
     inset: 0;
 }
@@ -78,85 +62,124 @@ canvas {
     inset: 0;
     width: 100vw;
     height: 100vh;
-
     outline: none;
     touch-action: none;
 }
 
-
-
 /* =========================================
-   APP
+   APP UI
    ========================================= */
-
-   .main_screen {
+.main_screen {
     position: fixed;
-    inset: 0; /* Заменяет top:0, left:0, width:100%, height:100% */
-    z-index: 100; /* Гарантированно выше canvas */
-    
-    /* ВАЖНО: */
-    pointer-events: none; /* Пропускать клики сквозь пустые места к сцене Three.js */
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
 }
 
+/* --- НИЖНЯЯ ПАНЕЛЬ --- */
 .bottom_panel {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     
-    /* Учитываем безопасную зону (челка/полоска iPhone), которую вы задали в :root */
-    height: calc(100px + var(--safe-bottom)); 
+    /* Убираем фиксированную высоту, пусть зависит от контента + отступ снизу */
+    padding-bottom: var(--safe-bottom);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid #ccc;
     
-    padding: 10px;
-    
-    
-    /* border: 1px solid red; */
     z-index: 999999;
+    pointer-events: auto;
     
-    /* ВАЖНО: */
-    pointer-events: auto; /* Возвращаем клики самой панели */
-    
-    /* Опционально: центрирование контента внутри */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: rgba(255, 255, 255, 0.8); 
+    /* Анимация сворачивания */
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: translateY(0);
 }
 
+/* Класс для скрытия панели (уводим вниз на 100%) */
+.bottom_panel.closed {
+    transform: translateY(100%);
+}
+
+/* --- КОНТЕЙНЕР ДЛЯ ПАНЕЛЕЙ --- */
 .panels {
     display: flex;
-    padding: 30px;
-    gap: 30px;
+    flex-direction: row;
+    justify-content: space-between; /* Равномерное распределение */
+    align-items: center;
+    gap: 15px; /* Расстояние между панелями */
+    padding: 15px 20px; /* Внутренние отступы */
+    
+    width: 100%;
+    max-width: 600px; /* Ограничиваем ширину на больших экранах */
+    margin: 0 auto; /* Центрируем блок панелей */
+    box-sizing: border-box;
 }
 
+/* --- САМА ПАНЕЛЬ (КВАДРАТНАЯ) --- */
 .panel {
-    width: 100px;
-    height: 100px;
+    flex: 1; /* Растягиваться, чтобы занять доступное место */
+    position: relative;
     
-    background-color: #f0f0f0; 
+    /* Магия квадрата: высота всегда равна ширине */
+    aspect-ratio: 1 / 1; 
     
-    /* Добавляем рамку, чтобы видеть куда тыкать */
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    border-radius: 8px;
+    /* Максимальный размер, чтобы не стали гигантскими на планшете */
+    max-width: 80px; 
     
-    /* Центрируем картинку */
+    background-color: #f0f0f0;
+    border: 1px solid #999;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     cursor: grab;
+    touch-action: none;
+    
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .panel:active {
     cursor: grabbing;
+    transform: scale(0.95);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
 }
 
 .panel img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Картинка целиком помещается в квадрат */
-    pointer-events: none; /* Чтобы события мыши шли на родительский div .panel */
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    pointer-events: none;
     display: block;
+}
+
+/* --- КНОПКА СВОРАЧИВАНИЯ --- */
+#toggle-btn {
+    position: absolute;
+    /* Размещаем кнопку НАД панелью */
+    top: -40px; 
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: 60px;
+    height: 40px;
+    
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    
+    /* Чтобы кнопка не нажималась при клике сквозь неё, если что */
+    pointer-events: auto;
 }

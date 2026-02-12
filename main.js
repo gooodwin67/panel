@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
@@ -52,23 +51,44 @@ async function initFunctions() {
 
   // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
+  
+  // --- ЛОГИКА СВОРАЧИВАНИЯ НИЖНЕЙ ПАНЕЛИ ---
+  initTogglePanel();
   // -----------------------------------------
 
   const myScene = gameContext.sceneClass;
 
-  // Кнопки добавления панелей (Drag and Drop из меню)
-  // Ищем элементы с классами panel1, panel2, panel3, panel4
+  // Кнопки добавления панелей
   for (let i = 1; i <= 4; i++) {
       const panelBtn = document.querySelector(`.panel${i}`);
       if (panelBtn) {
           panelBtn.addEventListener('pointerdown', (e) => {
-              e.preventDefault();
-              myScene.startDrag(i - 1); 
+              e.preventDefault(); 
+              myScene.startDrag(i - 1, e); 
           });
       }
   }
 
   gameContext.sceneClass.createScene();
+}
+
+function initTogglePanel() {
+    const btn = document.getElementById('toggle-btn');
+    const panel = document.querySelector('.bottom_panel');
+    let isOpen = true;
+
+    if (btn && panel) {
+        btn.addEventListener('click', () => {
+            isOpen = !isOpen;
+            if (isOpen) {
+                panel.classList.remove('closed');
+                btn.innerHTML = '▼'; // Стрелка вниз
+            } else {
+                panel.classList.add('closed');
+                btn.innerHTML = '▲'; // Стрелка вверх
+            }
+        });
+    }
 }
 
 // --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---

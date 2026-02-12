@@ -10,8 +10,7 @@ export class SceneClass {
     this.onWallChanged = null; 
     
     this.selectedPanel = null;
-    this.originalEmissives = new Map();
-
+    
     // Ссылки на объекты комнаты
     this.floor = null;
     this.ceiling = null;
@@ -30,12 +29,9 @@ export class SceneClass {
         widthWallSide: 4
     };
 
-    // Направленный свет оставляем как дополнительный (солнце из окна), 
-    // но уменьшим его интенсивность, чтобы центральная лампа была главной.
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); 
     this.directionalLight.position.set(5, 5, 5);
     
-    // Ambient свет делаем слабым, чтобы тени были глубокими
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.0);
     
 
@@ -50,38 +46,30 @@ export class SceneClass {
   createScene() {
     this.loadWall();
     this.createFloorAndCeiling();
-    this.createCenterLight(); // <--- Создаем центральную лампу
+    this.createCenterLight(); 
     // this.addLight();
     this.initEvents();
   }
 
-  // --- НОВЫЙ МЕТОД: Центральная лампа ---
   createCenterLight() {
       const { heightWall } = this.config;
 
-      // 1. Визуальный шар (сама лампочка)
       const bulbGeometry = new THREE.BoxGeometry(0.3,0.05,0.3);
-      const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee }); // Светло-желтый, самосветящийся
+      const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee }); 
       this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
       
-      // Вешаем под потолок (высота потолка / 2 минус радиус шара)
       const lightY = (heightWall / 2) - 0.05; 
       this.lightBulbMesh.position.set(0, lightY, 0);
       
       this.gameContext.scene.add(this.lightBulbMesh);
 
-      // 2. Источник света (PointLight)
-      // Цвет, Интенсивность (в новых версиях Three.js это может быть канделы, ставим побольше), Дистанция, Затухание
       this.centerLight = new THREE.PointLight(0xffffee, 15, 10, 2); 
       this.centerLight.position.set(0, lightY, 0);
       
-      // Включаем тени
       this.centerLight.castShadow = true;
-      
-      // Настройки качества теней
-      this.centerLight.shadow.mapSize.width = 1024; // 2048 для лучшего качества
+      this.centerLight.shadow.mapSize.width = 1024;
       this.centerLight.shadow.mapSize.height = 1024;
-      this.centerLight.shadow.bias = -0.001; // Убирает артефакты (полосы) на стенах
+      this.centerLight.shadow.bias = -0.001; 
 
       this.gameContext.scene.add(this.centerLight);
   }
@@ -102,8 +90,6 @@ export class SceneClass {
     
     this.floor.rotation.x = -Math.PI / 2; 
     this.floor.position.y = -heightWall / 2;
-    
-    // ВАЖНО: Пол должен принимать тени
     this.floor.receiveShadow = true; 
 
     this.gameContext.scene.add(this.floor);
@@ -118,7 +104,6 @@ export class SceneClass {
     
     this.ceiling.rotation.x = Math.PI / 2; 
     this.ceiling.position.y = heightWall / 2;
-    // Потолок тоже может принимать тень (от лампы вверх), но обычно это не нужно для PointLight в той же точке
     this.ceiling.receiveShadow = true;
 
     this.gameContext.scene.add(this.ceiling);
@@ -183,7 +168,6 @@ export class SceneClass {
     });
     const mesh = new THREE.Mesh(geometry, material);
     
-    // ВАЖНО: Стены должны принимать тени
     mesh.receiveShadow = true;
 
     mesh.onBeforeRender = function(renderer, scene, camera) {
@@ -198,7 +182,6 @@ export class SceneClass {
 
   loadWall() {
     this.walls.forEach(wall => this.gameContext.scene.add(wall));
-    //this.highlightActiveWall();
   }
 
   addLight() {
@@ -212,9 +195,9 @@ export class SceneClass {
     window.addEventListener('pointerup', (e) => this.dragHandler.onPointerUp(e));
   }
 
-  startDrag(type) {
+  startDrag(type, event) {
     this.deselectPanel();
-    this.dragHandler.startDrag(type);
+    this.dragHandler.startDrag(type, event);
   }
 
   onPointerDown(event) {
@@ -230,43 +213,136 @@ export class SceneClass {
 
   onPanelSelected(panelMesh) {
     if (this.selectedPanel === panelMesh) return;
+    
+    // Сначала снимаем выделение с предыдущей
     this.deselectPanel();
+    
     this.selectedPanel = panelMesh;
     
-    // 1. Получаем текущий цвет панели (берем у первого ребенка-меша)
+    // 1. Добавляем визуальную обводку (ободок)
+    this.addSelectionOutline(panelMesh);
+    
+    // 2. Получаем текущий цвет для UI
     let currentColor = '#ffffff';
     panelMesh.traverse((child) => {
         if (child.isMesh && child.material) {
-            // Сохраняем оригинальный emissive (подсветку выделения)
             const mat = Array.isArray(child.material) ? child.material[0] : child.material;
-            this.originalEmissives.set(child.uuid, mat.emissive.getHex());
-            
-            // Включаем подсветку выделения
-            //mat.emissive.setHex(0x555544);
-            
-            // Запоминаем цвет для UI
+            // Просто считываем цвет, не меняя emissive
             currentColor = '#' + mat.color.getHexString();
         }
     });
 
-    
-
-    // 2. Показываем UI и обновляем Color Picker
+    // 3. Показываем UI
     const ui = document.querySelector('.selection-ui');
     if (ui) {
         ui.style.display = 'flex';
-        // Находим инпут цвета и ставим значение
         const colorInput = document.getElementById('panel-color-picker');
         if (colorInput) colorInput.value = currentColor;
     }
+  }
+
+  // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ОБВОДКИ ---
+  addSelectionOutline(panel) {
+    const localBox = new THREE.Box3();
+    const v = new THREE.Vector3();
+
+    // 1. Принудительно обновляем мировые матрицы всей иерархии панели
+    // Это важно, чтобы matrixWorld были актуальны
+    panel.updateMatrixWorld(true);
+
+    // 2. Вычисляем обратную матрицу Панели.
+    // Это позволит нам "вычесть" положение и поворот панели (и стены) из координат вершин.
+    // Мы переводим вершины из Мира в Локальную систему координат Панели.
+    const inversePanelMatrix = panel.matrixWorld.clone().invert();
+
+    let hasMesh = false;
+
+    // 3. Проходимся по всем мешам
+    panel.traverse((child) => {
+        if (child.isMesh && child.geometry) {
+            const posAttribute = child.geometry.attributes.position;
+            if (posAttribute) {
+                for (let i = 0; i < posAttribute.count; i++) {
+                    // Берем вершину (в координатах меша)
+                    v.fromBufferAttribute(posAttribute, i);
+                    
+                    // Переводим в Мировые координаты
+                    v.applyMatrix4(child.matrixWorld);
+                    
+                    // Переводим в Локальные координаты Панели (умножаем на обратную матрицу панели)
+                    v.applyMatrix4(inversePanelMatrix);
+                    
+                    // Расширяем бокс
+                    localBox.expandByPoint(v);
+                }
+                hasMesh = true;
+            }
+        }
+    });
+
+    if (!hasMesh) {
+        localBox.set(new THREE.Vector3(-0.25, -0.25, 0), new THREE.Vector3(0.25, 0.25, 0.05));
+    }
+
+    // 4. Создаем геометрию на основе "чистого" локального бокса
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    localBox.getSize(size);
+    localBox.getCenter(center);
+
+    size.multiplyScalar(1.02); // Небольшой отступ
+
+    const outlineGeom = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const edges = new THREE.EdgesGeometry(outlineGeom);
+    
+    const lineMat = new THREE.LineBasicMaterial({ 
+        color: 0x00FFFF, 
+        depthTest: false,
+        depthWrite: false
+    });
+
+    const outlineMesh = new THREE.LineSegments(edges, lineMat);
+    
+    // Позиция outlineMesh относительно Panel будет равна вычисленному центру localBox
+    outlineMesh.position.copy(center);
+    
+    outlineMesh.name = 'selection_outline';
+    outlineMesh.raycast = () => {};
+
+    // Добавляем как дочерний элемент. Так как координаты вычислены относительно Panel,
+    // рамка встанет идеально, и будет вращаться вместе с панелью.
+    panel.add(outlineMesh);
+}
+
+  removeSelectionOutline() {
+      if (!this.selectedPanel) return;
+
+      const outline = this.selectedPanel.getObjectByName('selection_outline');
+      if (outline) {
+          this.selectedPanel.remove(outline);
+          if (outline.geometry) outline.geometry.dispose();
+          if (outline.material) outline.material.dispose();
+      }
+  }
+
+  deselectPanel() {
+    if (!this.selectedPanel) return;
+    
+    // Удаляем обводку
+    this.removeSelectionOutline();
+
+    this.selectedPanel = null;
+    
+    // Скрываем UI
+    const ui = document.querySelector('.selection-ui');
+    if (ui) ui.style.display = 'none';
   }
 
   changeSelectedPanelColor(colorValue) {
     if (!this.selectedPanel) return;
 
     this.selectedPanel.traverse((child) => {
-        if (child.isMesh && child.material) {
-            // Если материалов массив (редко для GLTF, но бывает)
+        if (child.isMesh && child.material && child.name !== 'selection_outline') {
             if (Array.isArray(child.material)) {
                 child.material.forEach(m => m.color.set(colorValue));
             } else {
@@ -274,21 +350,6 @@ export class SceneClass {
             }
         }
     });
-}
-
-  deselectPanel() {
-    if (!this.selectedPanel) return;
-    this.selectedPanel.traverse((child) => {
-        if (child.isMesh && child.material) {
-            const mat = Array.isArray(child.material) ? child.material[0] : child.material;
-            const originalHex = this.originalEmissives.get(child.uuid) || 0x000000;
-            mat.emissive.setHex(originalHex);
-        }
-    });
-    this.selectedPanel = null;
-    this.originalEmissives.clear();
-    const ui = document.querySelector('.selection-ui');
-    if (ui) ui.style.display = 'none';
   }
 
   rotateSelectedPanel(angle) {
@@ -314,18 +375,15 @@ export class SceneClass {
     this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
-    // Ищем пересечения только со стенами, игнорируя пол и потолок
     const intersects = this.raycaster.intersectObjects(this.walls, false);
     if (intersects.length > 0) {
       const selectedWall = intersects[0].object;
-      //this.setActiveWall(selectedWall);
     }
   }
 
   setActiveWall(wallMesh) {
     const newIndex = this.walls.indexOf(wallMesh);
     this.activeWallIndex = newIndex;
-    // this.highlightActiveWall();
     if (this.onWallChanged) this.onWallChanged(this.walls[this.activeWallIndex]);
   }
 
