@@ -12,16 +12,7 @@
    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
    <link href="style.css" rel="stylesheet" />
 
-
-
-
-   <!-- Подключение SDK Яндекс Игр (раскомментируйте перед билдом для продакшена) -->
-   <!-- <script src="/sdk.js"></script> -->
-
    <script type="module" src="./main.js"></script>
-
-
-
 </head>
 
 <body>
@@ -30,16 +21,25 @@
 
       <div class="bottom_panel">
          <div class="panels">
-            <div class="panel1 panel"></div>
-            <div class="panel2 panel"></div>
-            <div class="panel3 panel"></div>
-            <div class="panel4 panel"></div>
+            <!-- 
+               Классы panel1, panel2... важны, так как main.js вешает события на них.
+               Замените src на пути к реальным изображениям.
+            -->
+            <div class="panel panel1">
+               <img src="img/panel_1.png" alt="Panel 1">
+            </div>
+            <div class="panel panel2">
+               <img src="img/panel_2.png" alt="Panel 2">
+            </div>
+            <div class="panel panel3">
+               <img src="img/panel_3.png" alt="Panel 3">
+            </div>
+            <div class="panel panel4">
+               <img src="img/panel_4.png" alt="Panel 4">
+            </div>
          </div>
       </div>
    </div>
 
-
-
 </body>
-
 </html>

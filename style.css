@@ -1,3 +1,5 @@
+
+
 /* =========================================
    1. FONTS
    ========================================= */
@@ -108,7 +110,7 @@ canvas {
     padding: 10px;
     
     
-    border: 1px solid red;
+    /* border: 1px solid red; */
     z-index: 999999;
     
     /* ВАЖНО: */
@@ -120,39 +122,41 @@ canvas {
     justify-content: center;
 
     background-color: rgba(255, 255, 255, 0.8); 
-
-    
 }
+
 .panels {
     display: flex;
     padding: 30px;
     gap: 30px;
-
 }
 
 .panel {
     width: 100px;
     height: 100px;
     
-    /* Убираем цветные заглушки */
-    background-color: transparent; 
+    background-color: #f0f0f0; 
     
     /* Добавляем рамку, чтобы видеть куда тыкать */
     border: 1px solid #ccc;
     box-sizing: border-box;
     border-radius: 8px;
     
-    /* Убираем специфичные цвета */
+    /* Центрируем картинку */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: grab;
 }
-/* .panel1 {
-    background-color: red;
+
+.panel:active {
+    cursor: grabbing;
 }
-.panel2 {
-    background-color: green;
+
+.panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Картинка целиком помещается в квадрат */
+    pointer-events: none; /* Чтобы события мыши шли на родительский div .panel */
+    display: block;
 }
-.panel3 {
-    background-color: black;
-}
-.panel4 {
-    background-color: yellow;
-} */
