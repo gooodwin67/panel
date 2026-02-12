@@ -1,7 +1,7 @@
-import { S as D, P as L, W as G, a as k, O as R, R as A, V as C, b as w, c as y, D as E, A as I, B, M as O, d as u, e as q, f as M, g as f, F as x, h as b, Q as N, C as X, N as W, G as Y, i as j, j as Q, k as U } from "./three-BJkLFxFF.js";
-let le;
+import { S as T, P as B, W as H, a as z, O as G, R as L, V as M, b as p, c as y, D as O, A as k, B as v, M as R, d as w, e as q, f as b, g as x, F as C, h as W, i as N, E as X, L as Y, j, Q, C as _, N as S, G as U, k as V, l as K } from "./three-prv_GMvZ.js";
+let de;
 let __tla = (async () => {
-  le = function() {
+  de = function() {
     import.meta.url, import("_").then(async (m) => {
       await m.__tla;
       return m;
@@ -29,20 +29,20 @@ let __tla = (async () => {
       fetch(i.href, n);
     }
   })();
-  class V {
+  class $ {
     constructor(e) {
-      this.gameContext = e, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new D(), this.camera = new L(25, window.innerWidth / window.innerHeight, 0.1, 2e3), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 15, this.renderer = new G({
+      this.gameContext = e, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new T(), this.camera = new B(25, window.innerWidth / window.innerHeight, 0.1, 2e3), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 15, this.renderer = new H({
         antialias: true
-      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = k, this.renderer.shadowMap.enabled = true, document.body.appendChild(this.renderer.domElement), this.controls = new R(this.camera, this.renderer.domElement), this.controls.enableDamping = true, this.gameContext.controls = this.controls, window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
+      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = z, this.renderer.shadowMap.enabled = true, document.body.appendChild(this.renderer.domElement), this.controls = new G(this.camera, this.renderer.domElement), this.controls.enableDamping = true, this.gameContext.controls = this.controls, window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
     }
     onWindowResize() {
       const e = document.body.offsetWidth || window.innerWidth, t = document.body.offsetHeight || window.innerHeight;
       this.camera.aspect = e / t, this.camera.updateProjectionMatrix(), this.renderer.setSize(e, t);
     }
   }
-  class _ {
+  class J {
     constructor(e, t, s) {
-      this.gameContext = e, this.walls = t, this.cellSize = s.cellSize || 0.5, this.panelDepth = s.panelDepth || 0.05, this.raycaster = new A(), this.pointer = new C(), this.mouseDownPointer = new C(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
+      this.gameContext = e, this.walls = t, this.cellSize = s.cellSize || 0.5, this.panelDepth = s.panelDepth || 0.05, this.raycaster = new L(), this.pointer = new M(), this.mouseDownPointer = new M(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
     }
     handlePointerDown(e) {
       this.updatePointer(e), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
@@ -54,17 +54,17 @@ let __tla = (async () => {
       }
       return false;
     }
-    startDrag(e) {
+    startDrag(e, t) {
       this.gameContext.controls && (this.gameContext.controls.enabled = false), this.isDragging = true, this.draggedPanelIndex = e;
-      const s = this.gameContext.assetManager.panels[e];
-      s && (this.ghostMesh = s.clone(), this.applyMaterialProperties(this.ghostMesh, {
+      const i = this.gameContext.assetManager.panels[e];
+      i && (this.ghostMesh = i.clone(), this.applyMaterialProperties(this.ghostMesh, {
         transparent: true,
         opacity: 0.5,
         clippingPlanes: []
-      }), this.savedColor !== null && this.applyColor(this.ghostMesh, this.savedColor), this.ghostMesh.traverse((i) => {
-        i.raycast = () => {
+      }), this.savedColor !== null && this.applyColor(this.ghostMesh, this.savedColor), this.ghostMesh.traverse((n) => {
+        n.raycast = () => {
         };
-      }), this.gameContext.scene.add(this.ghostMesh), this.ghostMesh.visible = true);
+      }), this.gameContext.scene.add(this.ghostMesh), this.ghostMesh.visible = true, t && (this.updatePointer(t), this.onPointerMove(t)));
     }
     onPointerMove(e) {
       if (this.pendingPanel && !this.isDragging && Math.sqrt(Math.pow(e.clientX - this.mouseDownPointer.x, 2) + Math.pow(e.clientY - this.mouseDownPointer.y, 2)) > 15 && this.pickupPendingPanel(e), !this.isDragging || !this.ghostMesh) return;
@@ -89,19 +89,19 @@ let __tla = (async () => {
           const n = Array.isArray(i.material) ? i.material[0] : i.material;
           this.savedColor = n.color.getHex();
         }
-      }), this.gameContext.sceneClass.deselectPanel(), t.parent.remove(t), this.disposeModel(t), this.startDrag(s), this.pendingPanel = null, this.onPointerMove(e);
+      }), this.gameContext.sceneClass.deselectPanel(), t.parent.remove(t), this.disposeModel(t), this.startDrag(s, e), this.pendingPanel = null;
     }
     snapToGrid(e, t) {
-      const s = t.geometry.parameters.width, i = t.geometry.parameters.height, n = t.worldToLocal(e.point.clone()), r = t.material.map, h = n.x / s + 0.5, l = n.y / i + 0.5;
-      let c = h * r.repeat.x + r.offset.x, p = l * r.repeat.y + r.offset.y;
-      const g = Math.floor(c), d = Math.floor(p);
-      if (t.children.some((m) => m.userData.isPanel && m.userData.gridX === g && m.userData.gridY === d)) this.ghostMesh.visible = false, this.canPlace = false;
+      const s = t.geometry.parameters.width, i = t.geometry.parameters.height, n = t.worldToLocal(e.point.clone()), r = t.material.map, g = n.x / s + 0.5, l = n.y / i + 0.5;
+      let h = g * r.repeat.x + r.offset.x, m = l * r.repeat.y + r.offset.y;
+      const d = Math.floor(h), c = Math.floor(m);
+      if (t.children.some((u) => u.userData.isPanel && u.userData.gridX === d && u.userData.gridY === c)) this.ghostMesh.visible = false, this.canPlace = false;
       else {
-        this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = g, this.ghostMesh.userData.gridY = d;
-        const m = g + 0.5, H = d + 0.5, F = (m - r.offset.x) / r.repeat.x, T = (H - r.offset.y) / r.repeat.y;
-        n.x = (F - 0.5) * s, n.y = (T - 0.5) * i, n.z = 0;
-        const z = t.localToWorld(n);
-        this.ghostMesh.position.copy(z), this.ghostMesh.quaternion.copy(t.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
+        this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = d, this.ghostMesh.userData.gridY = c;
+        const u = d + 0.5, A = c + 0.5, I = (u - r.offset.x) / r.repeat.x, E = (A - r.offset.y) / r.repeat.y;
+        n.x = (I - 0.5) * s, n.y = (E - 0.5) * i, n.z = 0;
+        const F = t.localToWorld(n);
+        this.ghostMesh.position.copy(F), this.ghostMesh.quaternion.copy(t.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
       }
     }
     moveInAir() {
@@ -157,7 +157,7 @@ let __tla = (async () => {
       this.pointer.x = e.clientX / window.innerWidth * 2 - 1, this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
     }
     getWallClippingPlanes(e) {
-      const t = e.geometry.parameters.width, s = e.geometry.parameters.height, i = new w(1, 0, 0).applyQuaternion(e.quaternion), n = new w(0, 1, 0).applyQuaternion(e.quaternion), r = e.position;
+      const t = e.geometry.parameters.width, s = e.geometry.parameters.height, i = new p(1, 0, 0).applyQuaternion(e.quaternion), n = new p(0, 1, 0).applyQuaternion(e.quaternion), r = e.position;
       return [
         new y().setFromNormalAndCoplanarPoint(i.clone().negate(), r.clone().add(i.clone().multiplyScalar(t / 2))),
         new y().setFromNormalAndCoplanarPoint(i.clone(), r.clone().add(i.clone().multiplyScalar(-t / 2))),
@@ -166,42 +166,42 @@ let __tla = (async () => {
       ];
     }
   }
-  const P = new w(), S = new w();
-  class K {
+  const P = new p(), D = new p();
+  class Z {
     constructor(e) {
-      this.gameContext = e, this.onWallChanged = null, this.selectedPanel = null, this.originalEmissives = /* @__PURE__ */ new Map(), this.floor = null, this.ceiling = null, this.centerLight = null, this.lightBulbMesh = null, this.animatingPanels = [], this.config = {
+      this.gameContext = e, this.onWallChanged = null, this.selectedPanel = null, this.floor = null, this.ceiling = null, this.centerLight = null, this.lightBulbMesh = null, this.animatingPanels = [], this.config = {
         cellSize: 0.5,
         panelDepth: 0.05,
         widthWallFront: 5,
         heightWall: 2.7,
         widthWallSide: 4
-      }, this.directionalLight = new E(16777215, 0.5), this.directionalLight.position.set(5, 5, 5), this.ambientLight = new I(16777215, 0), this.raycaster = new A(), this.pointer = new C(), this.baseGridTexture = this.createGridTexture(), this.createWalls(), this.dragHandler = new _(e, this.walls, this.config);
+      }, this.directionalLight = new O(16777215, 0.5), this.directionalLight.position.set(5, 5, 5), this.ambientLight = new k(16777215, 0), this.raycaster = new L(), this.pointer = new M(), this.baseGridTexture = this.createGridTexture(), this.createWalls(), this.dragHandler = new J(e, this.walls, this.config);
     }
     createScene() {
       this.loadWall(), this.createFloorAndCeiling(), this.createCenterLight(), this.initEvents();
     }
     createCenterLight() {
-      const { heightWall: e } = this.config, t = new B(0.3, 0.05, 0.3), s = new O({
+      const { heightWall: e } = this.config, t = new v(0.3, 0.05, 0.3), s = new R({
         color: 16777198
       });
-      this.lightBulbMesh = new u(t, s);
+      this.lightBulbMesh = new w(t, s);
       const i = e / 2 - 0.05;
       this.lightBulbMesh.position.set(0, i, 0), this.gameContext.scene.add(this.lightBulbMesh), this.centerLight = new q(16777198, 15, 10, 2), this.centerLight.position.set(0, i, 0), this.centerLight.castShadow = true, this.centerLight.shadow.mapSize.width = 1024, this.centerLight.shadow.mapSize.height = 1024, this.centerLight.shadow.bias = -1e-3, this.gameContext.scene.add(this.centerLight);
     }
     createFloorAndCeiling() {
-      const { widthWallFront: e, widthWallSide: t, heightWall: s } = this.config, i = new M(e, t), n = new f({
+      const { widthWallFront: e, widthWallSide: t, heightWall: s } = this.config, i = new b(e, t), n = new x({
         color: 5592405,
         roughness: 0.8,
         metalness: 0.1,
-        side: x
+        side: C
       });
-      this.floor = new u(i, n), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -s / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
-      const r = new f({
+      this.floor = new w(i, n), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -s / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
+      const r = new x({
         color: 15658734,
         roughness: 0.9,
-        side: x
+        side: C
       });
-      this.ceiling = new u(i, r), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = s / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
+      this.ceiling = new w(i, r), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = s / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
     }
     setRoomColor(e, t) {
       e === "floor" && this.floor ? this.floor.material.color.setHex(t) : e === "ceiling" && this.ceiling && this.ceiling.material.color.setHex(t);
@@ -226,19 +226,19 @@ let __tla = (async () => {
       ], this.activeWallIndex = 0;
     }
     createWallPlane(e, t) {
-      const s = new M(e, t), i = this.baseGridTexture.clone(), n = e / this.config.cellSize, r = t / this.config.cellSize;
-      i.repeat.set(n, r), i.wrapS = b, i.wrapT = b, i.needsUpdate = true;
-      const h = new f({
+      const s = new b(e, t), i = this.baseGridTexture.clone(), n = e / this.config.cellSize, r = t / this.config.cellSize;
+      i.repeat.set(n, r), i.wrapS = W, i.wrapT = W, i.needsUpdate = true;
+      const g = new x({
         color: 13421772,
         map: i,
         opacity: 0.6,
         transparent: true,
-        side: x
-      }), l = new u(s, h);
-      return l.receiveShadow = true, l.onBeforeRender = function(c, p, g) {
-        l.getWorldPosition(P), P.subVectors(g.position, P), S.set(0, 0, 1).transformDirection(l.matrixWorld);
-        const d = P.dot(S) > 0;
-        l.children.forEach((v) => v.visible = d);
+        side: C
+      }), l = new w(s, g);
+      return l.receiveShadow = true, l.onBeforeRender = function(h, m, d) {
+        l.getWorldPosition(P), P.subVectors(d.position, P), D.set(0, 0, 1).transformDirection(l.matrixWorld);
+        const c = P.dot(D) > 0;
+        l.children.forEach((f) => f.visible = c);
       }, l;
     }
     loadWall() {
@@ -250,8 +250,8 @@ let __tla = (async () => {
     initEvents() {
       window.addEventListener("pointerdown", (e) => this.onPointerDown(e)), window.addEventListener("pointermove", (e) => this.dragHandler.onPointerMove(e)), window.addEventListener("pointerup", (e) => this.dragHandler.onPointerUp(e));
     }
-    startDrag(e) {
-      this.deselectPanel(), this.dragHandler.startDrag(e);
+    startDrag(e, t) {
+      this.deselectPanel(), this.dragHandler.startDrag(e, t);
     }
     onPointerDown(e) {
       if (e.target.closest(".selection-ui") || e.target.tagName === "BUTTON" || e.target.tagName === "INPUT") return;
@@ -259,13 +259,10 @@ let __tla = (async () => {
     }
     onPanelSelected(e) {
       if (this.selectedPanel === e) return;
-      this.deselectPanel(), this.selectedPanel = e;
+      this.deselectPanel(), this.selectedPanel = e, this.addSelectionOutline(e);
       let t = "#ffffff";
       e.traverse((i) => {
-        if (i.isMesh && i.material) {
-          const n = Array.isArray(i.material) ? i.material[0] : i.material;
-          this.originalEmissives.set(i.uuid, n.emissive.getHex()), t = "#" + n.color.getHexString();
-        }
+        i.isMesh && i.material && (t = "#" + (Array.isArray(i.material) ? i.material[0] : i.material).color.getHexString());
       });
       const s = document.querySelector(".selection-ui");
       if (s) {
@@ -274,28 +271,52 @@ let __tla = (async () => {
         i && (i.value = t);
       }
     }
-    changeSelectedPanelColor(e) {
-      this.selectedPanel && this.selectedPanel.traverse((t) => {
-        t.isMesh && t.material && (Array.isArray(t.material) ? t.material.forEach((s) => s.color.set(e)) : t.material.color.set(e));
-      });
+    addSelectionOutline(e) {
+      const t = new N(), s = new p();
+      e.updateMatrixWorld(true);
+      const i = e.matrixWorld.clone().invert();
+      let n = false;
+      e.traverse((c) => {
+        if (c.isMesh && c.geometry) {
+          const f = c.geometry.attributes.position;
+          if (f) {
+            for (let u = 0; u < f.count; u++) s.fromBufferAttribute(f, u), s.applyMatrix4(c.matrixWorld), s.applyMatrix4(i), t.expandByPoint(s);
+            n = true;
+          }
+        }
+      }), n || t.set(new p(-0.25, -0.25, 0), new p(0.25, 0.25, 0.05));
+      const r = new p(), g = new p();
+      t.getSize(r), t.getCenter(g), r.multiplyScalar(1.02);
+      const l = new v(r.x, r.y, r.z), h = new X(l), m = new Y({
+        color: 65535,
+        depthTest: false,
+        depthWrite: false
+      }), d = new j(h, m);
+      d.position.copy(g), d.name = "selection_outline", d.raycast = () => {
+      }, e.add(d);
+    }
+    removeSelectionOutline() {
+      if (!this.selectedPanel) return;
+      const e = this.selectedPanel.getObjectByName("selection_outline");
+      e && (this.selectedPanel.remove(e), e.geometry && e.geometry.dispose(), e.material && e.material.dispose());
     }
     deselectPanel() {
       if (!this.selectedPanel) return;
-      this.selectedPanel.traverse((t) => {
-        if (t.isMesh && t.material) {
-          const s = Array.isArray(t.material) ? t.material[0] : t.material, i = this.originalEmissives.get(t.uuid) || 0;
-          s.emissive.setHex(i);
-        }
-      }), this.selectedPanel = null, this.originalEmissives.clear();
+      this.removeSelectionOutline(), this.selectedPanel = null;
       const e = document.querySelector(".selection-ui");
       e && (e.style.display = "none");
+    }
+    changeSelectedPanelColor(e) {
+      this.selectedPanel && this.selectedPanel.traverse((t) => {
+        t.isMesh && t.material && t.name !== "selection_outline" && (Array.isArray(t.material) ? t.material.forEach((s) => s.color.set(e)) : t.material.color.set(e));
+      });
     }
     rotateSelectedPanel(e) {
       if (!this.selectedPanel) return;
       const t = this.selectedPanel;
       t.userData.targetQuaternion || (t.userData.targetQuaternion = t.quaternion.clone());
-      const s = new N();
-      s.setFromAxisAngle(new w(0, 1, 0), e), t.userData.targetQuaternion.multiply(s), this.animatingPanels.includes(t) || this.animatingPanels.push(t);
+      const s = new Q();
+      s.setFromAxisAngle(new p(0, 1, 0), e), t.userData.targetQuaternion.multiply(s), this.animatingPanels.includes(t) || this.animatingPanels.push(t);
     }
     handleWallSelection(e) {
       this.pointer.x = e.clientX / window.innerWidth * 2 - 1, this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1, this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
@@ -317,11 +338,11 @@ let __tla = (async () => {
       e.width = 128, e.height = 128;
       const t = e.getContext("2d");
       t.fillStyle = "#cccccc", t.fillRect(0, 0, 128, 128), t.strokeStyle = "#444444", t.lineWidth = 2, t.strokeRect(0, 0, 128, 128);
-      const s = new X(e);
-      return s.magFilter = W, s.minFilter = W, s;
+      const s = new _(e);
+      return s.magFilter = S, s.minFilter = S, s;
     }
   }
-  class $ {
+  class ee {
     constructor(e) {
       this.gameContext = e, this.sceneClass = e.sceneClass, this.controllers = [], this.folder = null, this.init();
     }
@@ -337,12 +358,12 @@ let __tla = (async () => {
       this.controllers.push(s, i);
     }
   }
-  class J {
+  class te {
     constructor(e) {
       this.gameContext = e;
     }
   }
-  class Z {
+  class se {
     constructor(e) {
       this.gamecontext = e, this.panels = [], this.urls = [
         "models/panels/panel1.gltf",
@@ -352,90 +373,62 @@ let __tla = (async () => {
       ];
     }
     async loadModels() {
-      const e = new Y(), t = new M(0.49, 0.49), s = this.urls.map((i, n) => e.loadAsync(i).then((r) => {
-        const h = r.scene.children[0];
-        h.name = "panelTemplate_" + n;
+      const e = new U(), t = new b(0.49, 0.49), s = this.urls.map((i, n) => e.loadAsync(i).then((r) => {
+        const g = r.scene.children[0];
+        g.name = "panelTemplate_" + n;
         const l = [];
-        return h.traverse((c) => {
-          c.isMesh && l.push(c);
-        }), l.forEach((c) => {
-          const p = c.material, g = new f({
+        return g.traverse((h) => {
+          h.isMesh && l.push(h);
+        }), l.forEach((h) => {
+          const m = h.material, d = new x({
             color: 16777215,
-            normalMap: p.normalMap,
+            normalMap: m.normalMap,
             emissive: 0,
             metalness: 0.4,
             roughness: 0.8,
-            side: x
+            side: C
           });
-          c.castShadow = true, c.receiveShadow = true;
-          const d = new u(t, g);
-          d.position.y = 5e-4, d.rotation.x = -Math.PI / 2, c.add(d);
-        }), h;
+          h.castShadow = true, h.receiveShadow = true;
+          const c = new w(t, d);
+          c.position.y = 5e-4, c.rotation.x = -Math.PI / 2, h.add(c);
+        }), g;
       }));
       this.panels = await Promise.all(s), console.log("Models loaded with Backing Plates:", this.panels);
     }
   }
-  class ee {
-    constructor(e) {
-      this.gameContext = e, this.renderer = e.renderer, this.previewItems = [], this.time = 0, this.scene = new D(), this.scene.background = new j(14737632), this.camera = new L(50, 1, 0.1, 100), this.camera.position.set(0, 0, 0.7), this.camera.lookAt(0, 0, 0), new I(16777215, 0.4), this.movingLight = new E(16777215, 9.5), this.movingLight.position.set(7, -7, 0), this.scene.add(this.movingLight);
-    }
-    initPreviews(e) {
-      document.querySelectorAll(".panel").forEach((s, i) => {
-        if (e[i]) {
-          const n = e[i].clone();
-          n.traverse((r) => {
-            r.isMesh && (r.material = new f({
-              color: 10066329,
-              roughness: 0.5,
-              metalness: 0.1,
-              flatShading: true
-            }));
-          }), n.position.set(0, 0, 0), n.rotation.set(0, 0, 0), n.rotation.x = Math.PI / 2, this.scene.add(n), this.previewItems.push({
-            element: s,
-            mesh: n
-          });
-        }
-      });
-    }
-    animate(e) {
-      this.movingLight.position.x = Math.sin(this.time * 0.5) * 1, this.movingLight.position.y = Math.cos(this.time * 0.5) * 1, this.movingLight.position.z = 0;
-    }
-    render() {
-      const e = this.renderer;
-      e.setScissorTest(true), this.previewItems.forEach((t) => {
-        const s = t.element, i = t.mesh, n = s.getBoundingClientRect();
-        if (n.bottom < 0 || n.top > e.domElement.clientHeight || n.right < 0 || n.left > e.domElement.clientWidth) return;
-        const r = n.width, h = n.height, l = n.left, c = e.domElement.clientHeight - n.bottom;
-        e.setViewport(l, c, r, h), e.setScissor(l, c, r, h), this.previewItems.forEach((p) => p.mesh.visible = false), i.visible = true, e.render(this.scene, this.camera);
-      }), e.setScissorTest(false);
-    }
-  }
   console.clear();
   const a = {};
-  a.clock = new U();
-  te();
-  async function te() {
+  a.clock = new K();
+  ie();
+  async function ie() {
     try {
-      await se(), await ie(), oe();
+      await ne(), await ae(), he();
     } catch (o) {
       console.error("Init error", o);
     }
   }
-  async function se() {
-    a.gui = new Q(), a.initClass = new V(a), a.scene = a.initClass.scene, a.camera = a.initClass.camera, a.renderer = a.initClass.renderer, a.assetManager = new Z(a), a.sceneClass = new K(a), a.panelsClass = new J(a), a.previewClass = new ee(a), a.renderer.localClippingEnabled = true, new $(a);
+  async function ne() {
+    a.gui = new V(), a.initClass = new $(a), a.scene = a.initClass.scene, a.camera = a.initClass.camera, a.renderer = a.initClass.renderer, a.assetManager = new se(a), a.sceneClass = new Z(a), a.panelsClass = new te(a), a.renderer.localClippingEnabled = true, new ee(a);
   }
-  async function ie() {
-    await a.assetManager.loadModels(), a.previewClass.initPreviews(a.assetManager.panels), ne();
+  async function ae() {
+    await a.assetManager.loadModels(), re(), oe();
     const o = a.sceneClass;
     for (let e = 1; e <= 4; e++) {
       const t = document.querySelector(".panel".concat(e));
       t && t.addEventListener("pointerdown", (s) => {
-        s.preventDefault(), o.startDrag(e - 1);
+        s.preventDefault(), o.startDrag(e - 1, s);
       });
     }
     a.sceneClass.createScene();
   }
-  function ne() {
+  function oe() {
+    const o = document.getElementById("toggle-btn"), e = document.querySelector(".bottom_panel");
+    let t = true;
+    o && e && o.addEventListener("click", () => {
+      t = !t, t ? (e.classList.remove("closed"), o.innerHTML = "\u25BC") : (e.classList.add("closed"), o.innerHTML = "\u25B2");
+    });
+  }
+  function re() {
     const o = document.createElement("div");
     o.className = "selection-ui", o.style.position = "absolute", o.style.top = "20px", o.style.left = "20px", o.style.background = "rgba(255, 255, 255, 0.95)", o.style.padding = "15px", o.style.borderRadius = "8px", o.style.display = "none", o.style.flexDirection = "column", o.style.gap = "10px", o.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)", o.style.fontFamily = "sans-serif", o.style.pointerEvents = "auto", o.innerHTML = '\n    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</div>\n    \n    <!-- \u0412\u0440\u0430\u0449\u0435\u043D\u0438\u0435 -->\n    <div style="display:flex; gap:10px; justify-content: space-between;">\n      <button id="btn-rot-left" style="flex:1; padding: 8px; cursor:pointer;">\u21BA</button>\n      <button id="btn-rot-right" style="flex:1; padding: 8px; cursor:pointer;">\u21BB</button>\n    </div>\n\n    <!-- \u0426\u0432\u0435\u0442 -->\n    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">\n        <span style="font-size:14px;">\u0426\u0432\u0435\u0442:</span>\n        <input type="color" id="panel-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">\n    </div>\n\n    <button id="btn-close-sel" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">\u0417\u0430\u043A\u0440\u044B\u0442\u044C</button>\n  ', document.body.appendChild(o), document.getElementById("btn-rot-left").onclick = () => {
       a.sceneClass.rotateSelectedPanel(Math.PI / 2);
@@ -447,25 +440,25 @@ let __tla = (async () => {
       a.sceneClass.deselectPanel();
     };
   }
-  function ae(o) {
-    a.testMesh && (a.testMesh.rotation.y += o * 0.5), a.sceneClass && a.sceneClass.updateAnimations(o), a.previewClass && a.previewClass.animate(o);
+  function le(o) {
+    a.testMesh && (a.testMesh.rotation.y += o * 0.5), a.sceneClass && a.sceneClass.updateAnimations(o);
   }
-  function re() {
-    a.renderer && a.scene && a.camera && (a.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight), a.renderer.render(a.scene, a.camera)), a.previewClass && a.previewClass.render(), a.initClass && a.initClass.stats && a.initClass.stats.update();
+  function ce() {
+    a.renderer && a.scene && a.camera && (a.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight), a.renderer.render(a.scene, a.camera)), a.initClass && a.initClass.stats && a.initClass.stats.update();
   }
-  function oe() {
+  function he() {
     let o = 0;
     const e = 1 / 60, t = 0.1;
     a.renderer.setAnimationLoop(() => {
       let s = a.clock.getDelta();
       s > t && (s = t), o += s;
       let i = 5;
-      for (; o >= e && i > 0; ) ae(e), o -= e, i--;
-      o > e && (o = 0), re();
+      for (; o >= e && i > 0; ) le(e), o -= e, i--;
+      o > e && (o = 0), ce();
     });
   }
 })();
 export {
   __tla,
-  le as __vite_legacy_guard
+  de as __vite_legacy_guard
 };
