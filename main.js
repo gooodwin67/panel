@@ -123,7 +123,9 @@ function createSelectionUI() {
         <input type="color" id="panel-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">
     </div>
 
-    <button id="btn-close-sel" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">Закрыть</button>
+    <button id="btn-all-color" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ddffdd; border:1px solid #ffaaaa; border-radius:4px;">Цвет всех</button>
+
+    <button id="btn-close-sel" style="margin-top:5px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">Закрыть</button>
   `;
 
   document.body.appendChild(div);
@@ -144,6 +146,12 @@ function createSelectionUI() {
   document.getElementById('btn-close-sel').onclick = () => {
     gameContext.sceneClass.deselectPanel();
   };
+  document.getElementById('btn-all-color').onclick = () => {
+      const colorInput = document.getElementById('panel-color-picker');
+      if (!colorInput) return;
+
+      gameContext.sceneClass.setAllPanelsColor(colorInput.value);
+  };
 }
 
 
@@ -156,11 +164,24 @@ function update(delta) {
   if (gameContext.sceneClass) {
       gameContext.sceneClass.updateAnimations(delta);
   }
+
+
+
+  if (!gameContext._debugTimer) gameContext._debugTimer = 0;
+  gameContext._debugTimer += delta;
+  if (gameContext._debugTimer > 1) {
+    gameContext._debugTimer = 0;
+    const info = gameContext.renderer.info;
+    console.log('calls', info.render.calls, 'tris', info.render.triangles, 'geoms', info.memory.geometries, 'tex', info.memory.textures);
+  }
+
+
+
 }
 
 function render() {
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
-      gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      // gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
       gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
   

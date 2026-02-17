@@ -21,6 +21,8 @@ export class SceneClass {
 
     this.animatingPanels = [];
 
+    this.globalPanelColor = null;
+
     this.config = {
         cellSize: 0.5,
         panelDepth: 0.05,
@@ -371,8 +373,11 @@ export class SceneClass {
   }
 
   handleWallSelection(event) {
-    this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    const canvas = this.gameContext.renderer.domElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
     const intersects = this.raycaster.intersectObjects(this.walls, false);
@@ -409,5 +414,25 @@ export class SceneClass {
       texture.magFilter = THREE.NearestFilter; 
       texture.minFilter = THREE.NearestFilter;
       return texture;
+  }
+
+  setAllPanelsColor(colorValue) {
+      this.globalPanelColor = colorValue;
+
+      this.walls.forEach((wall) => {
+          wall.traverse((child) => {
+              if (child.userData && child.userData.isPanel) {
+                  child.traverse((meshChild) => {
+                      if (meshChild.isMesh && meshChild.material) {
+                          if (Array.isArray(meshChild.material)) {
+                              meshChild.material.forEach(m => m.color.set(colorValue));
+                          } else {
+                              meshChild.material.color.set(colorValue);
+                          }
+                      }
+                  });
+              }
+          });
+      });
   }
 }

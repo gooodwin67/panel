@@ -105,7 +105,7 @@ canvas {
 .panels {
     display: flex;
     flex-direction: row;
-    justify-content: space-between; /* Равномерное распределение */
+    justify-content: center;
     align-items: center;
     gap: 15px; /* Расстояние между панелями */
     padding: 15px 20px; /* Внутренние отступы */

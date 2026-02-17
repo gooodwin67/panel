@@ -1,6 +1,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import Stats from 'three/addons/libs/stats.module.js';
 
 
 export class InitClass {
@@ -31,17 +32,42 @@ export class InitClass {
     this.controls.enableDamping = true;
     this.gameContext.controls = this.controls;
 
+    this.stats = new Stats();
+    document.body.appendChild(this.stats.dom);
+    this.stats.dom.style.top = "0px";
+    this.stats.dom.style.left = "0%";
+
     window.addEventListener('resize', this.onWindowResize);
     this.onWindowResize();
   }
 
   onWindowResize() {
-    const width = document.body.offsetWidth || window.innerWidth;
-    const height = document.body.offsetHeight || window.innerHeight;
+    const maxWidth = 1920;
+    const maxHeight = 1080;
 
-    this.camera.aspect = width / height;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const viewportWidth = Math.min(windowWidth, maxWidth);
+    const viewportHeight = Math.min(windowHeight, maxHeight);
+
+    // ВАЖНО: чтобы реально снизить нагрузку
+    this.renderer.setPixelRatio(1);
+
+    // Рендерим реально в ограниченный размер
+    this.renderer.setSize(viewportWidth, viewportHeight, false);
+
+    // Центруем canvas как "окно"
+    const canvas = this.renderer.domElement;
+    canvas.style.position = 'fixed';
+    canvas.style.left = '50%';
+    canvas.style.top = '50%';
+    canvas.style.transform = 'translate(-50%, -50%)';
+    canvas.style.width = viewportWidth + 'px';
+    canvas.style.height = viewportHeight + 'px';
+
+    // Камера должна считать аспект именно "окна", а не всего монитора
+    this.camera.aspect = viewportWidth / viewportHeight;
     this.camera.updateProjectionMatrix();
-
-    this.renderer.setSize(width, height);
   }
 }

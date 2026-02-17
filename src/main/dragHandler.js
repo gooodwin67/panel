@@ -79,6 +79,9 @@ export class PanelDragHandler {
     if (this.savedColor !== null) {
         this.applyColor(this.ghostMesh, this.savedColor);
     }
+    else if (this.gameContext.sceneClass.globalPanelColor !== null) {
+      this.applyColor(this.ghostMesh, this.gameContext.sceneClass.globalPanelColor);
+    }
 
     this.ghostMesh.traverse((child) => { child.raycast = () => {}; });
     
@@ -251,6 +254,8 @@ export class PanelDragHandler {
 
     if (this.savedColor !== null) {
         this.applyColor(newPanel, this.savedColor);
+    } else if (this.gameContext.sceneClass.globalPanelColor !== null) {
+        this.applyColor(newPanel, this.gameContext.sceneClass.globalPanelColor);
     }
 
     const worldPosition = this.ghostMesh.position.clone();
@@ -265,16 +270,25 @@ export class PanelDragHandler {
     this.gameContext.sceneClass.onPanelSelected(newPanel);
   }
 
-  applyColor(object, hexColor) {
-      object.traverse((child) => {
-          if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                  child.material.forEach(m => m.color.setHex(hexColor));
-              } else {
-                  child.material.color.setHex(hexColor);
-              }
-          }
-      });
+  applyColor(object, colorValue) {
+    object.traverse((child) => {
+        if (child.isMesh && child.material) {
+            const materials = Array.isArray(child.material) ? child.material : [child.material];
+
+            materials.forEach((material) => {
+                if (!material.color) return;
+
+                // colorValue может быть "#rrggbb" (string) или 0xff00ff (number)
+                if (typeof colorValue === 'string') {
+                    material.color.set(colorValue);
+                } else {
+                    material.color.setHex(colorValue);
+                }
+
+                material.needsUpdate = true;
+            });
+        }
+    });
   }
 
   applyMaterialProperties(object, { transparent, opacity, clippingPlanes, cloneMaterial }) {
@@ -329,8 +343,11 @@ export class PanelDragHandler {
   }
 
   updatePointer(event) {
-    this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    const canvas = this.gameContext.renderer.domElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
   }
 
   getWallClippingPlanes(wall) {
