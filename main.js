@@ -39,7 +39,7 @@ async function initClases() {
   gameContext.panelsClass = new PanelsClass(gameContext);
   
   gameContext.renderer.localClippingEnabled = true; 
-  const sceneGui = new GuiClass(gameContext);
+  gameContext.guiClass = new GuiClass(gameContext);
 }
 
 /* =========================================
@@ -56,6 +56,8 @@ async function initFunctions() {
   initTogglePanel();
   // -----------------------------------------
 
+  InitBottomBtns();
+
   const myScene = gameContext.sceneClass;
 
   // Кнопки добавления панелей
@@ -70,6 +72,20 @@ async function initFunctions() {
   }
 
   gameContext.sceneClass.createScene();
+
+  if (gameContext.guiClass) {
+    gameContext.guiClass.refresh();
+    gameContext.guiClass.refreshLight();
+  }
+
+  function InitBottomBtns() {
+    document.getElementById('random_rotate').onclick = () => {
+      gameContext.sceneClass.randomRotate();
+    };
+    document.getElementById('random_shuffle').onclick = () => {
+      gameContext.sceneClass.shufflePanelsOnWalls();
+    };
+  }
 }
 
 function initTogglePanel() {

@@ -94,6 +94,17 @@ canvas {
     /* Анимация сворачивания */
     transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     transform: translateY(0);
+    display: flex;
+    overflow: auto;
+}
+
+
+.bottom_panel .btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 /* Класс для скрытия панели (уводим вниз на 100%) */

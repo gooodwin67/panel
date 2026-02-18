@@ -64,7 +64,8 @@ export class AssetsManager {
                 // Разворачиваем на 180, если она смотрит не туда (обычно Plane смотрит в +Z)
                 backMesh.rotation.x = -Math.PI/2; 
 
-                child.add(backMesh);
+                // child.add(backMesh);   //////ПОДЛОЖКА, ПРОВЕРИТЬ НУЖНА ЛИ, НЕ ЗАБЫТЬ
+                
             });
 
             return root;

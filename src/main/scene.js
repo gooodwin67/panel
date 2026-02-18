@@ -49,18 +49,18 @@ export class SceneClass {
     this.loadWall();
     this.createFloorAndCeiling();
     this.createCenterLight(); 
-    // this.addLight();
+    this.addLight();
     this.initEvents();
   }
 
   createCenterLight() {
       const { heightWall } = this.config;
 
-      const bulbGeometry = new THREE.BoxGeometry(0.3,0.05,0.3);
+      const bulbGeometry = new THREE.BoxGeometry(1.3,0.05,1.3);
       const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee }); 
       this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
       
-      const lightY = (heightWall / 2) - 0.05; 
+      const lightY = (heightWall / 2) - 0.03; 
       this.lightBulbMesh.position.set(0, lightY, 0);
       
       this.gameContext.scene.add(this.lightBulbMesh);
@@ -71,7 +71,7 @@ export class SceneClass {
       this.centerLight.castShadow = true;
       this.centerLight.shadow.mapSize.width = 1024;
       this.centerLight.shadow.mapSize.height = 1024;
-      this.centerLight.shadow.bias = -0.001; 
+      this.centerLight.shadow.bias = -0.0001; 
 
       this.gameContext.scene.add(this.centerLight);
   }
@@ -120,24 +120,40 @@ export class SceneClass {
   }
 
   updateAnimations(delta) {
-    const speed = 10; 
+    const rotationSpeed = 10;
+    const moveSpeed = 10;
 
-    for (let i = this.animatingPanels.length - 1; i >= 0; i--) {
-        const panel = this.animatingPanels[i];
-        
-        if (!panel.userData.targetQuaternion) {
-            this.animatingPanels.splice(i, 1);
-            continue;
+    for (let panelIndex = this.animatingPanels.length - 1; panelIndex >= 0; panelIndex--) {
+        const panel = this.animatingPanels[panelIndex];
+
+        const hasTargetQuaternion = !!panel.userData.targetQuaternion;
+        const hasTargetPosition = !!panel.userData.targetPosition;
+
+        if (hasTargetQuaternion) {
+            panel.quaternion.slerp(panel.userData.targetQuaternion, delta * rotationSpeed);
+
+            if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
+                panel.quaternion.copy(panel.userData.targetQuaternion);
+                delete panel.userData.targetQuaternion;
+            }
         }
 
-        panel.quaternion.slerp(panel.userData.targetQuaternion, delta * speed);
+        if (hasTargetPosition) {
+            panel.position.lerp(panel.userData.targetPosition, delta * moveSpeed);
 
-        if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
-            panel.quaternion.copy(panel.userData.targetQuaternion);
-            this.animatingPanels.splice(i, 1);
+            if (panel.position.distanceTo(panel.userData.targetPosition) < 0.001) {
+                panel.position.copy(panel.userData.targetPosition);
+                delete panel.userData.targetPosition;
+            }
+        }
+
+        // Если больше нечего анимировать — убираем из списка
+        if (!panel.userData.targetQuaternion && !panel.userData.targetPosition) {
+            this.animatingPanels.splice(panelIndex, 1);
         }
     }
   }
+
 
   createWalls() {
     const { widthWallFront, heightWall, widthWallSide } = this.config;
@@ -187,7 +203,7 @@ export class SceneClass {
   }
 
   addLight() {
-    this.gameContext.scene.add(this.directionalLight);
+    // this.gameContext.scene.add(this.directionalLight);
     this.gameContext.scene.add(this.ambientLight);
   }
 
@@ -212,6 +228,110 @@ export class SceneClass {
         this.deselectPanel();
     }
   }
+
+  randomRotate() {
+    const panels = [];
+
+    // 1. Собираем все панели со всех стен
+    this.walls.forEach((wall) => {
+        wall.children.forEach((child) => {
+            if (child.userData && child.userData.isPanel) {
+                panels.push(child);
+            }
+        });
+    });
+
+    if (panels.length === 0) return;
+
+    // 2. Перемешиваем порядок (Fisher–Yates)
+    for (let i = panels.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        const temp = panels[i];
+        panels[i] = panels[randomIndex];
+        panels[randomIndex] = temp;
+    }
+
+    // 3. Назначаем каждой панели случайный поворот
+    panels.forEach((panel) => {
+
+        // случайное количество поворотов по 90°
+        const randomSteps = Math.ceil(Math.random() * 3);
+        const randomAngle = randomSteps * (Math.PI / 2);
+
+        const deltaQuaternion = new THREE.Quaternion();
+        deltaQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), randomAngle);
+
+        panel.userData.targetQuaternion = panel.quaternion.clone();
+        panel.userData.targetQuaternion.multiply(deltaQuaternion);
+
+        if (!this.animatingPanels.includes(panel)) {
+            this.animatingPanels.push(panel);
+        }
+    });
+  }
+
+
+  shufflePanelsOnWalls() {
+    // Чтобы обводка/выделение не "съехали" во время перестановки
+    this.deselectPanel();
+
+    this.walls.forEach((wall) => {
+        // 1) Собираем панели на этой стене
+        const panelsOnWall = wall.children.filter((child) => child.userData && child.userData.isPanel);
+        if (panelsOnWall.length < 2) return;
+
+        // 2) Собираем их занятые клетки
+        const occupiedCells = panelsOnWall.map((panel) => ({
+            gridX: panel.userData.gridX,
+            gridY: panel.userData.gridY
+        }));
+
+        // 3) Перемешиваем клетки (Fisher–Yates)
+        for (let i = occupiedCells.length - 1; i > 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+            const temp = occupiedCells[i];
+            occupiedCells[i] = occupiedCells[randomIndex];
+            occupiedCells[randomIndex] = temp;
+        }
+
+        // 4) Функция: клетка -> локальная позиция на стене (как в snapToGrid)
+        const width = wall.geometry.parameters.width;
+        const height = wall.geometry.parameters.height;
+        const texture = wall.material.map;
+
+        function cellToLocalPosition(gridX, gridY) {
+            const centerGridU = gridX + 0.5;
+            const centerGridV = gridY + 0.5;
+
+            const newU = (centerGridU - texture.offset.x) / texture.repeat.x;
+            const newV = (centerGridV - texture.offset.y) / texture.repeat.y;
+
+            return new THREE.Vector3(
+                (newU - 0.5) * width,
+                (newV - 0.5) * height,
+                0
+            );
+        }
+
+        // 5) Назначаем каждой панели новую клетку и позицию
+        panelsOnWall.forEach((panel, index) => {
+          const cell = occupiedCells[index];
+      
+          panel.userData.gridX = cell.gridX;
+          panel.userData.gridY = cell.gridY;
+      
+          const targetLocalPosition = cellToLocalPosition(cell.gridX, cell.gridY);
+      
+          panel.userData.targetPosition = targetLocalPosition;
+      
+          if (!this.animatingPanels.includes(panel)) {
+              this.animatingPanels.push(panel);
+          }
+        });
+    });
+  }
+
+
 
   onPanelSelected(panelMesh) {
     if (this.selectedPanel === panelMesh) return;
