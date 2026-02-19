@@ -32,26 +32,50 @@ export class PanelDragHandler {
 
     if (intersects.length > 0) {
       for (const hit of intersects) {
-          let targetObj = hit.object;
+          // Поднимаемся до стены
+    let parentWall = hit.object;
+    while (parentWall.parent && !this.walls.includes(parentWall)) {
+        parentWall = parentWall.parent;
+    }
 
-          while(targetObj.parent && !targetObj.userData.isPanel && targetObj !== this.gameContext.scene) {
-              targetObj = targetObj.parent;
-          }
+    // Если это стена и она не смотрит на камеру — пропускаем
+    if (this.walls.includes(parentWall) && !this.isWallFacingCamera(parentWall)) {
+        continue;
+    }
 
-          if (targetObj.userData.isPanel) {
-              this.pendingPanel = targetObj;
-              this.mouseDownPointer.set(event.clientX, event.clientY);
+    let targetObj = hit.object;
 
-              if (this.gameContext.controls) {
-                  this.gameContext.controls.enabled = false;
-              }
+    while(targetObj.parent && !targetObj.userData.isPanel && targetObj !== this.gameContext.scene) {
+        targetObj = targetObj.parent;
+    }
 
-              return true; 
-          }
+    if (targetObj.userData.isPanel) {
+        this.pendingPanel = targetObj;
+        this.mouseDownPointer.set(event.clientX, event.clientY);
+
+        if (this.gameContext.controls) {
+            this.gameContext.controls.enabled = false;
+        }
+
+        return true; 
+    }
       }
     }
     
     return false;
+  }
+
+  isWallFacingCamera(wall) {
+    const camera = this.gameContext.camera;
+  
+    const wallPosition = new THREE.Vector3();
+    wall.getWorldPosition(wallPosition);
+  
+    const toCamera = new THREE.Vector3().subVectors(camera.position, wallPosition);
+  
+    const wallNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(wall.quaternion);
+  
+    return toCamera.dot(wallNormal) > 0;
   }
 
   // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Принимаем event ---
