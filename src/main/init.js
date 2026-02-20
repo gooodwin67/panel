@@ -14,10 +14,10 @@ export class InitClass {
     this.scene = new THREE.Scene();
     // this.scene.background = new THREE.Color(0x9E91FA);
 
-    this.camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 2000);
+    this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 40);
     this.camera.position.x = 0;
     this.camera.position.y = 0;
-    this.camera.position.z = 15;
+    this.camera.position.z = 10;
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

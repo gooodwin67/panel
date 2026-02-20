@@ -40,6 +40,8 @@ export class SceneClass {
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this.baseGridTexture = this.createGridTexture();
+    this.baseBlankTexture = this.createBlankTexture();
+    this.isNetVisible = true;
 
     this.createWalls();
     this.dragHandler = new PanelDragHandler(gameContext, this.walls, this.config);
@@ -83,7 +85,7 @@ export class SceneClass {
 
     // --- 1. ПОЛ ---
     const floorMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x555555, 
+        color: 0xffffff, 
         roughness: 0.8,
         metalness: 0.1,
         side: THREE.FrontSide
@@ -98,7 +100,7 @@ export class SceneClass {
 
     // --- 2. ПОТОЛОК ---
     const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xeeeeee, 
+        color: 0xffffff, 
         roughness: 0.9,
         side: THREE.FrontSide
     });
@@ -174,27 +176,46 @@ export class SceneClass {
 
   createWallPlane(width, height) {
     const geometry = new THREE.PlaneGeometry(width, height);
-    const texture = this.baseGridTexture.clone();
+
     const repeatX = width / this.config.cellSize;
     const repeatY = height / this.config.cellSize;
-    texture.repeat.set(repeatX, repeatY);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.needsUpdate = true;
+
+    const gridTexture = this.baseGridTexture.clone();
+    gridTexture.repeat.set(repeatX, repeatY);
+    gridTexture.wrapS = THREE.RepeatWrapping;
+    gridTexture.wrapT = THREE.RepeatWrapping;
+    gridTexture.needsUpdate = true;
+
+    const blankTexture = this.baseBlankTexture.clone();
+    blankTexture.repeat.set(repeatX, repeatY);
+    blankTexture.wrapS = THREE.RepeatWrapping;
+    blankTexture.wrapT = THREE.RepeatWrapping;
+    blankTexture.needsUpdate = true;
+
     const material = new THREE.MeshStandardMaterial({
-      color: 0xcccccc, map: texture, opacity: 0.6, transparent: true, side: THREE.FrontSide
+        color: 0xcccccc,
+        map: gridTexture,
+        opacity: 0.6,
+        transparent: true,
+        side: THREE.FrontSide
     });
+
     const mesh = new THREE.Mesh(geometry, material);
-    
+
+    // сохраняем обе текстуры на стене
+    mesh.userData.gridTexture = gridTexture;
+    mesh.userData.blankTexture = blankTexture;
+
     mesh.receiveShadow = true;
 
     mesh.onBeforeRender = function(renderer, scene, camera) {
-      mesh.getWorldPosition(_tempVec);
-      _tempVec.subVectors(camera.position, _tempVec);
-      _tempNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
-      const isLookingAtFront = _tempVec.dot(_tempNormal) > 0;
-      mesh.children.forEach(child => child.visible = isLookingAtFront);
+        mesh.getWorldPosition(_tempVec);
+        _tempVec.subVectors(camera.position, _tempVec);
+        _tempNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
+        const isLookingAtFront = _tempVec.dot(_tempNormal) > 0;
+        mesh.children.forEach(child => child.visible = isLookingAtFront);
     };
+
     return mesh;
   }
 
@@ -534,6 +555,44 @@ export class SceneClass {
       texture.magFilter = THREE.NearestFilter; 
       texture.minFilter = THREE.NearestFilter;
       return texture;
+  }
+
+  createBlankTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; 
+    canvas.height = 128;
+
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, 128, 128);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.magFilter = THREE.NearestFilter;
+    texture.minFilter = THREE.NearestFilter;
+    return texture;
+  }
+
+  toggleNet() {
+    this.isNetVisible = !this.isNetVisible;
+
+    this.walls.forEach((wall) => {
+        if (!wall.material) return;
+
+        const nextTexture = this.isNetVisible
+            ? wall.userData.gridTexture
+            : wall.userData.blankTexture;
+
+        wall.material.map = nextTexture;
+        wall.material.needsUpdate = true;
+    });
+  }
+
+  setAllWallsColor(colorValue) {
+    this.walls.forEach((wall) => {
+        if (wall.material && wall.material.color) {
+            wall.material.color.set(colorValue);
+        }
+    });
   }
 
   setAllPanelsColor(colorValue) {

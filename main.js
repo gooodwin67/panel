@@ -6,6 +6,7 @@ import { SceneClass } from './src/main/scene';
 import { GuiClass } from './src/main/gui';
 import { PanelsClass } from './src/main/panels';
 import { AssetsManager } from './src/assets/assets-manager';
+import { KeyboardOrbitMove } from './src/main/keyboardOrbitMove';
 
 console.clear();
 
@@ -37,6 +38,8 @@ async function initClases() {
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
   gameContext.panelsClass = new PanelsClass(gameContext);
+
+  gameContext.keyboardOrbitMove = new KeyboardOrbitMove(gameContext);
   
   gameContext.renderer.localClippingEnabled = true; 
   gameContext.guiClass = new GuiClass(gameContext);
@@ -84,6 +87,9 @@ async function initFunctions() {
     };
     document.getElementById('random_shuffle').onclick = () => {
       gameContext.sceneClass.shufflePanelsOnWalls();
+    };
+    document.getElementById('toglle_net').onclick = () => {
+      gameContext.sceneClass.toggleNet();
     };
   }
 }
@@ -168,6 +174,14 @@ function createSelectionUI() {
 
       gameContext.sceneClass.setAllPanelsColor(colorInput.value);
   };
+
+  // --- Цвет всех стен ---
+  const wallColorPicker = document.getElementById('wall-color-picker');
+  if (wallColorPicker) {
+      wallColorPicker.addEventListener('input', (event) => {
+          gameContext.sceneClass.setAllWallsColor(event.target.value);
+      });
+  }
 }
 
 
@@ -175,6 +189,16 @@ function update(delta) {
   if (gameContext.testMesh) {
     gameContext.testMesh.rotation.y += delta * 0.5;
   }
+
+  if (gameContext.keyboardOrbitMove) {
+    gameContext.keyboardOrbitMove.update(delta);
+  }
+
+  if (gameContext.controls) {
+    // gameContext.controls.update();
+    // gameContext.controls.target.set(0, 0, 0);
+  }
+
 
   // --- Обновление анимаций вращения ---
   if (gameContext.sceneClass) {
@@ -198,6 +222,7 @@ function update(delta) {
 function render() {
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
       // gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+      
       gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
   
