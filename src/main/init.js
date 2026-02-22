@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
-
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 export class InitClass {
   constructor(gameContext) {
@@ -26,6 +26,13 @@ export class InitClass {
 
     this.renderer.shadowMap.enabled = true;
 
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 0.5;
+
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    this.renderer.physicallyCorrectLights = true;
+
     document.body.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -39,6 +46,20 @@ export class InitClass {
 
     window.addEventListener('resize', this.onWindowResize);
     this.onWindowResize();
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    new RGBELoader()
+      .setPath('./hdr/')
+      .load('studio_small_08_1k.hdr', (hdrTexture) => {
+        const environmentTexture = pmremGenerator.fromEquirectangular(hdrTexture).texture;
+
+        // this.scene.environment = environmentTexture;
+        // this.scene.background = environmentTexture; // если хочешь фон
+
+        hdrTexture.dispose();
+        pmremGenerator.dispose();
+      });
   }
 
   onWindowResize() {
@@ -52,7 +73,7 @@ export class InitClass {
     const viewportHeight = Math.min(windowHeight, maxHeight);
 
     // ВАЖНО: чтобы реально снизить нагрузку
-    this.renderer.setPixelRatio(1);
+    // this.renderer.setPixelRatio(1);
 
     // Рендерим реально в ограниченный размер
     this.renderer.setSize(viewportWidth, viewportHeight, false);
@@ -70,4 +91,5 @@ export class InitClass {
     this.camera.aspect = viewportWidth / viewportHeight;
     this.camera.updateProjectionMatrix();
   }
+  
 }

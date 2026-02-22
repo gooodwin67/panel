@@ -19,6 +19,9 @@ export class SceneClass {
     this.centerLight = null;
     this.lightBulbMesh = null;
 
+    this.sideLight = null;
+    this.sideBulbMesh = null;
+
     this.animatingPanels = [];
 
     this.globalPanelColor = null;
@@ -30,11 +33,8 @@ export class SceneClass {
         heightWall: 2.7,
         widthWallSide: 4
     };
-
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); 
-    this.directionalLight.position.set(5, 5, 5);
     
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.0);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
     
 
     this.raycaster = new THREE.Raycaster();
@@ -58,8 +58,13 @@ export class SceneClass {
   createCenterLight() {
       const { heightWall } = this.config;
 
-      const bulbGeometry = new THREE.BoxGeometry(1.3,0.05,1.3);
-      const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee }); 
+      const bulbGeometry = new THREE.BoxGeometry(1,0.05,1);
+      const bulbMaterial = new THREE.MeshStandardMaterial({
+        color: 0x111111,
+        emissive: 0xffffee,
+        emissiveIntensity: 2.0,
+        roughness: 0.7
+      });
       this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
       
       const lightY = (heightWall / 2) - 0.03; 
@@ -67,15 +72,46 @@ export class SceneClass {
       
       this.gameContext.scene.add(this.lightBulbMesh);
 
-      this.centerLight = new THREE.PointLight(0xffffee, 15, 10, 2); 
-      this.centerLight.position.set(0, lightY, 0);
+      this.centerLight = new THREE.PointLight(0xffe6c2, 60, 0, 2); 
+      this.centerLight.position.set(0, lightY, 1);
       
       this.centerLight.castShadow = true;
       this.centerLight.shadow.mapSize.width = 1024;
       this.centerLight.shadow.mapSize.height = 1024;
       this.centerLight.shadow.bias = -0.0001; 
+      
 
       this.gameContext.scene.add(this.centerLight);
+
+      ///////////////////////////////////////////////////
+
+      const sideBulbGeometry = new THREE.BoxGeometry(0.1,0.4,0.1);
+      const sideBulbMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000,
+        emissive: 0xffaa77,
+        emissiveIntensity: 2.0,
+        roughness: 0.8,
+        metalness: 0.8
+      });
+      this.sideBulbMesh = new THREE.Mesh(sideBulbGeometry, sideBulbMaterial);
+      this.sideBulbMesh.position.set(1.5, 0.5, -1);
+
+      this.gameContext.scene.add(this.sideBulbMesh);
+
+
+      this.sideLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
+      this.sideLight.position.set(1.5, 0.5, -1);
+      this.sideLight.castShadow = true;
+      this.sideLight.shadow.mapSize.width = 1024;
+      this.sideLight.shadow.mapSize.height = 1024;
+      this.sideLight.shadow.bias = -0.0001; 
+      this.gameContext.scene.add(this.sideLight);
+
+
+
+      
+    
+    
   }
 
   createFloorAndCeiling() {
@@ -85,7 +121,7 @@ export class SceneClass {
 
     // --- 1. ПОЛ ---
     const floorMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffffff, 
+        color: 0xf0f0f0, 
         roughness: 0.8,
         metalness: 0.1,
         side: THREE.FrontSide
@@ -100,7 +136,7 @@ export class SceneClass {
 
     // --- 2. ПОТОЛОК ---
     const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffffff, 
+        color: 0xf0f0f0, 
         roughness: 0.9,
         side: THREE.FrontSide
     });
@@ -192,13 +228,25 @@ export class SceneClass {
     blankTexture.wrapT = THREE.RepeatWrapping;
     blankTexture.needsUpdate = true;
 
+    // const material = new THREE.MeshStandardMaterial({
+    //     color: 0xcccccc,
+    //     map: gridTexture,
+    //     opacity: 0.6,
+    //     transparent: true,
+    //     side: THREE.FrontSide
+    // });
+
     const material = new THREE.MeshStandardMaterial({
         color: 0xcccccc,
         map: gridTexture,
-        opacity: 0.6,
-        transparent: true,
+        roughness: 0.9,
+        metalness: 0.0,
+        transparent: false,
+        opacity: 1.0,
         side: THREE.FrontSide
     });
+
+    material.envMapIntensity = 0.2;
 
     const mesh = new THREE.Mesh(geometry, material);
 
@@ -224,7 +272,7 @@ export class SceneClass {
   }
 
   addLight() {
-    // this.gameContext.scene.add(this.directionalLight);
+    
     this.gameContext.scene.add(this.ambientLight);
   }
 
@@ -514,32 +562,32 @@ export class SceneClass {
   }
 
   handleWallSelection(event) {
-    const canvas = this.gameContext.renderer.domElement;
-    const rect = canvas.getBoundingClientRect();
+    // const canvas = this.gameContext.renderer.domElement;
+    // const rect = canvas.getBoundingClientRect();
 
-    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+    // this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    // this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+    // this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
     
-    const intersects = this.raycaster.intersectObjects(this.walls, false);
-    if (intersects.length > 0) {
-      const selectedWall = intersects[0].object;
-    }
+    // const intersects = this.raycaster.intersectObjects(this.walls, false);
+    // if (intersects.length > 0) {
+    //   const selectedWall = intersects[0].object;
+    // }
   }
 
   setActiveWall(wallMesh) {
-    const newIndex = this.walls.indexOf(wallMesh);
-    this.activeWallIndex = newIndex;
-    if (this.onWallChanged) this.onWallChanged(this.walls[this.activeWallIndex]);
+    // const newIndex = this.walls.indexOf(wallMesh);
+    // this.activeWallIndex = newIndex;
+    // if (this.onWallChanged) this.onWallChanged(this.walls[this.activeWallIndex]);
   }
 
   highlightActiveWall() {
-    this.walls.forEach((wall, index) => {
-      const isActive = (index === this.activeWallIndex);
-      wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
-      wall.material.opacity = !isActive ? 0.8 : 0.4;
-      wall.material.emissive.setHex(!isActive ? 0x222222 : 0x000000);
-    });
+    // this.walls.forEach((wall, index) => {
+    //   const isActive = (index === this.activeWallIndex);
+    //   wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
+    //   wall.material.opacity = !isActive ? 0.8 : 0.4;
+    // //   wall.material.emissive.setHex(!isActive ? 0x222222 : 0x000000);
+    // });
   }
 
   createGridTexture() {
@@ -552,8 +600,12 @@ export class SceneClass {
       ctx.lineWidth = 2;
       ctx.strokeRect(0, 0, 128, 128);
       const texture = new THREE.CanvasTexture(canvas);
-      texture.magFilter = THREE.NearestFilter; 
-      texture.minFilter = THREE.NearestFilter;
+    //   texture.magFilter = THREE.NearestFilter; 
+    //   texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = true;
+    texture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy();
       return texture;
   }
 
@@ -567,8 +619,12 @@ export class SceneClass {
     context.fillRect(0, 0, 128, 128);
 
     const texture = new THREE.CanvasTexture(canvas);
-    texture.magFilter = THREE.NearestFilter;
-    texture.minFilter = THREE.NearestFilter;
+    // texture.magFilter = THREE.NearestFilter;
+    // texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = true;
+    texture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy();
     return texture;
   }
 

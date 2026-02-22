@@ -52,7 +52,7 @@ export class GuiClass {
       castShadow: pointLight.castShadow,
       shadowMapSize: pointLight.shadow.mapSize.width,
       shadowBias: pointLight.shadow.bias,
-      kelvin: 4500
+      kelvin: 2800
     };
   
     // Позиция
