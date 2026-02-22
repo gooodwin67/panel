@@ -283,6 +283,10 @@ export class PanelDragHandler {
     }
 
     const worldPosition = this.ghostMesh.position.clone();
+
+    // Добавляем микро-смещение по нормали от стены для предотвращения Z-fighting
+    const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(this.currentWall.quaternion);
+    worldPosition.add(normal.multiplyScalar(0.005));
     
     this.currentWall.add(newPanel);
     this.currentWall.worldToLocal(worldPosition);
