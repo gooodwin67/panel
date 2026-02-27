@@ -194,3 +194,96 @@ canvas {
     /* Чтобы кнопка не нажималась при клике сквозь неё, если что */
     pointer-events: auto;
 }
+
+
+
+
+
+
+
+
+/*--Лампочки--*/
+
+.light_bulb {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: aqua;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+
+.light-selection-ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000000;
+
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    font-family: sans-serif;
+    pointer-events: auto;
+
+    min-width: 220px;
+}
+
+.light-selection-ui .ui-title {
+    font-weight: 700;
+    text-align: center;
+}
+
+.light-selection-ui .ui-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.light-selection-ui .ui-row > span {
+    font-size: 14px;
+    width: 80px;
+}
+
+.light-selection-ui input[type="range"] {
+    width: 100%;
+}
+
+.light-selection-ui input[type="color"] {
+    width: 100%;
+    height: 30px;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.light-selection-ui .ui-row-split {
+    justify-content: space-between;
+}
+
+.light-selection-ui .ui-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.light-selection-ui .ui-btn {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #f6f6f6;
+}
+
+.light-selection-ui .ui-btn-danger {
+    background: #ffdddd;
+    border: 1px solid #ffaaaa;
+}

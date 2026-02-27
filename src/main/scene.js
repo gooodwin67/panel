@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { PanelDragHandler } from './dragHandler';
+import * as THREE from "three";
+import { PanelDragHandler } from "./dragHandler";
 
 const _tempVec = new THREE.Vector3();
 const _tempNormal = new THREE.Vector3();
@@ -7,14 +7,14 @@ const _tempNormal = new THREE.Vector3();
 export class SceneClass {
   constructor(gameContext) {
     this.gameContext = gameContext;
-    this.onWallChanged = null; 
-    
+    this.onWallChanged = null;
+
     this.selectedPanel = null;
-    
+
     // Ссылки на объекты комнаты
     this.floor = null;
     this.ceiling = null;
-    
+
     // Ссылки на свет
     this.centerLight = null;
     this.lightBulbMesh = null;
@@ -27,15 +27,22 @@ export class SceneClass {
     this.globalPanelColor = null;
 
     this.config = {
-        cellSize: 0.5,
-        panelDepth: 0.05,
-        widthWallFront: 5,
-        heightWall: 2.7,
-        widthWallSide: 4
+      cellSize: 0.5,
+      panelDepth: 0.05,
+      widthWallFront: 5,
+      heightWall: 2.7,
+      widthWallSide: 4,
     };
-    
+
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
-    
+
+    this.lightBulbs = [];
+    this.selectedLightBulb = null;
+    this.isDraggingLightBulb = false;
+    this.draggedLightBulbMesh = null;
+    this.lightDragPlane = new THREE.Plane();
+    this.lightDragIntersectionPoint = new THREE.Vector3();
+    this.lightDragOffset = new THREE.Vector3();
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -44,74 +51,70 @@ export class SceneClass {
     this.isNetVisible = true;
 
     this.createWalls();
-    this.dragHandler = new PanelDragHandler(gameContext, this.walls, this.config);
+    this.dragHandler = new PanelDragHandler(
+      gameContext,
+      this.walls,
+      this.config
+    );
   }
 
   createScene() {
     this.loadWall();
     this.createFloorAndCeiling();
-    this.createCenterLight(); 
+    this.createCenterLight();
     this.addLight();
     this.initEvents();
   }
 
   createCenterLight() {
-      const { heightWall } = this.config;
+    const { heightWall } = this.config;
 
-      const bulbGeometry = new THREE.BoxGeometry(1,0.05,1);
-      const bulbMaterial = new THREE.MeshStandardMaterial({
-        color: 0x111111,
-        emissive: 0xffffee,
-        emissiveIntensity: 2.0,
-        roughness: 0.7
-      });
-      this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
-      
-      const lightY = (heightWall / 2) - 0.03; 
-      this.lightBulbMesh.position.set(0, lightY, 0);
-      
-      this.gameContext.scene.add(this.lightBulbMesh);
+    const bulbGeometry = new THREE.BoxGeometry(1, 0.05, 1);
+    const bulbMaterial = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      emissive: 0xffffee,
+      emissiveIntensity: 2.0,
+      roughness: 0.7,
+    });
+    this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
 
-      this.centerLight = new THREE.PointLight(0xffe6c2, 60, 0, 2); 
-      this.centerLight.position.set(0, lightY, 1);
-      
-      this.centerLight.castShadow = true;
-      this.centerLight.shadow.mapSize.width = 1024;
-      this.centerLight.shadow.mapSize.height = 1024;
-      this.centerLight.shadow.bias = -0.0001; 
-      
+    const lightY = heightWall / 2 - 0.03;
+    this.lightBulbMesh.position.set(0, lightY, 0);
 
-      this.gameContext.scene.add(this.centerLight);
+    this.gameContext.scene.add(this.lightBulbMesh);
 
-      ///////////////////////////////////////////////////
+    this.centerLight = new THREE.PointLight(0xffe6c2, 60, 0, 2);
+    this.centerLight.position.set(0, lightY, 1);
 
-      const sideBulbGeometry = new THREE.BoxGeometry(0.1,0.4,0.1);
-      const sideBulbMaterial = new THREE.MeshStandardMaterial({
-        color: 0x000000,
-        emissive: 0xffaa77,
-        emissiveIntensity: 2.0,
-        roughness: 0.8,
-        metalness: 0.8
-      });
-      this.sideBulbMesh = new THREE.Mesh(sideBulbGeometry, sideBulbMaterial);
-      this.sideBulbMesh.position.set(1.5, 0.5, -1);
+    this.centerLight.castShadow = true;
+    this.centerLight.shadow.mapSize.width = 1024;
+    this.centerLight.shadow.mapSize.height = 1024;
+    this.centerLight.shadow.bias = -0.0001;
 
-      this.gameContext.scene.add(this.sideBulbMesh);
+    this.gameContext.scene.add(this.centerLight);
 
+    ///////////////////////////////////////////////////
 
-      this.sideLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
-      this.sideLight.position.set(1.5, 0.5, -1);
-      this.sideLight.castShadow = true;
-      this.sideLight.shadow.mapSize.width = 1024;
-      this.sideLight.shadow.mapSize.height = 1024;
-      this.sideLight.shadow.bias = -0.0001; 
-      this.gameContext.scene.add(this.sideLight);
+    const sideBulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const sideBulbMaterial = new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      emissive: 0xffaa77,
+      emissiveIntensity: 2.0,
+      roughness: 0.8,
+      metalness: 0.8,
+    });
+    this.sideBulbMesh = new THREE.Mesh(sideBulbGeometry, sideBulbMaterial);
+    this.sideBulbMesh.position.set(1.5, 0.5, -1);
 
+    // this.gameContext.scene.add(this.sideBulbMesh);
 
-
-      
-    
-    
+    this.sideLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
+    this.sideLight.position.set(1.5, 0.5, -1);
+    this.sideLight.castShadow = true;
+    this.sideLight.shadow.mapSize.width = 1024;
+    this.sideLight.shadow.mapSize.height = 1024;
+    this.sideLight.shadow.bias = -0.0001;
+    // this.gameContext.scene.add(this.sideLight);
   }
 
   createFloorAndCeiling() {
@@ -120,92 +123,98 @@ export class SceneClass {
     const geometry = new THREE.PlaneGeometry(widthWallFront, widthWallSide);
 
     // --- 1. ПОЛ ---
-    const floorMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xf0f0f0, 
-        roughness: 0.8,
-        metalness: 0.1,
-        side: THREE.FrontSide
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf0f0f0,
+      roughness: 0.8,
+      metalness: 0.1,
+      side: THREE.FrontSide,
     });
     this.floor = new THREE.Mesh(geometry, floorMaterial);
-    
-    this.floor.rotation.x = -Math.PI / 2; 
+
+    this.floor.rotation.x = -Math.PI / 2;
     this.floor.position.y = -heightWall / 2;
-    this.floor.receiveShadow = true; 
+    this.floor.receiveShadow = true;
 
     this.gameContext.scene.add(this.floor);
 
     // --- 2. ПОТОЛОК ---
-    const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xf0f0f0, 
-        roughness: 0.9,
-        side: THREE.FrontSide
+    const ceilingMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf0f0f0,
+      roughness: 0.9,
+      side: THREE.FrontSide,
     });
     this.ceiling = new THREE.Mesh(geometry, ceilingMaterial);
-    
-    this.ceiling.rotation.x = Math.PI / 2; 
+
+    this.ceiling.rotation.x = Math.PI / 2;
     this.ceiling.position.y = heightWall / 2;
     this.ceiling.receiveShadow = true;
 
     this.gameContext.scene.add(this.ceiling);
   }
-  
+
   setRoomColor(target, hexColor) {
-      if (target === 'floor' && this.floor) {
-          this.floor.material.color.setHex(hexColor);
-      } else if (target === 'ceiling' && this.ceiling) {
-          this.ceiling.material.color.setHex(hexColor);
-      }
+    if (target === "floor" && this.floor) {
+      this.floor.material.color.setHex(hexColor);
+    } else if (target === "ceiling" && this.ceiling) {
+      this.ceiling.material.color.setHex(hexColor);
+    }
   }
 
   updateAnimations(delta) {
     const rotationSpeed = 10;
     const moveSpeed = 10;
 
-    for (let panelIndex = this.animatingPanels.length - 1; panelIndex >= 0; panelIndex--) {
-        const panel = this.animatingPanels[panelIndex];
+    for (
+      let panelIndex = this.animatingPanels.length - 1;
+      panelIndex >= 0;
+      panelIndex--
+    ) {
+      const panel = this.animatingPanels[panelIndex];
 
-        const hasTargetQuaternion = !!panel.userData.targetQuaternion;
-        const hasTargetPosition = !!panel.userData.targetPosition;
+      const hasTargetQuaternion = !!panel.userData.targetQuaternion;
+      const hasTargetPosition = !!panel.userData.targetPosition;
 
-        if (hasTargetQuaternion) {
-            panel.quaternion.slerp(panel.userData.targetQuaternion, delta * rotationSpeed);
+      if (hasTargetQuaternion) {
+        panel.quaternion.slerp(
+          panel.userData.targetQuaternion,
+          delta * rotationSpeed
+        );
 
-            if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
-                panel.quaternion.copy(panel.userData.targetQuaternion);
-                delete panel.userData.targetQuaternion;
-            }
+        if (panel.quaternion.angleTo(panel.userData.targetQuaternion) < 0.01) {
+          panel.quaternion.copy(panel.userData.targetQuaternion);
+          delete panel.userData.targetQuaternion;
         }
+      }
 
-        if (hasTargetPosition) {
-            panel.position.lerp(panel.userData.targetPosition, delta * moveSpeed);
+      if (hasTargetPosition) {
+        panel.position.lerp(panel.userData.targetPosition, delta * moveSpeed);
 
-            if (panel.position.distanceTo(panel.userData.targetPosition) < 0.001) {
-                panel.position.copy(panel.userData.targetPosition);
-                delete panel.userData.targetPosition;
-            }
+        if (panel.position.distanceTo(panel.userData.targetPosition) < 0.001) {
+          panel.position.copy(panel.userData.targetPosition);
+          delete panel.userData.targetPosition;
         }
+      }
 
-        // Если больше нечего анимировать — убираем из списка
-        if (!panel.userData.targetQuaternion && !panel.userData.targetPosition) {
-            this.animatingPanels.splice(panelIndex, 1);
-        }
+      // Если больше нечего анимировать — убираем из списка
+      if (!panel.userData.targetQuaternion && !panel.userData.targetPosition) {
+        this.animatingPanels.splice(panelIndex, 1);
+      }
     }
   }
-
 
   createWalls() {
     const { widthWallFront, heightWall, widthWallSide } = this.config;
     this.wall = this.createWallPlane(widthWallFront, heightWall);
-    this.wall.position.z = -widthWallSide/2;
+    this.wall.position.z = -widthWallSide / 2;
     this.wall2 = this.createWallPlane(widthWallFront, heightWall);
-    this.wall2.position.z = widthWallSide/2;
+    this.wall2.position.z = widthWallSide / 2;
     this.wall2.rotation.y = Math.PI;
     this.wall3 = this.createWallPlane(widthWallSide, heightWall);
-    this.wall3.rotation.y = -Math.PI/2;
-    this.wall3.position.x = widthWallFront/2;
+    this.wall3.rotation.y = -Math.PI / 2;
+    this.wall3.position.x = widthWallFront / 2;
     this.wall4 = this.createWallPlane(widthWallSide, heightWall);
-    this.wall4.rotation.y = Math.PI/2;
-    this.wall4.position.x = -widthWallFront/2;
+    this.wall4.rotation.y = Math.PI / 2;
+    this.wall4.position.x = -widthWallFront / 2;
     this.walls = [this.wall, this.wall2, this.wall3, this.wall4];
     this.activeWallIndex = 0;
   }
@@ -237,13 +246,13 @@ export class SceneClass {
     // });
 
     const material = new THREE.MeshStandardMaterial({
-        color: 0xcccccc,
-        map: gridTexture,
-        roughness: 0.9,
-        metalness: 0.0,
-        transparent: false,
-        opacity: 1.0,
-        side: THREE.FrontSide
+      color: 0xcccccc,
+      map: gridTexture,
+      roughness: 0.9,
+      metalness: 0.0,
+      transparent: false,
+      opacity: 1.0,
+      side: THREE.FrontSide,
     });
 
     material.envMapIntensity = 0.2;
@@ -256,30 +265,44 @@ export class SceneClass {
 
     mesh.receiveShadow = true;
 
-    mesh.onBeforeRender = function(renderer, scene, camera) {
-        mesh.getWorldPosition(_tempVec);
-        _tempVec.subVectors(camera.position, _tempVec);
-        _tempNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
-        const isLookingAtFront = _tempVec.dot(_tempNormal) > 0;
-        mesh.children.forEach(child => child.visible = isLookingAtFront);
+    mesh.onBeforeRender = function (renderer, scene, camera) {
+      mesh.getWorldPosition(_tempVec);
+      _tempVec.subVectors(camera.position, _tempVec);
+      _tempNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
+      const isLookingAtFront = _tempVec.dot(_tempNormal) > 0;
+      mesh.children.forEach((child) => (child.visible = isLookingAtFront));
     };
 
     return mesh;
   }
 
   loadWall() {
-    this.walls.forEach(wall => this.gameContext.scene.add(wall));
+    this.walls.forEach((wall) => this.gameContext.scene.add(wall));
   }
 
   addLight() {
-    
     this.gameContext.scene.add(this.ambientLight);
   }
 
   initEvents() {
-    window.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-    window.addEventListener('pointermove', (e) => this.dragHandler.onPointerMove(e));
-    window.addEventListener('pointerup', (e) => this.dragHandler.onPointerUp(e));
+    window.addEventListener("pointerdown", (e) => this.onPointerDown(e));
+
+    window.addEventListener("pointermove", (e) => {
+      // если тащим лампочку — обрабатываем тут
+      if (this.isDraggingLightBulb) {
+        this.onPointerMoveLightBulb(e);
+        return;
+      }
+      this.dragHandler.onPointerMove(e);
+    });
+
+    window.addEventListener("pointerup", (e) => {
+      if (this.isDraggingLightBulb) {
+        this.stopDragLightBulb();
+        return;
+      }
+      this.dragHandler.onPointerUp(e);
+    });
   }
 
   startDrag(type, event) {
@@ -288,147 +311,179 @@ export class SceneClass {
   }
 
   onPointerDown(event) {
-    if (event.target.closest('.selection-ui') || event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT') {
-        return; 
+    if (
+      event.target.closest(".selection-ui") ||
+      event.target.tagName === "BUTTON" ||
+      event.target.tagName === "INPUT"
+    ) {
+      return;
     }
+
+    // Проверка лампочек
+    const canvas = this.gameContext.renderer.domElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+
+    const bulbMeshes = this.lightBulbs.map((obj) => obj.mesh);
+    const intersects = this.raycaster.intersectObjects(bulbMeshes, false);
+
+    if (intersects.length > 0) {
+      const bulbMesh = intersects[0].object;
+
+      // показываем UI лампы (если у тебя уже есть selectLightBulb)
+      this.selectLightBulb(bulbMesh);
+
+      // старт перетаскивания
+      this.startDragLightBulb(bulbMesh, event);
+
+      return;
+    }
+
     const isPanelTouch = this.dragHandler.handlePointerDown(event);
     if (!isPanelTouch) {
-        this.handleWallSelection(event);
-        this.deselectPanel();
+      this.handleWallSelection(event);
+      this.deselectPanel();
+      this.deselectLightBulb();
     }
   }
 
   randomRotate() {
     const panels = [];
 
-    // 1. Собираем все панели со всех стен
     this.walls.forEach((wall) => {
-        wall.children.forEach((child) => {
-            if (child.userData && child.userData.isPanel) {
-                panels.push(child);
-            }
-        });
+      wall.children.forEach((child) => {
+        if (child.userData && child.userData.isPanel) {
+          panels.push(child);
+        }
+      });
     });
 
     if (panels.length === 0) return;
 
-    // 2. Перемешиваем порядок (Fisher–Yates)
+    // Перемешиваем
     for (let i = panels.length - 1; i > 0; i--) {
-        const randomIndex = Math.floor(Math.random() * (i + 1));
-        const temp = panels[i];
-        panels[i] = panels[randomIndex];
-        panels[randomIndex] = temp;
+      const randomIndex = Math.floor(Math.random() * (i + 1));
+      const temp = panels[i];
+      panels[i] = panels[randomIndex];
+      panels[randomIndex] = temp;
     }
 
-    // 3. Назначаем каждой панели случайный поворот
     panels.forEach((panel) => {
+      const randomSteps = Math.ceil(Math.random() * 3);
+      const randomAngle = randomSteps * (Math.PI / 2);
 
-        // случайное количество поворотов по 90°
-        const randomSteps = Math.ceil(Math.random() * 3);
-        const randomAngle = randomSteps * (Math.PI / 2);
+      const deltaQuaternion = new THREE.Quaternion();
+      deltaQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), randomAngle);
 
-        const deltaQuaternion = new THREE.Quaternion();
-        deltaQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), randomAngle);
+      // 🔥 КЛЮЧЕВОЙ МОМЕНТ
+      const baseQuaternion = panel.userData.targetQuaternion
+        ? panel.userData.targetQuaternion.clone()
+        : panel.quaternion.clone();
 
-        panel.userData.targetQuaternion = panel.quaternion.clone();
-        panel.userData.targetQuaternion.multiply(deltaQuaternion);
+      panel.userData.targetQuaternion =
+        baseQuaternion.multiply(deltaQuaternion);
 
-        if (!this.animatingPanels.includes(panel)) {
-            this.animatingPanels.push(panel);
-        }
+      if (!this.animatingPanels.includes(panel)) {
+        this.animatingPanels.push(panel);
+      }
     });
   }
-
 
   shufflePanelsOnWalls() {
     // Чтобы обводка/выделение не "съехали" во время перестановки
     this.deselectPanel();
 
     this.walls.forEach((wall) => {
-        // 1) Собираем панели на этой стене
-        const panelsOnWall = wall.children.filter((child) => child.userData && child.userData.isPanel);
-        if (panelsOnWall.length < 2) return;
+      // 1) Собираем панели на этой стене
+      const panelsOnWall = wall.children.filter(
+        (child) => child.userData && child.userData.isPanel
+      );
+      if (panelsOnWall.length < 2) return;
 
-        // 2) Собираем их занятые клетки
-        const occupiedCells = panelsOnWall.map((panel) => ({
-            gridX: panel.userData.gridX,
-            gridY: panel.userData.gridY
-        }));
+      // 2) Собираем их занятые клетки
+      const occupiedCells = panelsOnWall.map((panel) => ({
+        gridX: panel.userData.gridX,
+        gridY: panel.userData.gridY,
+      }));
 
-        // 3) Перемешиваем клетки (Fisher–Yates)
-        for (let i = occupiedCells.length - 1; i > 0; i--) {
-            const randomIndex = Math.floor(Math.random() * (i + 1));
-            const temp = occupiedCells[i];
-            occupiedCells[i] = occupiedCells[randomIndex];
-            occupiedCells[randomIndex] = temp;
+      // 3) Перемешиваем клетки (Fisher–Yates)
+      for (let i = occupiedCells.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        const temp = occupiedCells[i];
+        occupiedCells[i] = occupiedCells[randomIndex];
+        occupiedCells[randomIndex] = temp;
+      }
+
+      // 4) Функция: клетка -> локальная позиция на стене (как в snapToGrid)
+      const width = wall.geometry.parameters.width;
+      const height = wall.geometry.parameters.height;
+      const texture = wall.material.map;
+
+      function cellToLocalPosition(gridX, gridY) {
+        const centerGridU = gridX + 0.5;
+        const centerGridV = gridY + 0.5;
+
+        const newU = (centerGridU - texture.offset.x) / texture.repeat.x;
+        const newV = (centerGridV - texture.offset.y) / texture.repeat.y;
+
+        return new THREE.Vector3(
+          (newU - 0.5) * width,
+          (newV - 0.5) * height,
+          0.005
+        );
+      }
+
+      // 5) Назначаем каждой панели новую клетку и позицию
+      panelsOnWall.forEach((panel, index) => {
+        const cell = occupiedCells[index];
+
+        panel.userData.gridX = cell.gridX;
+        panel.userData.gridY = cell.gridY;
+
+        const targetLocalPosition = cellToLocalPosition(cell.gridX, cell.gridY);
+
+        panel.userData.targetPosition = targetLocalPosition;
+
+        if (!this.animatingPanels.includes(panel)) {
+          this.animatingPanels.push(panel);
         }
-
-        // 4) Функция: клетка -> локальная позиция на стене (как в snapToGrid)
-        const width = wall.geometry.parameters.width;
-        const height = wall.geometry.parameters.height;
-        const texture = wall.material.map;
-
-        function cellToLocalPosition(gridX, gridY) {
-            const centerGridU = gridX + 0.5;
-            const centerGridV = gridY + 0.5;
-
-            const newU = (centerGridU - texture.offset.x) / texture.repeat.x;
-            const newV = (centerGridV - texture.offset.y) / texture.repeat.y;
-
-            return new THREE.Vector3(
-                (newU - 0.5) * width,
-                (newV - 0.5) * height,
-                0
-            );
-        }
-
-        // 5) Назначаем каждой панели новую клетку и позицию
-        panelsOnWall.forEach((panel, index) => {
-          const cell = occupiedCells[index];
-      
-          panel.userData.gridX = cell.gridX;
-          panel.userData.gridY = cell.gridY;
-      
-          const targetLocalPosition = cellToLocalPosition(cell.gridX, cell.gridY);
-      
-          panel.userData.targetPosition = targetLocalPosition;
-      
-          if (!this.animatingPanels.includes(panel)) {
-              this.animatingPanels.push(panel);
-          }
-        });
+      });
     });
   }
 
-
-
   onPanelSelected(panelMesh) {
     if (this.selectedPanel === panelMesh) return;
-    
+
     // Сначала снимаем выделение с предыдущей
     this.deselectPanel();
-    
+
     this.selectedPanel = panelMesh;
-    
+
     // 1. Добавляем визуальную обводку (ободок)
     this.addSelectionOutline(panelMesh);
-    
+
     // 2. Получаем текущий цвет для UI
-    let currentColor = '#ffffff';
+    let currentColor = "#ffffff";
     panelMesh.traverse((child) => {
-        if (child.isMesh && child.material) {
-            const mat = Array.isArray(child.material) ? child.material[0] : child.material;
-            // Просто считываем цвет, не меняя emissive
-            currentColor = '#' + mat.color.getHexString();
-        }
+      if (child.isMesh && child.material) {
+        const mat = Array.isArray(child.material)
+          ? child.material[0]
+          : child.material;
+        // Просто считываем цвет, не меняя emissive
+        currentColor = "#" + mat.color.getHexString();
+      }
     });
 
     // 3. Показываем UI
-    const ui = document.querySelector('.selection-ui');
+    const ui = document.querySelector(".selection-ui");
     if (ui) {
-        ui.style.display = 'flex';
-        const colorInput = document.getElementById('panel-color-picker');
-        if (colorInput) colorInput.value = currentColor;
+      ui.style.display = "flex";
+      const colorInput = document.getElementById("panel-color-picker");
+      if (colorInput) colorInput.value = currentColor;
     }
   }
 
@@ -450,29 +505,32 @@ export class SceneClass {
 
     // 3. Проходимся по всем мешам
     panel.traverse((child) => {
-        if (child.isMesh && child.geometry) {
-            const posAttribute = child.geometry.attributes.position;
-            if (posAttribute) {
-                for (let i = 0; i < posAttribute.count; i++) {
-                    // Берем вершину (в координатах меша)
-                    v.fromBufferAttribute(posAttribute, i);
-                    
-                    // Переводим в Мировые координаты
-                    v.applyMatrix4(child.matrixWorld);
-                    
-                    // Переводим в Локальные координаты Панели (умножаем на обратную матрицу панели)
-                    v.applyMatrix4(inversePanelMatrix);
-                    
-                    // Расширяем бокс
-                    localBox.expandByPoint(v);
-                }
-                hasMesh = true;
-            }
+      if (child.isMesh && child.geometry) {
+        const posAttribute = child.geometry.attributes.position;
+        if (posAttribute) {
+          for (let i = 0; i < posAttribute.count; i++) {
+            // Берем вершину (в координатах меша)
+            v.fromBufferAttribute(posAttribute, i);
+
+            // Переводим в Мировые координаты
+            v.applyMatrix4(child.matrixWorld);
+
+            // Переводим в Локальные координаты Панели (умножаем на обратную матрицу панели)
+            v.applyMatrix4(inversePanelMatrix);
+
+            // Расширяем бокс
+            localBox.expandByPoint(v);
+          }
+          hasMesh = true;
         }
+      }
     });
 
     if (!hasMesh) {
-        localBox.set(new THREE.Vector3(-0.25, -0.25, 0), new THREE.Vector3(0.25, 0.25, 0.05));
+      localBox.set(
+        new THREE.Vector3(-0.25, -0.25, 0),
+        new THREE.Vector3(0.25, 0.25, 0.05)
+      );
     }
 
     // 4. Создаем геометрию на основе "чистого" локального бокса
@@ -485,61 +543,66 @@ export class SceneClass {
 
     const outlineGeom = new THREE.BoxGeometry(size.x, size.y, size.z);
     const edges = new THREE.EdgesGeometry(outlineGeom);
-    
-    const lineMat = new THREE.LineBasicMaterial({ 
-        color: 0x00FFFF, 
-        depthTest: false,
-        depthWrite: false
+
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0x00ffff,
+      depthTest: false,
+      depthWrite: false,
     });
 
     const outlineMesh = new THREE.LineSegments(edges, lineMat);
-    
+
     // Позиция outlineMesh относительно Panel будет равна вычисленному центру localBox
     outlineMesh.position.copy(center);
-    
-    outlineMesh.name = 'selection_outline';
+
+    outlineMesh.name = "selection_outline";
     outlineMesh.raycast = () => {};
 
     // Добавляем как дочерний элемент. Так как координаты вычислены относительно Panel,
     // рамка встанет идеально, и будет вращаться вместе с панелью.
     panel.add(outlineMesh);
-}
+  }
 
   removeSelectionOutline() {
-      if (!this.selectedPanel) return;
+    if (!this.selectedPanel) return;
 
-      const outline = this.selectedPanel.getObjectByName('selection_outline');
-      if (outline) {
-          this.selectedPanel.remove(outline);
-          if (outline.geometry) outline.geometry.dispose();
-          if (outline.material) outline.material.dispose();
-      }
+    const outline = this.selectedPanel.getObjectByName("selection_outline");
+    if (outline) {
+      this.selectedPanel.remove(outline);
+      if (outline.geometry) outline.geometry.dispose();
+      if (outline.material) outline.material.dispose();
+    }
   }
 
   deselectPanel() {
+    this.deselectLightBulb();
     if (!this.selectedPanel) return;
-    
+
     // Удаляем обводку
     this.removeSelectionOutline();
 
     this.selectedPanel = null;
-    
+
     // Скрываем UI
-    const ui = document.querySelector('.selection-ui');
-    if (ui) ui.style.display = 'none';
+    const ui = document.querySelector(".selection-ui");
+    if (ui) ui.style.display = "none";
   }
 
   changeSelectedPanelColor(colorValue) {
     if (!this.selectedPanel) return;
 
     this.selectedPanel.traverse((child) => {
-        if (child.isMesh && child.material && child.name !== 'selection_outline') {
-            if (Array.isArray(child.material)) {
-                child.material.forEach(m => m.color.set(colorValue));
-            } else {
-                child.material.color.set(colorValue);
-            }
+      if (
+        child.isMesh &&
+        child.material &&
+        child.name !== "selection_outline"
+      ) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((m) => m.color.set(colorValue));
+        } else {
+          child.material.color.set(colorValue);
         }
+      }
     });
   }
 
@@ -548,7 +611,7 @@ export class SceneClass {
     const panel = this.selectedPanel;
 
     if (!panel.userData.targetQuaternion) {
-        panel.userData.targetQuaternion = panel.quaternion.clone();
+      panel.userData.targetQuaternion = panel.quaternion.clone();
     }
 
     const deltaRotation = new THREE.Quaternion();
@@ -557,18 +620,16 @@ export class SceneClass {
     panel.userData.targetQuaternion.multiply(deltaRotation);
 
     if (!this.animatingPanels.includes(panel)) {
-        this.animatingPanels.push(panel);
+      this.animatingPanels.push(panel);
     }
   }
 
   handleWallSelection(event) {
     // const canvas = this.gameContext.renderer.domElement;
     // const rect = canvas.getBoundingClientRect();
-
     // this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     // this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
     // this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
-    
     // const intersects = this.raycaster.intersectObjects(this.walls, false);
     // if (intersects.length > 0) {
     //   const selectedWall = intersects[0].object;
@@ -591,31 +652,33 @@ export class SceneClass {
   }
 
   createGridTexture() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 128; canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#cccccc'; 
-      ctx.fillRect(0, 0, 128, 128);
-      ctx.strokeStyle = '#444444';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, 128, 128);
-      const texture = new THREE.CanvasTexture(canvas);
-    //   texture.magFilter = THREE.NearestFilter; 
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#cccccc";
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = "#444444";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, 128, 128);
+    const texture = new THREE.CanvasTexture(canvas);
+    //   texture.magFilter = THREE.NearestFilter;
     //   texture.minFilter = THREE.NearestFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.generateMipmaps = true;
-    texture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy();
-      return texture;
+    texture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
+    return texture;
   }
 
   createBlankTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128; 
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
     canvas.height = 128;
 
-    const context = canvas.getContext('2d');
-    context.fillStyle = '#ffffff';
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#ffffff";
     context.fillRect(0, 0, 128, 128);
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -624,7 +687,8 @@ export class SceneClass {
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.generateMipmaps = true;
-    texture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy();
+    texture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
     return texture;
   }
 
@@ -632,42 +696,201 @@ export class SceneClass {
     this.isNetVisible = !this.isNetVisible;
 
     this.walls.forEach((wall) => {
-        if (!wall.material) return;
+      if (!wall.material) return;
 
-        const nextTexture = this.isNetVisible
-            ? wall.userData.gridTexture
-            : wall.userData.blankTexture;
+      const nextTexture = this.isNetVisible
+        ? wall.userData.gridTexture
+        : wall.userData.blankTexture;
 
-        wall.material.map = nextTexture;
-        wall.material.needsUpdate = true;
+      wall.material.map = nextTexture;
+      wall.material.needsUpdate = true;
     });
   }
 
   setAllWallsColor(colorValue) {
     this.walls.forEach((wall) => {
-        if (wall.material && wall.material.color) {
-            wall.material.color.set(colorValue);
-        }
+      if (wall.material && wall.material.color) {
+        wall.material.color.set(colorValue);
+      }
     });
   }
 
   setAllPanelsColor(colorValue) {
-      this.globalPanelColor = colorValue;
+    this.globalPanelColor = colorValue;
 
-      this.walls.forEach((wall) => {
-          wall.traverse((child) => {
-              if (child.userData && child.userData.isPanel) {
-                  child.traverse((meshChild) => {
-                      if (meshChild.isMesh && meshChild.material) {
-                          if (Array.isArray(meshChild.material)) {
-                              meshChild.material.forEach(m => m.color.set(colorValue));
-                          } else {
-                              meshChild.material.color.set(colorValue);
-                          }
-                      }
-                  });
+    this.walls.forEach((wall) => {
+      wall.traverse((child) => {
+        if (child.userData && child.userData.isPanel) {
+          child.traverse((meshChild) => {
+            if (meshChild.isMesh && meshChild.material) {
+              if (Array.isArray(meshChild.material)) {
+                meshChild.material.forEach((m) => m.color.set(colorValue));
+              } else {
+                meshChild.material.color.set(colorValue);
               }
+            }
           });
+        }
       });
+    });
+  }
+
+  addSideLightBulb() {
+    const bulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+
+    const bulbMaterial = new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      emissive: 0xffaa77,
+      emissiveIntensity: 2.0,
+      roughness: 0.8,
+      metalness: 0.8,
+    });
+
+    const bulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
+
+    // Случайная позиция внутри комнаты
+    const x = (Math.random() - 0.5) * this.config.widthWallFront;
+    const y = (Math.random() - 0.5) * this.config.heightWall;
+    const z = (Math.random() - 0.5) * this.config.widthWallSide;
+
+    bulbMesh.position.set(x, y, z);
+
+    const pointLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
+    pointLight.position.copy(bulbMesh.position);
+
+    pointLight.castShadow = false;
+
+    // ВАЖНО
+    bulbMesh.userData.isLightBulb = true;
+    bulbMesh.userData.light = pointLight;
+
+    this.gameContext.scene.add(bulbMesh);
+    this.gameContext.scene.add(pointLight);
+
+    this.lightBulbs.push({
+      mesh: bulbMesh,
+      light: pointLight,
+    });
+  }
+  selectLightBulb(bulbMesh) {
+    this.deselectPanel(); // чтобы не конфликтовали UI
+
+    this.selectedLightBulb = bulbMesh;
+
+    const lightUI = document.querySelector(".light-selection-ui");
+    if (lightUI) lightUI.style.display = "flex";
+
+    this.refreshLightBulbUI();
+  }
+
+  deselectLightBulb() {
+    this.selectedLightBulb = null;
+
+    const lightUI = document.querySelector(".light-selection-ui");
+    if (lightUI) lightUI.style.display = "none";
+  }
+
+  refreshLightBulbUI() {
+    const bulbMesh = this.selectedLightBulb;
+    if (!bulbMesh) return;
+
+    const pointLight = bulbMesh.userData.light;
+    if (!pointLight) return;
+
+    const colorInput = document.getElementById("light-color-picker");
+    if (colorInput) colorInput.value = "#" + pointLight.color.getHexString();
+
+    const intensityInput = document.getElementById("light-intensity");
+    if (intensityInput) intensityInput.value = String(pointLight.intensity);
+
+    const distanceInput = document.getElementById("light-distance");
+    if (distanceInput) distanceInput.value = String(pointLight.distance);
+
+    const decayInput = document.getElementById("light-decay");
+    if (decayInput) decayInput.value = String(pointLight.decay);
+
+    const bulbVisibleInput = document.getElementById("bulb-visible");
+    if (bulbVisibleInput) bulbVisibleInput.checked = bulbMesh.visible;
+
+    const emissiveInput = document.getElementById("bulb-emissive");
+    if (
+      emissiveInput &&
+      bulbMesh.material &&
+      bulbMesh.material.emissiveIntensity !== undefined
+    ) {
+      emissiveInput.value = String(bulbMesh.material.emissiveIntensity);
+    }
+  }
+
+  startDragLightBulb(bulbMesh, event) {
+    this.isDraggingLightBulb = true;
+    this.draggedLightBulbMesh = bulbMesh;
+
+    // выключаем OrbitControls, чтобы камера не крутилась
+    if (this.gameContext.controls) this.gameContext.controls.enabled = false;
+
+    // плоскость: нормаль = направление камеры, точка = позиция лампы
+    const cameraDirection = new THREE.Vector3();
+    this.gameContext.camera.getWorldDirection(cameraDirection);
+
+    this.lightDragPlane.setFromNormalAndCoplanarPoint(
+      cameraDirection,
+      bulbMesh.position
+    );
+
+    // оффсет, чтобы лампа не "прыгала" в центр луча
+    this.updatePointer(event);
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+
+    if (
+      this.raycaster.ray.intersectPlane(
+        this.lightDragPlane,
+        this.lightDragIntersectionPoint
+      )
+    ) {
+      this.lightDragOffset
+        .copy(this.lightDragIntersectionPoint)
+        .sub(bulbMesh.position);
+    } else {
+      this.lightDragOffset.set(0, 0, 0);
+    }
+  }
+
+  onPointerMoveLightBulb(event) {
+    if (!this.isDraggingLightBulb || !this.draggedLightBulbMesh) return;
+
+    this.updatePointer(event);
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+
+    if (
+      !this.raycaster.ray.intersectPlane(
+        this.lightDragPlane,
+        this.lightDragIntersectionPoint
+      )
+    )
+      return;
+
+    const newPosition = this.lightDragIntersectionPoint
+      .clone()
+      .sub(this.lightDragOffset);
+
+    this.draggedLightBulbMesh.position.copy(newPosition);
+
+    const pointLight = this.draggedLightBulbMesh.userData.light;
+    if (pointLight) pointLight.position.copy(newPosition);
+  }
+
+  stopDragLightBulb() {
+    this.isDraggingLightBulb = false;
+    this.draggedLightBulbMesh = null;
+
+    if (this.gameContext.controls) this.gameContext.controls.enabled = true;
+  }
+  updatePointer(event) {
+    const canvas = this.gameContext.renderer.domElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
   }
 }

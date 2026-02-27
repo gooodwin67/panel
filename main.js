@@ -1,12 +1,11 @@
-import * as THREE from 'three';
-import GUI from 'three/addons/libs/lil-gui.module.min.js';
+import * as THREE from "three";
+import GUI from "three/addons/libs/lil-gui.module.min.js";
 
-import { InitClass } from './src/main/init';
-import { SceneClass } from './src/main/scene';
-import { GuiClass } from './src/main/gui';
-import { PanelsClass } from './src/main/panels';
-import { AssetsManager } from './src/assets/assets-manager';
-import { KeyboardOrbitMove } from './src/main/keyboardOrbitMove';
+import { InitClass } from "./src/main/init";
+import { SceneClass } from "./src/main/scene";
+import { GuiClass } from "./src/main/gui";
+import { AssetsManager } from "./src/assets/assets-manager";
+import { KeyboardOrbitMove } from "./src/main/keyboardOrbitMove";
 
 console.clear();
 
@@ -24,7 +23,7 @@ async function startScene() {
     await initFunctions();
     startAnimationLoop();
   } catch (error) {
-    console.error('Init error', error);
+    console.error("Init error", error);
   }
 }
 
@@ -37,11 +36,10 @@ async function initClases() {
   gameContext.renderer = gameContext.initClass.renderer;
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
-  gameContext.panelsClass = new PanelsClass(gameContext);
 
   gameContext.keyboardOrbitMove = new KeyboardOrbitMove(gameContext);
-  
-  gameContext.renderer.localClippingEnabled = true; 
+
+  gameContext.renderer.localClippingEnabled = true;
   gameContext.guiClass = new GuiClass(gameContext);
 }
 
@@ -49,15 +47,16 @@ async function initClases() {
    INIT FUNCTIONS
 ========================================= */
 async function initFunctions() {
-
   await gameContext.assetManager.loadModels();
 
   // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
-  
+
   // --- ЛОГИКА СВОРАЧИВАНИЯ НИЖНЕЙ ПАНЕЛИ ---
   initTogglePanel();
   // -----------------------------------------
+
+  initLightSelectionUI();
 
   InitBottomBtns();
 
@@ -65,13 +64,13 @@ async function initFunctions() {
 
   // Кнопки добавления панелей
   for (let i = 1; i <= 4; i++) {
-      const panelBtn = document.querySelector(`.panel${i}`);
-      if (panelBtn) {
-          panelBtn.addEventListener('pointerdown', (e) => {
-              e.preventDefault(); 
-              myScene.startDrag(i - 1, e); 
-          });
-      }
+    const panelBtn = document.querySelector(`.panel${i}`);
+    if (panelBtn) {
+      panelBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        myScene.startDrag(i - 1, e);
+      });
+    }
   }
 
   gameContext.sceneClass.createScene();
@@ -82,53 +81,59 @@ async function initFunctions() {
   }
 
   function InitBottomBtns() {
-    document.getElementById('random_rotate').onclick = () => {
+    document.getElementById("random_rotate").onclick = () => {
       gameContext.sceneClass.randomRotate();
     };
-    document.getElementById('random_shuffle').onclick = () => {
+    document.getElementById("random_shuffle").onclick = () => {
       gameContext.sceneClass.shufflePanelsOnWalls();
     };
-    document.getElementById('toglle_net').onclick = () => {
+    document.getElementById("toglle_net").onclick = () => {
       gameContext.sceneClass.toggleNet();
     };
+    const addLightBtn = document.getElementById("add-light-bulb");
+    if (addLightBtn) {
+      addLightBtn.onclick = () => {
+        gameContext.sceneClass.addSideLightBulb();
+      };
+    }
   }
 }
 
 function initTogglePanel() {
-    const btn = document.getElementById('toggle-btn');
-    const panel = document.querySelector('.bottom_panel');
-    let isOpen = true;
+  const btn = document.getElementById("toggle-btn");
+  const panel = document.querySelector(".bottom_panel");
+  let isOpen = true;
 
-    if (btn && panel) {
-        btn.addEventListener('click', () => {
-            isOpen = !isOpen;
-            if (isOpen) {
-                panel.classList.remove('closed');
-                btn.innerHTML = '▼'; // Стрелка вниз
-            } else {
-                panel.classList.add('closed');
-                btn.innerHTML = '▲'; // Стрелка вверх
-            }
-        });
-    }
+  if (btn && panel) {
+    btn.addEventListener("click", () => {
+      isOpen = !isOpen;
+      if (isOpen) {
+        panel.classList.remove("closed");
+        btn.innerHTML = "▼"; // Стрелка вниз
+      } else {
+        panel.classList.add("closed");
+        btn.innerHTML = "▲"; // Стрелка вверх
+      }
+    });
+  }
 }
 
 // --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---
 function createSelectionUI() {
-  const div = document.createElement('div');
-  div.className = 'selection-ui';
-  div.style.position = 'absolute';
-  div.style.top = '20px';
-  div.style.left = '20px';
-  div.style.background = 'rgba(255, 255, 255, 0.95)';
-  div.style.padding = '15px';
-  div.style.borderRadius = '8px';
-  div.style.display = 'none';
-  div.style.flexDirection = 'column';
-  div.style.gap = '10px';
-  div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-  div.style.fontFamily = 'sans-serif';
-  div.style.pointerEvents = 'auto';
+  const div = document.createElement("div");
+  div.className = "selection-ui";
+  div.style.position = "absolute";
+  div.style.top = "20px";
+  div.style.left = "20px";
+  div.style.background = "rgba(255, 255, 255, 0.95)";
+  div.style.padding = "15px";
+  div.style.borderRadius = "8px";
+  div.style.display = "none";
+  div.style.flexDirection = "column";
+  div.style.gap = "10px";
+  div.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+  div.style.fontFamily = "sans-serif";
+  div.style.pointerEvents = "auto";
 
   div.innerHTML = `
     <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Настройки</div>
@@ -152,38 +157,134 @@ function createSelectionUI() {
 
   document.body.appendChild(div);
 
-  document.getElementById('btn-rot-left').onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2); 
+  document.getElementById("btn-rot-left").onclick = () => {
+    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2);
   };
 
-  document.getElementById('btn-rot-right').onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2); 
+  document.getElementById("btn-rot-right").onclick = () => {
+    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2);
   };
 
-  const colorPicker = document.getElementById('panel-color-picker');
-  colorPicker.addEventListener('input', (event) => {
-      gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
+  const colorPicker = document.getElementById("panel-color-picker");
+  colorPicker.addEventListener("input", (event) => {
+    gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
   });
 
-  document.getElementById('btn-close-sel').onclick = () => {
+  document.getElementById("btn-close-sel").onclick = () => {
     gameContext.sceneClass.deselectPanel();
   };
-  document.getElementById('btn-all-color').onclick = () => {
-      const colorInput = document.getElementById('panel-color-picker');
-      if (!colorInput) return;
+  document.getElementById("btn-all-color").onclick = () => {
+    const colorInput = document.getElementById("panel-color-picker");
+    if (!colorInput) return;
 
-      gameContext.sceneClass.setAllPanelsColor(colorInput.value);
+    gameContext.sceneClass.setAllPanelsColor(colorInput.value);
   };
 
   // --- Цвет всех стен ---
-  const wallColorPicker = document.getElementById('wall-color-picker');
+  const wallColorPicker = document.getElementById("wall-color-picker");
   if (wallColorPicker) {
-      wallColorPicker.addEventListener('input', (event) => {
-          gameContext.sceneClass.setAllWallsColor(event.target.value);
-      });
+    wallColorPicker.addEventListener("input", (event) => {
+      gameContext.sceneClass.setAllWallsColor(event.target.value);
+    });
   }
 }
 
+function initLightSelectionUI() {
+  const lightUI = document.getElementById("light-selection-ui");
+  if (!lightUI) return;
+
+  const getSelected = () => {
+    const bulbMesh = gameContext.sceneClass.selectedLightBulb;
+    if (!bulbMesh) return null;
+    const pointLight = bulbMesh.userData.light;
+    if (!pointLight) return null;
+    return { bulbMesh, pointLight };
+  };
+
+  document.getElementById("btn-close-light").onclick = () => {
+    gameContext.sceneClass.deselectLightBulb();
+  };
+
+  document
+    .getElementById("light-color-picker")
+    .addEventListener("input", (event) => {
+      const selected = getSelected();
+      if (!selected) return;
+      selected.pointLight.color.set(event.target.value);
+    });
+
+  document.getElementById("light-kelvin").addEventListener("input", (event) => {
+    const selected = getSelected();
+    if (!selected) return;
+
+    const kelvin = Number(event.target.value);
+    const hex = gameContext.guiClass.kelvinToHex(kelvin); // уже есть :contentReference[oaicite:2]{index=2}
+    selected.pointLight.color.set(hex);
+
+    const colorInput = document.getElementById("light-color-picker");
+    if (colorInput)
+      colorInput.value = "#" + selected.pointLight.color.getHexString();
+  });
+
+  document
+    .getElementById("light-intensity")
+    .addEventListener("input", (event) => {
+      const selected = getSelected();
+      if (!selected) return;
+      selected.pointLight.intensity = Number(event.target.value);
+    });
+
+  document
+    .getElementById("light-distance")
+    .addEventListener("input", (event) => {
+      const selected = getSelected();
+      if (!selected) return;
+      selected.pointLight.distance = Number(event.target.value);
+    });
+
+  document.getElementById("light-decay").addEventListener("input", (event) => {
+    const selected = getSelected();
+    if (!selected) return;
+    selected.pointLight.decay = Number(event.target.value);
+  });
+
+  document
+    .getElementById("bulb-visible")
+    .addEventListener("change", (event) => {
+      const selected = getSelected();
+      if (!selected) return;
+      selected.bulbMesh.visible = event.target.checked;
+    });
+
+  document
+    .getElementById("bulb-emissive")
+    .addEventListener("input", (event) => {
+      const selected = getSelected();
+      if (!selected) return;
+      if (!selected.bulbMesh.material) return;
+
+      selected.bulbMesh.material.emissiveIntensity = Number(event.target.value);
+      selected.bulbMesh.material.needsUpdate = true;
+    });
+
+  document.getElementById("btn-delete-light").onclick = () => {
+    const selected = getSelected();
+    if (!selected) return;
+
+    gameContext.scene.remove(selected.bulbMesh);
+    gameContext.scene.remove(selected.pointLight);
+
+    const index = gameContext.sceneClass.lightBulbs.findIndex(
+      (entry) => entry.mesh === selected.bulbMesh
+    );
+    if (index !== -1) gameContext.sceneClass.lightBulbs.splice(index, 1);
+
+    if (selected.bulbMesh.geometry) selected.bulbMesh.geometry.dispose();
+    if (selected.bulbMesh.material) selected.bulbMesh.material.dispose();
+
+    gameContext.sceneClass.deselectLightBulb();
+  };
+}
 
 function update(delta) {
   if (gameContext.testMesh) {
@@ -199,33 +300,36 @@ function update(delta) {
     // gameContext.controls.target.set(0, 0, 0);
   }
 
-
   // --- Обновление анимаций вращения ---
   if (gameContext.sceneClass) {
-      gameContext.sceneClass.updateAnimations(delta);
+    gameContext.sceneClass.updateAnimations(delta);
   }
 
-
-
-  if (!gameContext._debugTimer) gameContext._debugTimer = 0;
-  gameContext._debugTimer += delta;
-  if (gameContext._debugTimer > 1) {
-    gameContext._debugTimer = 0;
-    const info = gameContext.renderer.info;
-    console.log('calls', info.render.calls, 'tris', info.render.triangles, 'geoms', info.memory.geometries, 'tex', info.memory.textures);
-  }
-
-
-
+  // if (!gameContext._debugTimer) gameContext._debugTimer = 0;
+  // gameContext._debugTimer += delta;
+  // if (gameContext._debugTimer > 1) {
+  //   gameContext._debugTimer = 0;
+  //   const info = gameContext.renderer.info;
+  //   console.log(
+  //     "calls",
+  //     info.render.calls,
+  //     "tris",
+  //     info.render.triangles,
+  //     "geoms",
+  //     info.memory.geometries,
+  //     "tex",
+  //     info.memory.textures
+  //   );
+  // }
 }
 
 function render() {
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
-      // gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-      
-      gameContext.renderer.render(gameContext.scene, gameContext.camera);
+    // gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+
+    gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
-  
+
   if (gameContext.initClass && gameContext.initClass.stats) {
     gameContext.initClass.stats.update();
   }
