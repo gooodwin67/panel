@@ -11,9 +11,9 @@
    <link rel="icon" type="image/x-icon" href="./assets/favicon-Bw0IQTl4.ico">
    <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
 
-  <script type="module" crossorigin src="./assets/index-BBMs0rzU.js"></script>
+  <script type="module" crossorigin src="./assets/index-BJ5NgwM0.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/three-DzxW7qGc.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-ZBqKcU20.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-B6N9wd0i.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
@@ -38,7 +38,12 @@
             <span style="font-size:14px;">Цвет стены:</span>
             <input type="color" id="wall-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">
          </div>
-         
+
+         <!-- лампочки-->
+         <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+            <span id="add-light-bulb" class='light_bulb' style="font-size:14px;">лампочка</span>
+         </div>
+
 
          <div class="panels">
             <div class="panel panel1">
@@ -55,10 +60,56 @@
             </div>
          </div>
       </div>
+
+      <div class="light-selection-ui" id="light-selection-ui" style="display:none;">
+         <div class="ui-title">Лампочка</div>
+
+         <div class="ui-row">
+            <span>Цвет:</span>
+            <input type="color" id="light-color-picker" value="#ffaa66">
+         </div>
+
+         <div class="ui-row">
+            <span>Темп (K):</span>
+            <input type="range" id="light-kelvin" min="1000" max="12000" step="50" value="4500">
+         </div>
+
+         <div class="ui-row">
+            <span>Яркость:</span>
+            <input type="range" id="light-intensity" min="0" max="50" step="0.1" value="10">
+         </div>
+
+         <div class="ui-row">
+            <span>Dist:</span>
+            <input type="range" id="light-distance" min="0" max="20" step="0.1" value="3">
+         </div>
+
+         <div class="ui-row">
+            <span>Decay:</span>
+            <input type="range" id="light-decay" min="0" max="5" step="0.01" value="2">
+         </div>
+
+         <div class="ui-row ui-row-split">
+            <label class="ui-check">
+               <input type="checkbox" id="bulb-visible" checked>
+               Корпус
+            </label>
+
+            <button id="btn-close-light" class="ui-btn">Закрыть</button>
+         </div>
+
+         <div class="ui-row">
+            <span>Glow:</span>
+            <input type="range" id="bulb-emissive" min="0" max="10" step="0.1" value="2">
+         </div>
+
+         <button id="btn-delete-light" class="ui-btn ui-btn-danger">Удалить лампочку</button>
+      </div>
    </div>
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-TUGXiWrM.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-4vBXQIO4.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-von9FTEk.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-mGhcLg-H.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
+
 </html>
