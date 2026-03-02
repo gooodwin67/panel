@@ -1,7 +1,7 @@
-import { S as O, P as H, W as G, a as N, A as R, b as q, O as U, c as X, d as Q, R as Y, e as k, V as L, f as g, g as w, h as _, B as x, M as y, i as b, j as v, k as S, F as M, l as C, Q as D, m as V, E as j, L as K, n as Z, C as B, o as E, p as I, q as $, G as J, r as ee, s as te } from "./three-DzxW7qGc.js";
-let ye;
+import { S as O, P as G, W as H, a as N, A as R, b as U, O as q, c as X, d as Q, R as Y, e as k, V as L, f as g, g as w, h as V, B as x, M as y, i as b, j as v, k as S, F as M, l as C, Q as D, m as _, E as j, L as K, n as Z, C as B, o as I, p as E, q as $, G as J, r as ee, s as te } from "./three-DzxW7qGc.js";
+let fe;
 let __tla = (async () => {
-  ye = function() {
+  fe = function() {
     import.meta.url, import("_").then(async (m) => {
       await m.__tla;
       return m;
@@ -31,9 +31,9 @@ let __tla = (async () => {
   })();
   class se {
     constructor(t) {
-      this.gameContext = t, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new O(), this.camera = new H(40, window.innerWidth / window.innerHeight, 0.1, 40), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10, this.renderer = new G({
+      this.gameContext = t, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new O(), this.camera = new G(40, window.innerWidth / window.innerHeight, 0.1, 40), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10, this.renderer = new H({
         antialias: true
-      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = N, this.renderer.shadowMap.enabled = true, this.renderer.toneMapping = R, this.renderer.toneMappingExposure = 0.5, this.renderer.shadowMap.type = q, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new U(this.camera, this.renderer.domElement), this.controls.enableDamping = true, this.gameContext.controls = this.controls, this.stats = new X(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
+      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = N, this.renderer.shadowMap.enabled = true, this.renderer.toneMapping = R, this.renderer.toneMappingExposure = 0.5, this.renderer.shadowMap.type = U, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new q(this.camera, this.renderer.domElement), this.controls.enableDamping = true, this.gameContext.controls = this.controls, this.stats = new X(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
       const e = new Q(this.renderer);
       e.compileEquirectangularShader(), new Y().setPath("./hdr/").load("studio_small_08_1k.hdr", (s) => {
         e.fromEquirectangular(s).texture, s.dispose(), e.dispose();
@@ -195,7 +195,7 @@ let __tla = (async () => {
         widthWallFront: 5,
         heightWall: 2.7,
         widthWallSide: 4
-      }, this.ambientLight = new _(16777215, 0.05), this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new w(), this.lightDragIntersectionPoint = new g(), this.lightDragOffset = new g(), this.raycaster = new k(), this.pointer = new L(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.isNetVisible = true, this.createWalls(), this.dragHandler = new ie(t, this.walls, this.config);
+      }, this.ambientLight = new V(16777215, 0.05), this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new w(), this.lightDragIntersectionPoint = new g(), this.lightDragOffset = new g(), this.raycaster = new k(), this.pointer = new L(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.isNetVisible = true, this.createWalls(), this.dragHandler = new ie(t, this.walls, this.config);
     }
     createScene() {
       this.loadWall(), this.createFloorAndCeiling(), this.createCenterLight(), this.addLight(), this.initEvents();
@@ -222,8 +222,8 @@ let __tla = (async () => {
     createFloorAndCeiling() {
       const { widthWallFront: t, widthWallSide: e, heightWall: s } = this.config, i = new S(t, e), n = new y({
         color: 15790320,
-        roughness: 0.8,
-        metalness: 0.1,
+        roughness: 0.9,
+        metalness: 0,
         side: M
       });
       this.floor = new b(i, n), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -s / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
@@ -369,7 +369,7 @@ let __tla = (async () => {
       }
     }
     addSelectionOutline(t) {
-      const e = new V(), s = new g();
+      const e = new _(), s = new g();
       t.updateMatrixWorld(true);
       const i = t.matrixWorld.clone().invert();
       let n = false;
@@ -427,7 +427,7 @@ let __tla = (async () => {
       const e = t.getContext("2d");
       e.fillStyle = "#cccccc", e.fillRect(0, 0, 128, 128), e.strokeStyle = "#444444", e.lineWidth = 2, e.strokeRect(0, 0, 128, 128);
       const s = new B(t);
-      return s.magFilter = E, s.minFilter = I, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
+      return s.magFilter = I, s.minFilter = E, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
     }
     createBlankTexture() {
       const t = document.createElement("canvas");
@@ -435,7 +435,7 @@ let __tla = (async () => {
       const e = t.getContext("2d");
       e.fillStyle = "#ffffff", e.fillRect(0, 0, 128, 128);
       const s = new B(t);
-      return s.magFilter = E, s.minFilter = I, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
+      return s.magFilter = I, s.minFilter = E, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
     }
     toggleNet() {
       this.isNetVisible = !this.isNetVisible, this.walls.forEach((t) => {
@@ -612,7 +612,7 @@ let __tla = (async () => {
         r.name = "panelTemplate_" + n;
         const l = [];
         return r.traverse((d) => {
-          d.isMesh && l.push(d);
+          d.isMesh && (d.scale.set(1, 2, 1), l.push(d));
         }), l.forEach((d) => {
           const m = d.material, u = new y({
             color: 16777215,
@@ -661,7 +661,7 @@ let __tla = (async () => {
   le();
   async function le() {
     try {
-      await he(), await ce(), fe();
+      await he(), await ce(), pe();
     } catch (h) {
       console.error("Init error", h);
     }
@@ -670,7 +670,7 @@ let __tla = (async () => {
     o.gui = new ee(), o.initClass = new se(o), o.scene = o.initClass.scene, o.camera = o.initClass.camera, o.renderer = o.initClass.renderer, o.assetManager = new oe(o), o.sceneClass = new ne(o), o.keyboardOrbitMove = new re(o), o.renderer.localClippingEnabled = true, o.guiClass = new ae(o);
   }
   async function ce() {
-    await o.assetManager.loadModels(), ge(), de(), ue(), t();
+    await o.assetManager.loadModels(), de(), ge(), t();
     const h = o.sceneClass;
     for (let e = 1; e <= 4; e++) {
       const s = document.querySelector(".panel".concat(e));
@@ -694,13 +694,6 @@ let __tla = (async () => {
     }
   }
   function de() {
-    const h = document.getElementById("toggle-btn"), t = document.querySelector(".bottom_panel");
-    let e = true;
-    h && t && h.addEventListener("click", () => {
-      e = !e, e ? (t.classList.remove("closed"), h.innerHTML = "\u25BC") : (t.classList.add("closed"), h.innerHTML = "\u25B2");
-    });
-  }
-  function ge() {
     const h = document.createElement("div");
     h.className = "selection-ui", h.style.position = "absolute", h.style.top = "20px", h.style.left = "20px", h.style.background = "rgba(255, 255, 255, 0.95)", h.style.padding = "15px", h.style.borderRadius = "8px", h.style.display = "none", h.style.flexDirection = "column", h.style.gap = "10px", h.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)", h.style.fontFamily = "sans-serif", h.style.pointerEvents = "auto", h.innerHTML = '\n    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438</div>\n    \n    <!-- \u0412\u0440\u0430\u0449\u0435\u043D\u0438\u0435 -->\n    <div style="display:flex; gap:10px; justify-content: space-between;">\n      <button id="btn-rot-left" style="flex:1; padding: 8px; cursor:pointer;">\u21BA</button>\n      <button id="btn-rot-right" style="flex:1; padding: 8px; cursor:pointer;">\u21BB</button>\n    </div>\n\n    <!-- \u0426\u0432\u0435\u0442 -->\n    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">\n        <span style="font-size:14px;">\u0426\u0432\u0435\u0442:</span>\n        <input type="color" id="panel-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">\n    </div>\n\n    <button id="btn-all-color" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ddffdd; border:1px solid #ffaaaa; border-radius:4px;">\u0426\u0432\u0435\u0442 \u0432\u0441\u0435\u0445</button>\n\n    <button id="btn-close-sel" style="margin-top:5px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">\u0417\u0430\u043A\u0440\u044B\u0442\u044C</button>\n  ', document.body.appendChild(h), document.getElementById("btn-rot-left").onclick = () => {
       o.sceneClass.rotateSelectedPanel(Math.PI / 2);
@@ -719,7 +712,7 @@ let __tla = (async () => {
       o.sceneClass.setAllWallsColor(s.target.value);
     });
   }
-  function ue() {
+  function ge() {
     if (!document.getElementById("light-selection-ui")) return;
     const t = () => {
       const e = o.sceneClass.selectedLightBulb;
@@ -765,25 +758,25 @@ let __tla = (async () => {
       s !== -1 && o.sceneClass.lightBulbs.splice(s, 1), e.bulbMesh.geometry && e.bulbMesh.geometry.dispose(), e.bulbMesh.material && e.bulbMesh.material.dispose(), o.sceneClass.deselectLightBulb();
     };
   }
-  function me(h) {
+  function ue(h) {
     o.testMesh && (o.testMesh.rotation.y += h * 0.5), o.keyboardOrbitMove && o.keyboardOrbitMove.update(h), o.controls, o.sceneClass && o.sceneClass.updateAnimations(h);
   }
-  function pe() {
+  function me() {
     o.renderer && o.scene && o.camera && o.renderer.render(o.scene, o.camera), o.initClass && o.initClass.stats && o.initClass.stats.update();
   }
-  function fe() {
+  function pe() {
     let h = 0;
     const t = 1 / 60, e = 0.1;
     o.renderer.setAnimationLoop(() => {
       let s = o.clock.getDelta();
       s > e && (s = e), h += s;
       let i = 5;
-      for (; h >= t && i > 0; ) me(t), h -= t, i--;
-      h > t && (h = 0), pe();
+      for (; h >= t && i > 0; ) ue(t), h -= t, i--;
+      h > t && (h = 0), me();
     });
   }
 })();
 export {
   __tla,
-  ye as __vite_legacy_guard
+  fe as __vite_legacy_guard
 };

@@ -11,9 +11,9 @@
    <link rel="icon" type="image/x-icon" href="./assets/favicon-Bw0IQTl4.ico">
    <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
 
-  <script type="module" crossorigin src="./assets/index-BJ5NgwM0.js"></script>
+  <script type="module" crossorigin src="./assets/index-DjhZlmPz.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/three-DzxW7qGc.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-B6N9wd0i.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-CrT8x6Rg.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
@@ -23,43 +23,93 @@
    <div class="main_screen">
 
 
-      <div class="bottom_panel">
-         <!-- Кнопка сворачивания/разворачивания -->
-         <button id="toggle-btn">▼</button>
-
-         <div class="btns">
-            <button id="random_rotate">Случайный поворот</button>
-            <button id="random_shuffle">Случайное расположение</button>
-            <button id="toglle_net">Вкл/выкл сетку</button>
+      <div class="bottom_panel" id="bottom_panel">
+         <div class="panel-header">
+            <div class="drag-handle"></div>
+            <div class="panel-controls">
+               <button id="btn-compact" title="Компактный вид">🗕</button>
+               <button id="btn-hide" title="Свернуть">⏬</button>
+            </div>
          </div>
 
-         <!-- Цвет стены-->
-         <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-            <span style="font-size:14px;">Цвет стены:</span>
-            <input type="color" id="wall-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">
+         <div class="ui-tabs">
+            <div class="ui-tab active" data-target="tab-panels">🖼 Панели</div>
+            <div class="ui-tab" data-target="tab-lights">💡 Свет</div>
+            <div class="ui-tab" data-target="tab-scene">⚙️ Сцена</div>
          </div>
 
-         <!-- лампочки-->
-         <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-            <span id="add-light-bulb" class='light_bulb' style="font-size:14px;">лампочка</span>
-         </div>
+         <div class="ui-tab-content">
 
+            <div class="ui-pane active" id="tab-panels">
+               <div class="panels">
+                  <div class="panel panel1"><img src="img/panel_1.png" alt="Panel 1"></div>
+                  <div class="panel panel2"><img src="img/panel_2.png" alt="Panel 2"></div>
+                  <div class="panel panel3"><img src="img/panel_3.png" alt="Panel 3"></div>
+                  <div class="panel panel4"><img src="img/panel_4.png" alt="Panel 4"></div>
+               </div>
+            </div>
 
-         <div class="panels">
-            <div class="panel panel1">
-               <img src="img/panel_1.png" alt="Panel 1">
+            <div class="ui-pane" id="tab-lights">
+               <div class="btns">
+                  <button id="add-light-bulb" class="action-btn primary">➕ <span class="btn-text">Добавить лампочку</span></button>
+               </div>
             </div>
-            <div class="panel panel2">
-               <img src="img/panel_2.png" alt="Panel 2">
+
+            <div class="ui-pane" id="tab-scene">
+               <div class="btns">
+                  <button id="random_rotate" class="action-btn">🎲 <span class="btn-text">Случайный поворот</span></button>
+                  <button id="random_shuffle" class="action-btn">🔀 <span class="btn-text">Случайное расположение</span></button>
+                  <button id="toglle_net" class="action-btn">🔲 <span class="btn-text">Вкл/выкл сетку</span></button>
+
+                  <div class="color-picker-group action-btn">
+                     🎨 <span class="btn-text">Цвет:</span>
+                     <input type="color" id="wall-color-picker" value="#ffffff">
+                  </div>
+               </div>
             </div>
-            <div class="panel panel3">
-               <img src="img/panel_3.png" alt="Panel 3">
-            </div>
-            <div class="panel panel4">
-               <img src="img/panel_4.png" alt="Panel 4">
-            </div>
+
          </div>
       </div>
+
+      <script>
+         document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.ui-tab');
+            const panes = document.querySelectorAll('.ui-pane');
+            const panel = document.querySelector('.bottom_panel');
+
+            tabs.forEach(tab => {
+               tab.addEventListener('click', () => {
+                  // Разворачиваем панель, если она была свернута
+                  if (panel.classList.contains('closed')) {
+                     panel.classList.remove('closed');
+                  }
+                  // Переключаем активные классы
+                  tabs.forEach(t => t.classList.remove('active'));
+                  panes.forEach(p => p.classList.remove('active'));
+
+                  tab.classList.add('active');
+                  document.getElementById(tab.dataset.target).classList.add('active');
+               });
+            });
+
+            const btnCompact = document.getElementById('btn-compact');
+            const btnHide = document.getElementById('btn-hide');
+
+
+            // Логика кнопки "Свернуть в иконки"
+            btnCompact.addEventListener('click', () => {
+               panel.classList.remove('closed'); // Вытаскиваем, если была скрыта
+               panel.classList.toggle('compact'); // Переключаем компактный вид
+            });
+
+            // Логика кнопки "Скрыть полностью"
+            btnHide.addEventListener('click', () => {
+               panel.classList.remove('compact'); // Сбрасываем компактный вид
+               panel.classList.toggle('closed');  // Скрываем/открываем панель
+            });
+
+         });
+      </script>
 
       <div class="light-selection-ui" id="light-selection-ui" style="display:none;">
          <div class="ui-title">Лампочка</div>
@@ -109,7 +159,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-von9FTEk.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-mGhcLg-H.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BU8FV2xm.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
