@@ -52,10 +52,6 @@ async function initFunctions() {
   // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
 
-  // --- ЛОГИКА СВОРАЧИВАНИЯ НИЖНЕЙ ПАНЕЛИ ---
-  initTogglePanel();
-  // -----------------------------------------
-
   initLightSelectionUI();
 
   InitBottomBtns();
@@ -96,25 +92,6 @@ async function initFunctions() {
         gameContext.sceneClass.addSideLightBulb();
       };
     }
-  }
-}
-
-function initTogglePanel() {
-  const btn = document.getElementById("toggle-btn");
-  const panel = document.querySelector(".bottom_panel");
-  let isOpen = true;
-
-  if (btn && panel) {
-    btn.addEventListener("click", () => {
-      isOpen = !isOpen;
-      if (isOpen) {
-        panel.classList.remove("closed");
-        btn.innerHTML = "▼"; // Стрелка вниз
-      } else {
-        panel.classList.add("closed");
-        btn.innerHTML = "▲"; // Стрелка вверх
-      }
-    });
   }
 }
 

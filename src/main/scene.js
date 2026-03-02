@@ -125,8 +125,8 @@ export class SceneClass {
     // --- 1. ПОЛ ---
     const floorMaterial = new THREE.MeshStandardMaterial({
       color: 0xf0f0f0,
-      roughness: 0.8,
-      metalness: 0.1,
+      roughness: 0.9,
+      metalness: 0.0,
       side: THREE.FrontSide,
     });
     this.floor = new THREE.Mesh(geometry, floorMaterial);
