@@ -54,6 +54,8 @@ async function initFunctions() {
 
   initLightSelectionUI();
 
+  initRugSelectionUI();
+
   InitBottomBtns();
 
   const myScene = gameContext.sceneClass;
@@ -95,44 +97,9 @@ async function initFunctions() {
   }
 }
 
-// --- ФУНКЦИЯ СОЗДАНИЯ HTML UI ---
+// --- ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ UI ДЛЯ ПАНЕЛИ ---
 function createSelectionUI() {
-  const div = document.createElement("div");
-  div.className = "selection-ui";
-  div.style.position = "absolute";
-  div.style.top = "20px";
-  div.style.left = "20px";
-  div.style.background = "rgba(255, 255, 255, 0.95)";
-  div.style.padding = "15px";
-  div.style.borderRadius = "8px";
-  div.style.display = "none";
-  div.style.flexDirection = "column";
-  div.style.gap = "10px";
-  div.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
-  div.style.fontFamily = "sans-serif";
-  div.style.pointerEvents = "auto";
-
-  div.innerHTML = `
-    <div style="font-weight: bold; margin-bottom:5px; text-align:center;">Настройки</div>
-    
-    <!-- Вращение -->
-    <div style="display:flex; gap:10px; justify-content: space-between;">
-      <button id="btn-rot-left" style="flex:1; padding: 8px; cursor:pointer;">↺</button>
-      <button id="btn-rot-right" style="flex:1; padding: 8px; cursor:pointer;">↻</button>
-    </div>
-
-    <!-- Цвет -->
-    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-        <span style="font-size:14px;">Цвет:</span>
-        <input type="color" id="panel-color-picker" value="#ffffff" style="width:100%; height:30px; cursor:pointer; border:none; padding:0;">
-    </div>
-
-    <button id="btn-all-color" style="margin-top:10px; padding: 5px; cursor:pointer; background:#ddffdd; border:1px solid #ffaaaa; border-radius:4px;">Цвет всех</button>
-
-    <button id="btn-close-sel" style="margin-top:5px; padding: 5px; cursor:pointer; background:#ffdddd; border:1px solid #ffaaaa; border-radius:4px;">Закрыть</button>
-  `;
-
-  document.body.appendChild(div);
+  // HTML теперь лежит в index.html, здесь только привязка событий
 
   document.getElementById("btn-rot-left").onclick = () => {
     gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2);
@@ -143,17 +110,19 @@ function createSelectionUI() {
   };
 
   const colorPicker = document.getElementById("panel-color-picker");
-  colorPicker.addEventListener("input", (event) => {
-    gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
-  });
+  if (colorPicker) {
+    colorPicker.addEventListener("input", (event) => {
+      gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
+    });
+  }
 
   document.getElementById("btn-close-sel").onclick = () => {
     gameContext.sceneClass.deselectPanel();
   };
+
   document.getElementById("btn-all-color").onclick = () => {
     const colorInput = document.getElementById("panel-color-picker");
     if (!colorInput) return;
-
     gameContext.sceneClass.setAllPanelsColor(colorInput.value);
   };
 
@@ -261,6 +230,36 @@ function initLightSelectionUI() {
 
     gameContext.sceneClass.deselectLightBulb();
   };
+}
+
+function initRugSelectionUI() {
+  const btnClose = document.getElementById("btn-close-rug");
+  if (!btnClose) return;
+
+  btnClose.onclick = () => {
+    gameContext.sceneClass.deselectRug();
+  };
+
+  const updateRug = () => {
+    const w = Number(document.getElementById("rug-width").value);
+    const d = Number(document.getElementById("rug-depth").value);
+    const x = Number(document.getElementById("rug-pos-x").value);
+    const z = Number(document.getElementById("rug-pos-z").value);
+
+    gameContext.sceneClass.updateRugTransform(w, d, x, z);
+  };
+
+  const rugColorPicker = document.getElementById("rug-color-picker");
+  if (rugColorPicker) {
+    rugColorPicker.addEventListener("input", (event) => {
+      gameContext.sceneClass.changeRugColor(event.target.value);
+    });
+  }
+
+  document.getElementById("rug-width").addEventListener("input", updateRug);
+  document.getElementById("rug-depth").addEventListener("input", updateRug);
+  document.getElementById("rug-pos-x").addEventListener("input", updateRug);
+  document.getElementById("rug-pos-z").addEventListener("input", updateRug);
 }
 
 function update(delta) {

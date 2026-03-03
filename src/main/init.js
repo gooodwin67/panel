@@ -1,12 +1,10 @@
-
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import Stats from 'three/addons/libs/stats.module.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import Stats from "three/addons/libs/stats.module.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 
 export class InitClass {
   constructor(gameContext) {
-
     this.gameContext = gameContext;
 
     this.onWindowResize = this.onWindowResize.bind(this);
@@ -14,7 +12,12 @@ export class InitClass {
     this.scene = new THREE.Scene();
     // this.scene.background = new THREE.Color(0x9E91FA);
 
-    this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 40);
+    this.camera = new THREE.PerspectiveCamera(
+      40,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      40
+    );
     this.camera.position.x = 0;
     this.camera.position.y = 0;
     this.camera.position.z = 10;
@@ -36,7 +39,16 @@ export class InitClass {
     document.body.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
+    // this.controls.enableDamping = true;
+    // this.controls.enablePan = false;
+    // this.controls.enableZoom = false;
+    // this.controls.enableDamping = true;
+    // this.controls.dampingFactor = 0.05;
+    this.controls.rotateSpeed = 0.5;
+    // this.controls.zoomSpeed = 0.5;
+    // this.controls.panSpeed = 0.5;
+    // this.controls.minDistance = 0.1;
+    // this.controls.maxDistance = 100;
     this.gameContext.controls = this.controls;
 
     this.stats = new Stats();
@@ -44,15 +56,16 @@ export class InitClass {
     this.stats.dom.style.top = "0px";
     this.stats.dom.style.left = "0%";
 
-    window.addEventListener('resize', this.onWindowResize);
+    window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
     const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
     pmremGenerator.compileEquirectangularShader();
 
     new RGBELoader()
-      .setPath('./hdr/')
-      .load('studio_small_08_1k.hdr', (hdrTexture) => {
-        const environmentTexture = pmremGenerator.fromEquirectangular(hdrTexture).texture;
+      .setPath("./hdr/")
+      .load("studio_small_08_1k.hdr", (hdrTexture) => {
+        const environmentTexture =
+          pmremGenerator.fromEquirectangular(hdrTexture).texture;
 
         // this.scene.environment = environmentTexture;
         // this.scene.background = environmentTexture; // если хочешь фон
@@ -80,16 +93,15 @@ export class InitClass {
 
     // Центруем canvas как "окно"
     const canvas = this.renderer.domElement;
-    canvas.style.position = 'fixed';
-    canvas.style.left = '50%';
-    canvas.style.top = '50%';
-    canvas.style.transform = 'translate(-50%, -50%)';
-    canvas.style.width = viewportWidth + 'px';
-    canvas.style.height = viewportHeight + 'px';
+    canvas.style.position = "fixed";
+    canvas.style.left = "50%";
+    canvas.style.top = "50%";
+    canvas.style.transform = "translate(-50%, -50%)";
+    canvas.style.width = viewportWidth + "px";
+    canvas.style.height = viewportHeight + "px";
 
     // Камера должна считать аспект именно "окна", а не всего монитора
     this.camera.aspect = viewportWidth / viewportHeight;
     this.camera.updateProjectionMatrix();
   }
-  
 }

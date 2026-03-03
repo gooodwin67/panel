@@ -61,6 +61,7 @@ export class SceneClass {
   createScene() {
     this.loadWall();
     this.createFloorAndCeiling();
+    this.createRug();
     this.createCenterLight();
     this.addLight();
     this.initEvents();
@@ -312,7 +313,7 @@ export class SceneClass {
 
   onPointerDown(event) {
     if (
-      event.target.closest(".selection-ui") ||
+      event.target.closest(".floating-ui") || // Теперь исключает клики по всем нашим плавающим окнам
       event.target.tagName === "BUTTON" ||
       event.target.tagName === "INPUT"
     ) {
@@ -343,11 +344,21 @@ export class SceneClass {
       return;
     }
 
+    // Проверка клика по ковру
+    if (this.rug) {
+      const intersectsRug = this.raycaster.intersectObject(this.rug, false);
+      if (intersectsRug.length > 0) {
+        this.selectRug();
+        return;
+      }
+    }
+
     const isPanelTouch = this.dragHandler.handlePointerDown(event);
     if (!isPanelTouch) {
       this.handleWallSelection(event);
       this.deselectPanel();
       this.deselectLightBulb();
+      this.deselectRug();
     }
   }
 
@@ -576,6 +587,7 @@ export class SceneClass {
 
   deselectPanel() {
     this.deselectLightBulb();
+    this.deselectRug();
     if (!this.selectedPanel) return;
 
     // Удаляем обводку
@@ -774,6 +786,7 @@ export class SceneClass {
   }
   selectLightBulb(bulbMesh) {
     this.deselectPanel(); // чтобы не конфликтовали UI
+    this.deselectRug();
 
     this.selectedLightBulb = bulbMesh;
 
@@ -892,5 +905,99 @@ export class SceneClass {
 
     this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+  }
+
+  createRug() {
+    const { heightWall } = this.config;
+    const rugWidth = 4;
+    const rugDepth = 3;
+
+    // Вернул BoxGeometry
+    const rugGeometry = new THREE.BoxGeometry(rugWidth, 0.005, rugDepth);
+
+    const textureLoader = new THREE.TextureLoader();
+    const rugTexture = textureLoader.load("textures/carpet.jpg");
+    const rugBump = textureLoader.load("textures/carpet_normal.jpg");
+
+    const repeatX = rugWidth;
+    const repeatY = rugDepth;
+
+    rugTexture.wrapS = THREE.RepeatWrapping;
+    rugTexture.wrapT = THREE.RepeatWrapping;
+    rugTexture.repeat.set(repeatX, repeatY);
+
+    rugBump.wrapS = THREE.RepeatWrapping;
+    rugBump.wrapT = THREE.RepeatWrapping;
+    rugBump.repeat.set(repeatX, repeatY);
+
+    rugTexture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
+    rugTexture.colorSpace = THREE.SRGBColorSpace;
+    rugTexture.generateMipmaps = true;
+    rugTexture.minFilter = THREE.LinearMipmapLinearFilter;
+
+    const rugMaterial = new THREE.MeshStandardMaterial({
+      map: rugTexture,
+      bumpMap: rugBump,
+      bumpScale: 0.08, // Выкрутили посильнее для теста (было 0.02)
+      color: 0xffffff,
+      roughness: 0.98, // Снизили шероховатость, чтобы появились микроблики на ворсе
+      metalness: 0.0,
+    });
+
+    this.rug = new THREE.Mesh(rugGeometry, rugMaterial);
+
+    this.rug.position.y = -heightWall / 2 + 0.005;
+
+    this.rug.receiveShadow = true;
+    this.rug.castShadow = false;
+
+    this.rug.userData.isRug = true;
+    this.rug.userData.baseWidth = rugWidth;
+    this.rug.userData.baseDepth = rugDepth;
+
+    this.gameContext.scene.add(this.rug);
+  }
+
+  selectRug() {
+    this.deselectPanel();
+    this.deselectLightBulb();
+    this.selectedRug = this.rug;
+
+    const rugUI = document.querySelector(".rug-selection-ui");
+    if (rugUI) rugUI.style.display = "flex";
+  }
+
+  deselectRug() {
+    this.selectedRug = null;
+    const rugUI = document.querySelector(".rug-selection-ui");
+    if (rugUI) rugUI.style.display = "none";
+    if (this.rug) {
+      const colorInput = document.getElementById("rug-color-picker");
+      if (colorInput)
+        colorInput.value = "#" + this.rug.material.color.getHexString();
+    }
+  }
+
+  updateRugTransform(width, depth, posX, posZ) {
+    if (!this.rug) return;
+
+    const baseW = this.rug.userData.baseWidth;
+    const baseD = this.rug.userData.baseDepth;
+
+    // Меняем масштаб по осям X и Z (Y оставляем 1, чтобы толщина не менялась)
+    this.rug.scale.set(width / baseW, 1, depth / baseD);
+    this.rug.position.x = posX;
+    this.rug.position.z = posZ;
+
+    // Подгоняем текстуру, чтобы не искажалась
+    if (this.rug.material.map) this.rug.material.map.repeat.set(width, depth);
+    if (this.rug.material.bumpMap)
+      this.rug.material.bumpMap.repeat.set(width, depth);
+  }
+  changeRugColor(hexColor) {
+    if (this.rug && this.rug.material) {
+      this.rug.material.color.set(hexColor);
+    }
   }
 }

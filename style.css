@@ -317,3 +317,150 @@ canvas {
     height: 28px;
     margin-left: -5px; /* компенсируем отсутствие текста */
 }
+
+
+
+
+
+/*экран лампочек*/
+
+/* =========================================
+   FLOATING UI (Настройки панелей и света)
+   ========================================= */
+   .floating-ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(28, 29, 33, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: #fff;
+    z-index: 999999;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    pointer-events: auto;
+}
+
+/* Для лампочки сделаем позицию справа, чтобы не перекрывали друг друга, если случайно откроются обе */
+.light-selection-ui {
+    left: auto;
+    right: 20px;
+}
+
+.ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ui-title {
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.ui-close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 18px;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-close-btn:hover {
+    color: #ff5555;
+}
+
+.ui-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ui-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.ui-row input[type="range"] {
+    flex: 1;
+    margin-left: 15px;
+    accent-color: #00E5FF;
+    cursor: pointer;
+}
+
+.ui-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.ui-check input[type="checkbox"] {
+    accent-color: #00E5FF;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* =========================================
+   MOBILE ADAPTATION FOR FLOATING UI
+   ========================================= */
+   @media (max-width: 600px) {
+    .floating-ui {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        width: auto; /* Займет ширину экрана с учетом отступов */
+        margin: 0 auto; /* По центру */
+    }
+
+    /* Сбрасываем привязку к правому краю для лампы */
+    .light-selection-ui {
+        left: 10px;
+        right: 10px;
+    }
+
+    .ui-header {
+        padding: 8px 12px;
+    }
+
+    .ui-title {
+        font-size: 14px;
+    }
+
+    .ui-close-btn {
+        font-size: 16px;
+    }
+
+    .ui-body {
+        padding: 10px 12px;
+        gap: 10px; /* Уменьшаем расстояние между строками */
+    }
+
+    .ui-row {
+        font-size: 12px;
+    }
+
+    .ui-row input[type="range"] {
+        margin-left: 10px;
+    }
+
+    .action-btn {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
