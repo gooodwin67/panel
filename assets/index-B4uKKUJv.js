@@ -1,7 +1,7 @@
-import { S as O, P as G, W as N, a as k, A as H, b as U, O as q, c as X, d as Y, R as Q, e as F, V as S, f as g, g as P, h as _, B as C, M as w, i as b, j as v, k as B, F as M, l as y, Q as D, m as V, E as j, L as K, n as Z, C as I, o as E, p as L, T as $, q as J, G as ee, r as te, s as se } from "./three-B4JPlIW7.js";
-let we;
+import { S as N, P as O, W as H, a as E, A as G, b as U, O as q, c as X, d as Y, R as Q, e as z, V as S, f as u, g as P, h as j, T as A, i as p, B as x, M as y, j as w, k as D, l as W, F as v, Q as k, m as _, E as V, L as K, n as Z, C as F, o as T, p as I, q as $, G as J, r as ee, s as te } from "./three-DVG2ahmb.js";
+let ye;
 let __tla = (async () => {
-  we = function() {
+  ye = function() {
     import.meta.url, import("_").then(async (m) => {
       await m.__tla;
       return m;
@@ -29,11 +29,11 @@ let __tla = (async () => {
       fetch(i.href, n);
     }
   })();
-  class ie {
+  class se {
     constructor(t) {
-      this.gameContext = t, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new O(), this.camera = new G(40, window.innerWidth / window.innerHeight, 0.1, 40), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10, this.renderer = new N({
+      this.gameContext = t, this.onWindowResize = this.onWindowResize.bind(this), this.scene = new N(), this.camera = new O(40, window.innerWidth / window.innerHeight, 0.1, 40), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10, this.renderer = new H({
         antialias: true
-      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = k, this.renderer.shadowMap.enabled = true, this.renderer.toneMapping = H, this.renderer.toneMappingExposure = 0.5, this.renderer.shadowMap.type = U, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new q(this.camera, this.renderer.domElement), this.controls.rotateSpeed = 0.5, this.gameContext.controls = this.controls, this.stats = new X(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
+      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = E, this.renderer.shadowMap.enabled = true, this.renderer.toneMapping = G, this.renderer.toneMappingExposure = 0.5, this.renderer.shadowMap.type = U, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new q(this.camera, this.renderer.domElement), this.controls.rotateSpeed = 0.5, this.gameContext.controls = this.controls, this.stats = new X(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
       const e = new Y(this.renderer);
       e.compileEquirectangularShader(), new Q().setPath("./hdr/").load("studio_small_08_1k.hdr", (s) => {
         e.fromEquirectangular(s).texture, s.dispose(), e.dispose();
@@ -42,13 +42,13 @@ let __tla = (async () => {
     onWindowResize() {
       const s = window.innerWidth, i = window.innerHeight, n = Math.min(s, 1920), a = Math.min(i, 1080);
       this.renderer.setSize(n, a, false);
-      const r = this.renderer.domElement;
-      r.style.position = "fixed", r.style.left = "50%", r.style.top = "50%", r.style.transform = "translate(-50%, -50%)", r.style.width = n + "px", r.style.height = a + "px", this.camera.aspect = n / a, this.camera.updateProjectionMatrix();
+      const o = this.renderer.domElement;
+      o.style.position = "fixed", o.style.left = "50%", o.style.top = "50%", o.style.transform = "translate(-50%, -50%)", o.style.width = n + "px", o.style.height = a + "px", this.camera.aspect = n / a, this.camera.updateProjectionMatrix();
     }
   }
-  class ne {
+  class ie {
     constructor(t, e, s) {
-      this.gameContext = t, this.walls = e, this.cellSize = s.cellSize || 0.5, this.panelDepth = s.panelDepth || 0.05, this.raycaster = new F(), this.pointer = new S(), this.mouseDownPointer = new S(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
+      this.gameContext = t, this.walls = e, this.cellSize = s.cellSize || 0.5, this.panelDepth = s.panelDepth || 0.05, this.raycaster = new z(), this.pointer = new S(), this.mouseDownPointer = new S(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
     }
     handlePointerDown(t) {
       this.updatePointer(t), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
@@ -64,9 +64,9 @@ let __tla = (async () => {
       return false;
     }
     isWallFacingCamera(t) {
-      const e = this.gameContext.camera, s = new g();
+      const e = this.gameContext.camera, s = new u();
       t.getWorldPosition(s);
-      const i = new g().subVectors(e.position, s), n = new g(0, 0, 1).applyQuaternion(t.quaternion);
+      const i = new u().subVectors(e.position, s), n = new u(0, 0, 1).applyQuaternion(t.quaternion);
       return i.dot(n) > 0;
     }
     startDrag(t, e) {
@@ -107,17 +107,19 @@ let __tla = (async () => {
       }), this.gameContext.sceneClass.deselectPanel(), e.parent.remove(e), this.disposeModel(e), this.startDrag(s, t), this.pendingPanel = null;
     }
     snapToGrid(t, e) {
-      const s = e.geometry.parameters.width, i = e.geometry.parameters.height, n = e.worldToLocal(t.point.clone()), a = e.material.map, r = n.x / s + 0.5, l = n.y / i + 0.5;
-      let h = r * a.repeat.x + a.offset.x, u = l * a.repeat.y + a.offset.y;
-      const m = Math.floor(h), c = Math.floor(u);
-      if (e.children.some((f) => f.userData.isPanel && f.userData.gridX === m && f.userData.gridY === c)) this.ghostMesh.visible = false, this.canPlace = false;
-      else {
-        this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = m, this.ghostMesh.userData.gridY = c;
-        const f = m + 0.5, A = c + 0.5, T = (f - a.offset.x) / a.repeat.x, R = (A - a.offset.y) / a.repeat.y;
-        n.x = (T - 0.5) * s, n.y = (R - 0.5) * i, n.z = 0;
-        const z = e.localToWorld(n);
-        this.ghostMesh.position.copy(z), this.ghostMesh.quaternion.copy(e.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
+      const s = e.geometry.parameters.width, i = e.geometry.parameters.height, n = e.userData.gridTexture, a = e.worldToLocal(t.point.clone());
+      let o = a.x / s + 0.5, l = a.y / i + 0.5;
+      o = o * n.repeat.x + n.offset.x, l = l * n.repeat.y + n.offset.y;
+      const c = Math.floor(o), g = Math.floor(l);
+      if (e.children.some((C) => C.userData.isPanel && C.userData.gridX === c && C.userData.gridY === g)) {
+        this.ghostMesh.visible = false, this.canPlace = false;
+        return;
       }
+      this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = c, this.ghostMesh.userData.gridY = g;
+      const h = (c + 0.5 - n.offset.x) / n.repeat.x, f = (g + 0.5 - n.offset.y) / n.repeat.y, b = (h - 0.5) * s, L = (f - 0.5) * i;
+      a.x = b, a.y = L, a.z = 0;
+      const B = e.localToWorld(a);
+      this.ghostMesh.position.copy(B), this.ghostMesh.quaternion.copy(e.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
     }
     moveInAir() {
       this.currentWall = null, this.canPlace = true, this.ghostMesh.visible = true, this.applyMaterialProperties(this.ghostMesh, {
@@ -143,7 +145,7 @@ let __tla = (async () => {
         clippingPlanes: i,
         cloneMaterial: true
       }), this.savedColor !== null ? this.applyColor(s, this.savedColor) : this.gameContext.sceneClass.globalPanelColor !== null && this.applyColor(s, this.gameContext.sceneClass.globalPanelColor);
-      const n = this.ghostMesh.position.clone(), a = new g(0, 0, 1).applyQuaternion(this.currentWall.quaternion);
+      const n = this.ghostMesh.position.clone(), a = new u(0, 0, 1).applyQuaternion(this.currentWall.quaternion);
       n.add(a.multiplyScalar(5e-3)), this.currentWall.add(s), this.currentWall.worldToLocal(n), s.position.copy(n), s.rotation.set(0, 0, 0), s.rotateX(Math.PI / 2), this.gameContext.sceneClass.onPanelSelected(s);
     }
     applyColor(t, e) {
@@ -177,7 +179,7 @@ let __tla = (async () => {
       this.pointer.x = (t.clientX - s.left) / s.width * 2 - 1, this.pointer.y = -((t.clientY - s.top) / s.height * 2 - 1);
     }
     getWallClippingPlanes(t) {
-      const e = t.geometry.parameters.width, s = t.geometry.parameters.height, i = new g(1, 0, 0).applyQuaternion(t.quaternion), n = new g(0, 1, 0).applyQuaternion(t.quaternion), a = t.position;
+      const e = t.geometry.parameters.width, s = t.geometry.parameters.height, i = new u(1, 0, 0).applyQuaternion(t.quaternion), n = new u(0, 1, 0).applyQuaternion(t.quaternion), a = t.position;
       return [
         new P().setFromNormalAndCoplanarPoint(i.clone().negate(), a.clone().add(i.clone().multiplyScalar(e / 2))),
         new P().setFromNormalAndCoplanarPoint(i.clone(), a.clone().add(i.clone().multiplyScalar(-e / 2))),
@@ -186,8 +188,8 @@ let __tla = (async () => {
       ];
     }
   }
-  const x = new g(), W = new g();
-  class ae {
+  const M = new u(), R = new u();
+  class ne {
     constructor(t) {
       this.gameContext = t, this.onWallChanged = null, this.selectedPanel = null, this.floor = null, this.ceiling = null, this.centerLight = null, this.lightBulbMesh = null, this.sideLight = null, this.sideBulbMesh = null, this.animatingPanels = [], this.globalPanelColor = null, this.config = {
         cellSize: 0.5,
@@ -195,52 +197,52 @@ let __tla = (async () => {
         widthWallFront: 5,
         heightWall: 2.7,
         widthWallSide: 4
-      }, this.ambientLight = new _(16777215, 0.05), this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new P(), this.lightDragIntersectionPoint = new g(), this.lightDragOffset = new g(), this.raycaster = new F(), this.pointer = new S(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.isNetVisible = true, this.createWalls(), this.dragHandler = new ne(t, this.walls, this.config);
+      }, this.ambientLight = new j(16777215, 0.05), this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new P(), this.lightDragIntersectionPoint = new u(), this.lightDragOffset = new u(), this.raycaster = new z(), this.pointer = new S(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.isNetVisible = true, this.textureLoader = new A(), this.wallTexture = this.textureLoader.load("textures/wall.jpg"), this.wallTexture.wrapS = p, this.wallTexture.wrapT = p, this.wallTexture.colorSpace = E, this.wallTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.wallNormal = this.textureLoader.load("textures/wall-normal.jpg"), this.wallRoughness = this.textureLoader.load("textures/wall-roughness.jpg"), this.wallNormal.wrapS = p, this.wallNormal.wrapT = p, this.wallRoughness.wrapS = p, this.wallRoughness.wrapT = p, this.createWalls(), this.dragHandler = new ie(t, this.walls, this.config);
     }
     createScene() {
       this.loadWall(), this.createFloorAndCeiling(), this.createRug(), this.createCenterLight(), this.addLight(), this.initEvents();
     }
     createCenterLight() {
-      const { heightWall: t } = this.config, e = new C(1, 0.05, 1), s = new w({
+      const { heightWall: t } = this.config, e = new x(1, 0.05, 1), s = new y({
         color: 1118481,
         emissive: 16777198,
         emissiveIntensity: 2,
         roughness: 0.7
       });
-      this.lightBulbMesh = new b(e, s);
+      this.lightBulbMesh = new w(e, s);
       const i = t / 2 - 0.03;
-      this.lightBulbMesh.position.set(0, i, 0), this.gameContext.scene.add(this.lightBulbMesh), this.centerLight = new v(16770754, 60, 0, 2), this.centerLight.position.set(0, i, 1), this.centerLight.castShadow = true, this.centerLight.shadow.mapSize.width = 1024, this.centerLight.shadow.mapSize.height = 1024, this.centerLight.shadow.bias = -1e-4, this.gameContext.scene.add(this.centerLight);
-      const n = new C(0.1, 0.1, 0.1), a = new w({
+      this.lightBulbMesh.position.set(0, i, 0), this.gameContext.scene.add(this.lightBulbMesh), this.centerLight = new D(16770754, 60, 0, 2), this.centerLight.position.set(0, i, 1), this.centerLight.castShadow = true, this.centerLight.shadow.mapSize.width = 1024, this.centerLight.shadow.mapSize.height = 1024, this.centerLight.shadow.bias = -1e-4, this.gameContext.scene.add(this.centerLight);
+      const n = new x(0.1, 0.1, 0.1), a = new y({
         color: 0,
         emissive: 16755319,
         emissiveIntensity: 2,
         roughness: 0.8,
         metalness: 0.8
       });
-      this.sideBulbMesh = new b(n, a), this.sideBulbMesh.position.set(1.5, 0.5, -1), this.sideLight = new v(16755302, 20, 0, 2), this.sideLight.position.set(1.5, 0.5, -1), this.sideLight.castShadow = true, this.sideLight.shadow.mapSize.width = 1024, this.sideLight.shadow.mapSize.height = 1024, this.sideLight.shadow.bias = -1e-4;
+      this.sideBulbMesh = new w(n, a), this.sideBulbMesh.position.set(1.5, 0.5, -1), this.sideLight = new D(16755302, 20, 0, 2), this.sideLight.position.set(1.5, 0.5, -1), this.sideLight.castShadow = true, this.sideLight.shadow.mapSize.width = 1024, this.sideLight.shadow.mapSize.height = 1024, this.sideLight.shadow.bias = -1e-4;
     }
     createFloorAndCeiling() {
-      const { widthWallFront: t, widthWallSide: e, heightWall: s } = this.config, i = new B(t, e), n = new w({
+      const { widthWallFront: t, widthWallSide: e, heightWall: s } = this.config, i = new W(t, e), n = new y({
         color: 15790320,
         roughness: 0.9,
         metalness: 0,
-        side: M
+        side: v
       });
-      this.floor = new b(i, n), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -s / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
-      const a = new w({
+      this.floor = new w(i, n), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -s / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
+      const a = new y({
         color: 15790320,
         roughness: 0.9,
-        side: M
+        side: v
       });
-      this.ceiling = new b(i, a), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = s / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
+      this.ceiling = new w(i, a), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = s / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
     }
     setRoomColor(t, e) {
       t === "floor" && this.floor ? this.floor.material.color.setHex(e) : t === "ceiling" && this.ceiling && this.ceiling.material.color.setHex(e);
     }
     updateAnimations(t) {
       for (let i = this.animatingPanels.length - 1; i >= 0; i--) {
-        const n = this.animatingPanels[i], a = !!n.userData.targetQuaternion, r = !!n.userData.targetPosition;
-        a && (n.quaternion.slerp(n.userData.targetQuaternion, t * 10), n.quaternion.angleTo(n.userData.targetQuaternion) < 0.01 && (n.quaternion.copy(n.userData.targetQuaternion), delete n.userData.targetQuaternion)), r && (n.position.lerp(n.userData.targetPosition, t * 10), n.position.distanceTo(n.userData.targetPosition) < 1e-3 && (n.position.copy(n.userData.targetPosition), delete n.userData.targetPosition)), !n.userData.targetQuaternion && !n.userData.targetPosition && this.animatingPanels.splice(i, 1);
+        const n = this.animatingPanels[i], a = !!n.userData.targetQuaternion, o = !!n.userData.targetPosition;
+        a && (n.quaternion.slerp(n.userData.targetQuaternion, t * 10), n.quaternion.angleTo(n.userData.targetQuaternion) < 0.01 && (n.quaternion.copy(n.userData.targetQuaternion), delete n.userData.targetQuaternion)), o && (n.position.lerp(n.userData.targetPosition, t * 10), n.position.distanceTo(n.userData.targetPosition) < 1e-3 && (n.position.copy(n.userData.targetPosition), delete n.userData.targetPosition)), !n.userData.targetQuaternion && !n.userData.targetPosition && this.animatingPanels.splice(i, 1);
       }
     }
     createWalls() {
@@ -253,25 +255,32 @@ let __tla = (async () => {
       ], this.activeWallIndex = 0;
     }
     createWallPlane(t, e) {
-      const s = new B(t, e), i = t / this.config.cellSize, n = e / this.config.cellSize, a = this.baseGridTexture.clone();
-      a.repeat.set(i, n), a.wrapS = y, a.wrapT = y, a.needsUpdate = true;
-      const r = this.baseBlankTexture.clone();
-      r.repeat.set(i, n), r.wrapS = y, r.wrapT = y, r.needsUpdate = true;
-      const l = new w({
-        color: 13421772,
+      const s = new W(t, e), i = t / this.config.cellSize, n = e / this.config.cellSize, a = this.wallTexture.clone();
+      a.repeat.set(t / 2, e / 2), a.wrapS = p, a.wrapT = p, a.needsUpdate = true;
+      const o = this.wallNormal.clone(), l = this.wallRoughness.clone();
+      o.repeat.set(i, n), l.repeat.set(i, n);
+      const c = this.baseGridTexture.clone();
+      c.repeat.set(i, n), c.wrapS = p, c.wrapT = p, c.needsUpdate = true;
+      const g = this.baseBlankTexture.clone();
+      g.repeat.set(i, n), g.wrapS = p, g.wrapT = p, g.needsUpdate = true;
+      const m = new y({
         map: a,
-        roughness: 0.9,
+        normalMap: o,
+        roughnessMap: l,
+        normalScale: new S(0.3, 0.3),
+        alphaMap: c,
+        transparent: true,
+        color: 16777215,
+        roughness: 1,
         metalness: 0,
-        transparent: false,
-        opacity: 1,
-        side: M
+        side: v
       });
-      l.envMapIntensity = 0.2;
-      const h = new b(s, l);
-      return h.userData.gridTexture = a, h.userData.blankTexture = r, h.receiveShadow = true, h.onBeforeRender = function(u, m, c) {
-        h.getWorldPosition(x), x.subVectors(c.position, x), W.set(0, 0, 1).transformDirection(h.matrixWorld);
-        const p = x.dot(W) > 0;
-        h.children.forEach((f) => f.visible = p);
+      m.envMapIntensity = 0.8;
+      const h = new w(s, m);
+      return h.userData.gridTexture = c, h.userData.blankTexture = g, h.receiveShadow = true, h.onBeforeRender = function(f, b, L) {
+        h.getWorldPosition(M), M.subVectors(L.position, M), R.set(0, 0, 1).transformDirection(h.matrixWorld);
+        const B = M.dot(R) > 0;
+        h.children.forEach((C) => C.visible = B);
       }, h;
     }
     loadWall() {
@@ -302,10 +311,10 @@ let __tla = (async () => {
       if (t.target.closest(".floating-ui") || t.target.tagName === "BUTTON" || t.target.tagName === "INPUT") return;
       const s = this.gameContext.renderer.domElement.getBoundingClientRect();
       this.pointer.x = (t.clientX - s.left) / s.width * 2 - 1, this.pointer.y = -((t.clientY - s.top) / s.height * 2 - 1), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
-      const i = this.lightBulbs.map((r) => r.mesh), n = this.raycaster.intersectObjects(i, false);
+      const i = this.lightBulbs.map((o) => o.mesh), n = this.raycaster.intersectObjects(i, false);
       if (n.length > 0) {
-        const r = n[0].object;
-        this.selectLightBulb(r), this.startDragLightBulb(r, t);
+        const o = n[0].object;
+        this.selectLightBulb(o), this.startDragLightBulb(o, t);
         return;
       }
       if (this.rug && this.raycaster.intersectObject(this.rug, false).length > 0) {
@@ -326,8 +335,8 @@ let __tla = (async () => {
           t[e] = t[s], t[s] = i;
         }
         t.forEach((e) => {
-          const i = Math.ceil(Math.random() * 3) * (Math.PI / 2), n = new D();
-          n.setFromAxisAngle(new g(0, 1, 0), i);
+          const i = Math.ceil(Math.random() * 3) * (Math.PI / 2), n = new k();
+          n.setFromAxisAngle(new u(0, 1, 0), i);
           const a = e.userData.targetQuaternion ? e.userData.targetQuaternion.clone() : e.quaternion.clone();
           e.userData.targetQuaternion = a.multiply(n), this.animatingPanels.includes(e) || this.animatingPanels.push(e);
         });
@@ -342,18 +351,18 @@ let __tla = (async () => {
           gridY: l.userData.gridY
         }));
         for (let l = s.length - 1; l > 0; l--) {
-          const h = Math.floor(Math.random() * (l + 1)), u = s[l];
-          s[l] = s[h], s[h] = u;
+          const c = Math.floor(Math.random() * (l + 1)), g = s[l];
+          s[l] = s[c], s[c] = g;
         }
-        const i = t.geometry.parameters.width, n = t.geometry.parameters.height, a = t.material.map;
-        function r(l, h) {
-          const u = l + 0.5, m = h + 0.5, c = (u - a.offset.x) / a.repeat.x, p = (m - a.offset.y) / a.repeat.y;
-          return new g((c - 0.5) * i, (p - 0.5) * n, 5e-3);
+        const i = t.geometry.parameters.width, n = t.geometry.parameters.height, a = t.material.alphaMap;
+        function o(l, c) {
+          const g = l + 0.5, m = c + 0.5, h = (g - a.offset.x) / a.repeat.x, f = (m - a.offset.y) / a.repeat.y;
+          return new u((h - 0.5) * i, (f - 0.5) * n, 5e-3);
         }
-        e.forEach((l, h) => {
-          const u = s[h];
-          l.userData.gridX = u.gridX, l.userData.gridY = u.gridY;
-          const m = r(u.gridX, u.gridY);
+        e.forEach((l, c) => {
+          const g = s[c];
+          l.userData.gridX = g.gridX, l.userData.gridY = g.gridY;
+          const m = o(g.gridX, g.gridY);
           l.userData.targetPosition = m, this.animatingPanels.includes(l) || this.animatingPanels.push(l);
         });
       });
@@ -373,27 +382,27 @@ let __tla = (async () => {
       }
     }
     addSelectionOutline(t) {
-      const e = new V(), s = new g();
+      const e = new _(), s = new u();
       t.updateMatrixWorld(true);
       const i = t.matrixWorld.clone().invert();
       let n = false;
-      t.traverse((c) => {
-        if (c.isMesh && c.geometry) {
-          const p = c.geometry.attributes.position;
-          if (p) {
-            for (let f = 0; f < p.count; f++) s.fromBufferAttribute(p, f), s.applyMatrix4(c.matrixWorld), s.applyMatrix4(i), e.expandByPoint(s);
+      t.traverse((h) => {
+        if (h.isMesh && h.geometry) {
+          const f = h.geometry.attributes.position;
+          if (f) {
+            for (let b = 0; b < f.count; b++) s.fromBufferAttribute(f, b), s.applyMatrix4(h.matrixWorld), s.applyMatrix4(i), e.expandByPoint(s);
             n = true;
           }
         }
-      }), n || e.set(new g(-0.25, -0.25, 0), new g(0.25, 0.25, 0.05));
-      const a = new g(), r = new g();
-      e.getSize(a), e.getCenter(r), a.multiplyScalar(1.02);
-      const l = new C(a.x, a.y, a.z), h = new j(l), u = new K({
+      }), n || e.set(new u(-0.25, -0.25, 0), new u(0.25, 0.25, 0.05));
+      const a = new u(), o = new u();
+      e.getSize(a), e.getCenter(o), a.multiplyScalar(1.02);
+      const l = new x(a.x, a.y, a.z), c = new V(l), g = new K({
         color: 65535,
         depthTest: false,
         depthWrite: false
-      }), m = new Z(h, u);
-      m.position.copy(r), m.name = "selection_outline", m.raycast = () => {
+      }), m = new Z(c, g);
+      m.position.copy(o), m.name = "selection_outline", m.raycast = () => {
       }, t.add(m);
     }
     removeSelectionOutline() {
@@ -416,36 +425,44 @@ let __tla = (async () => {
       if (!this.selectedPanel) return;
       const e = this.selectedPanel;
       e.userData.targetQuaternion || (e.userData.targetQuaternion = e.quaternion.clone());
-      const s = new D();
-      s.setFromAxisAngle(new g(0, 1, 0), t), e.userData.targetQuaternion.multiply(s), this.animatingPanels.includes(e) || this.animatingPanels.push(e);
+      const s = new k();
+      s.setFromAxisAngle(new u(0, 1, 0), t), e.userData.targetQuaternion.multiply(s), this.animatingPanels.includes(e) || this.animatingPanels.push(e);
     }
     handleWallSelection(t) {
+      const s = this.gameContext.renderer.domElement.getBoundingClientRect();
+      this.pointer.x = (t.clientX - s.left) / s.width * 2 - 1, this.pointer.y = -((t.clientY - s.top) / s.height * 2 - 1), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+      const i = this.raycaster.intersectObjects(this.walls, false);
+      i.length > 0 && this.setActiveWall(i[0].object);
     }
     setActiveWall(t) {
+      const e = this.walls.indexOf(t);
+      this.activeWallIndex = e, this.onWallChanged && this.onWallChanged();
     }
     highlightActiveWall() {
+      this.walls.forEach((t, e) => {
+        const s = e === this.activeWallIndex;
+        t.material.color.setHex(s ? 8947848 : 16777215), t.material.opacity = s ? 0.4 : 0.8;
+      });
     }
     createGridTexture() {
       const t = document.createElement("canvas");
       t.width = 128, t.height = 128;
       const e = t.getContext("2d");
       e.fillStyle = "#cccccc", e.fillRect(0, 0, 128, 128), e.strokeStyle = "#444444", e.lineWidth = 2, e.strokeRect(0, 0, 128, 128);
-      const s = new I(t);
-      return s.magFilter = E, s.minFilter = L, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
+      const s = new F(t);
+      return s.magFilter = T, s.minFilter = I, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
     }
     createBlankTexture() {
       const t = document.createElement("canvas");
       t.width = 128, t.height = 128;
       const e = t.getContext("2d");
       e.fillStyle = "#ffffff", e.fillRect(0, 0, 128, 128);
-      const s = new I(t);
-      return s.magFilter = E, s.minFilter = L, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
+      const s = new F(t);
+      return s.magFilter = T, s.minFilter = I, s.generateMipmaps = true, s.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), s;
     }
     toggleNet() {
       this.isNetVisible = !this.isNetVisible, this.walls.forEach((t) => {
-        if (!t.material) return;
-        const e = this.isNetVisible ? t.userData.gridTexture : t.userData.blankTexture;
-        t.material.map = e, t.material.needsUpdate = true;
+        t.material && (t.material.alphaMap = this.isNetVisible ? t.userData.gridTexture : null, t.material.needsUpdate = true);
       });
     }
     setAllWallsColor(t) {
@@ -463,18 +480,18 @@ let __tla = (async () => {
       });
     }
     addSideLightBulb() {
-      const t = new C(0.1, 0.1, 0.1), e = new w({
+      const t = new x(0.1, 0.1, 0.1), e = new y({
         color: 0,
         emissive: 16755319,
         emissiveIntensity: 2,
         roughness: 0.8,
         metalness: 0.8
-      }), s = new b(t, e), i = (Math.random() - 0.5) * this.config.widthWallFront, n = (Math.random() - 0.5) * this.config.heightWall, a = (Math.random() - 0.5) * this.config.widthWallSide;
+      }), s = new w(t, e), i = (Math.random() - 0.5) * this.config.widthWallFront, n = (Math.random() - 0.5) * this.config.heightWall, a = (Math.random() - 0.5) * this.config.widthWallSide;
       s.position.set(i, n, a);
-      const r = new v(16755302, 20, 0, 2);
-      r.position.copy(s.position), r.castShadow = false, s.userData.isLightBulb = true, s.userData.light = r, this.gameContext.scene.add(s), this.gameContext.scene.add(r), this.lightBulbs.push({
+      const o = new D(16755302, 20, 0, 2);
+      o.position.copy(s.position), o.castShadow = false, s.userData.isLightBulb = true, s.userData.light = o, this.gameContext.scene.add(s), this.gameContext.scene.add(o), this.lightBulbs.push({
         mesh: s,
-        light: r
+        light: o
       });
     }
     selectLightBulb(t) {
@@ -500,14 +517,14 @@ let __tla = (async () => {
       n && (n.value = String(e.distance));
       const a = document.getElementById("light-decay");
       a && (a.value = String(e.decay));
-      const r = document.getElementById("bulb-visible");
-      r && (r.checked = t.visible);
+      const o = document.getElementById("bulb-visible");
+      o && (o.checked = t.visible);
       const l = document.getElementById("bulb-emissive");
       l && t.material && t.material.emissiveIntensity !== void 0 && (l.value = String(t.material.emissiveIntensity));
     }
     startDragLightBulb(t, e) {
       this.isDraggingLightBulb = true, this.draggedLightBulbMesh = t, this.gameContext.controls && (this.gameContext.controls.enabled = false);
-      const s = new g();
+      const s = new u();
       this.gameContext.camera.getWorldDirection(s), this.lightDragPlane.setFromNormalAndCoplanarPoint(s, t.position), this.updatePointer(e), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera), this.raycaster.ray.intersectPlane(this.lightDragPlane, this.lightDragIntersectionPoint) ? this.lightDragOffset.copy(this.lightDragIntersectionPoint).sub(t.position) : this.lightDragOffset.set(0, 0, 0);
     }
     onPointerMoveLightBulb(t) {
@@ -525,17 +542,17 @@ let __tla = (async () => {
       this.pointer.x = (t.clientX - s.left) / s.width * 2 - 1, this.pointer.y = -((t.clientY - s.top) / s.height * 2 - 1);
     }
     createRug() {
-      const { heightWall: t } = this.config, e = 4, s = 3, i = new C(e, 5e-3, s), n = new $(), a = n.load("textures/carpet.jpg"), r = n.load("textures/carpet_normal.jpg"), l = e, h = s;
-      a.wrapS = y, a.wrapT = y, a.repeat.set(l, h), r.wrapS = y, r.wrapT = y, r.repeat.set(l, h), a.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), a.colorSpace = k, a.generateMipmaps = true, a.minFilter = L;
-      const u = new w({
+      const { heightWall: t } = this.config, e = 4, s = 3, i = new x(e, 5e-3, s), n = new A(), a = n.load("textures/carpet.jpg"), o = n.load("textures/carpet_normal.jpg"), l = e, c = s;
+      a.wrapS = p, a.wrapT = p, a.repeat.set(l, c), o.wrapS = p, o.wrapT = p, o.repeat.set(l, c), a.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), a.colorSpace = E, a.generateMipmaps = true, a.minFilter = I;
+      const g = new y({
         map: a,
-        bumpMap: r,
+        bumpMap: o,
         bumpScale: 0.08,
         color: 16777215,
         roughness: 0.98,
         metalness: 0
       });
-      this.rug = new b(i, u), this.rug.position.y = -t / 2 + 5e-3, this.rug.receiveShadow = true, this.rug.castShadow = false, this.rug.userData.isRug = true, this.rug.userData.baseWidth = e, this.rug.userData.baseDepth = s, this.gameContext.scene.add(this.rug);
+      this.rug = new w(i, g), this.rug.position.y = -t / 2 + 5e-3, this.rug.receiveShadow = true, this.rug.castShadow = false, this.rug.userData.isRug = true, this.rug.userData.baseWidth = e, this.rug.userData.baseDepth = s, this.gameContext.scene.add(this.rug);
     }
     selectRug() {
       this.deselectPanel(), this.deselectLightBulb(), this.selectedRug = this.rug;
@@ -559,7 +576,7 @@ let __tla = (async () => {
       this.rug && this.rug.material && this.rug.material.color.set(t);
     }
   }
-  class oe {
+  class ae {
     constructor(t) {
       this.gameContext = t, this.sceneClass = t.sceneClass, this.controllers = [], this.folder = null, this.init();
     }
@@ -568,7 +585,7 @@ let __tla = (async () => {
     }
     refreshLight() {
       if (!this.lightFolder) return;
-      this.lightControllers || (this.lightControllers = []), this.lightControllers.forEach((c) => c.destroy()), this.lightControllers = [];
+      this.lightControllers || (this.lightControllers = []), this.lightControllers.forEach((h) => h.destroy()), this.lightControllers = [];
       const t = this.sceneClass, e = t.centerLight, s = t.lightBulbMesh;
       if (!e || !s) return;
       const i = {
@@ -579,32 +596,32 @@ let __tla = (async () => {
         shadowMapSize: e.shadow.mapSize.width,
         shadowBias: e.shadow.bias,
         kelvin: 2800
-      }, n = this.lightFolder.addFolder("\u041F\u043E\u0437\u0438\u0446\u0438\u044F"), a = () => s.position.copy(e.position), r = n.add(e.position, "x", -10, 10, 0.01).name("X").listen().onChange(a), l = n.add(e.position, "y", -10, 10, 0.01).name("Y").listen().onChange(a), h = n.add(e.position, "z", -10, 10, 0.01).name("Z").listen().onChange(a);
-      this.lightControllers.push(r, l, h), this.lightControllers.push(this.lightFolder.add(e, "intensity", 0, 50, 0.1).name("\u042F\u0440\u043A\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(e, "distance", 0, 50, 0.1).name("\u0414\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(e, "decay", 0, 5, 0.01).name("\u0417\u0430\u0442\u0443\u0445\u0430\u043D\u0438\u0435").listen()), this.lightControllers.push(this.lightFolder.addColor(i, "lightColor").name("\u0426\u0432\u0435\u0442 \u0441\u0432\u0435\u0442\u0430").onChange((c) => {
-        e.color.set(c);
-      })), this.lightControllers.push(this.lightFolder.add(i, "kelvin", 1e3, 12e3, 50).name("\u0422\u0435\u043C\u043F\u0435\u0440\u0430\u0442\u0443\u0440\u0430 (K)").onChange((c) => {
-        const p = this.kelvinToHex(c);
-        e.color.set(p), i.lightColor = "#" + e.color.getHexString();
+      }, n = this.lightFolder.addFolder("\u041F\u043E\u0437\u0438\u0446\u0438\u044F"), a = () => s.position.copy(e.position), o = n.add(e.position, "x", -10, 10, 0.01).name("X").listen().onChange(a), l = n.add(e.position, "y", -10, 10, 0.01).name("Y").listen().onChange(a), c = n.add(e.position, "z", -10, 10, 0.01).name("Z").listen().onChange(a);
+      this.lightControllers.push(o, l, c), this.lightControllers.push(this.lightFolder.add(e, "intensity", 0, 50, 0.1).name("\u042F\u0440\u043A\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(e, "distance", 0, 50, 0.1).name("\u0414\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(e, "decay", 0, 5, 0.01).name("\u0417\u0430\u0442\u0443\u0445\u0430\u043D\u0438\u0435").listen()), this.lightControllers.push(this.lightFolder.addColor(i, "lightColor").name("\u0426\u0432\u0435\u0442 \u0441\u0432\u0435\u0442\u0430").onChange((h) => {
+        e.color.set(h);
+      })), this.lightControllers.push(this.lightFolder.add(i, "kelvin", 1e3, 12e3, 50).name("\u0422\u0435\u043C\u043F\u0435\u0440\u0430\u0442\u0443\u0440\u0430 (K)").onChange((h) => {
+        const f = this.kelvinToHex(h);
+        e.color.set(f), i.lightColor = "#" + e.color.getHexString();
       }));
-      const u = this.lightFolder.addFolder("\u041A\u043E\u0440\u043F\u0443\u0441");
-      this.lightControllers.push(u.add(i, "bulbVisible").name("\u0412\u0438\u0434\u0435\u043D").onChange((c) => {
-        s.visible = c;
-      }), u.addColor(i, "bulbColor").name("\u0426\u0432\u0435\u0442").onChange((c) => {
-        s.material.color.set(c);
+      const g = this.lightFolder.addFolder("\u041A\u043E\u0440\u043F\u0443\u0441");
+      this.lightControllers.push(g.add(i, "bulbVisible").name("\u0412\u0438\u0434\u0435\u043D").onChange((h) => {
+        s.visible = h;
+      }), g.addColor(i, "bulbColor").name("\u0426\u0432\u0435\u0442").onChange((h) => {
+        s.material.color.set(h);
       }));
       const m = this.lightFolder.addFolder("\u0422\u0435\u043D\u0438");
-      this.lightControllers.push(m.add(i, "castShadow").name("castShadow").onChange((c) => {
-        e.castShadow = c;
+      this.lightControllers.push(m.add(i, "castShadow").name("castShadow").onChange((h) => {
+        e.castShadow = h;
       }), m.add(i, "shadowMapSize", [
         256,
         512,
         1024,
         2048
-      ]).name("mapSize").onChange((c) => {
-        const p = Number(c);
-        e.shadow.mapSize.set(p, p), e.shadow.needsUpdate = true;
-      }), m.add(i, "shadowBias", -0.01, 0.01, 1e-5).name("bias").onChange((c) => {
-        e.shadow.bias = c;
+      ]).name("mapSize").onChange((h) => {
+        const f = Number(h);
+        e.shadow.mapSize.set(f, f), e.shadow.needsUpdate = true;
+      }), m.add(i, "shadowBias", -0.01, 0.01, 1e-5).name("bias").onChange((h) => {
+        e.shadow.bias = h;
       })), a();
     }
     refreshAmbient() {
@@ -624,14 +641,14 @@ let __tla = (async () => {
       let s, i, n;
       e <= 66 ? (s = 255, i = 99.4708025861 * Math.log(e) - 161.1195681661, n = e <= 19 ? 0 : 138.5177312231 * Math.log(e - 10) - 305.0447927307) : (s = 329.698727446 * Math.pow(e - 60, -0.1332047592), i = 288.1221695283 * Math.pow(e - 60, -0.0755148492), n = 255);
       const a = (l) => Math.min(255, Math.max(0, l));
-      return s = a(s), i = a(i), n = a(n), "#" + new J(s / 255, i / 255, n / 255).getHexString();
+      return s = a(s), i = a(i), n = a(n), "#" + new $(s / 255, i / 255, n / 255).getHexString();
     }
     refresh() {
       if (!this.folder) return;
       this.controllers.forEach((n) => n.destroy()), this.controllers = [];
       const t = this.sceneClass.walls[this.sceneClass.activeWallIndex];
       if (!t) return;
-      const e = t.material.map, s = this.folder.add(e.offset, "x", 0, 1, 0.1).name("\u0421\u0434\u0432\u0438\u0433 \u043F\u043E X").listen(), i = this.folder.add(e.offset, "y", 0, 1, 0.1).name("\u0421\u0434\u0432\u0438\u0433 \u043F\u043E Y").listen();
+      const e = t.material.alphaMap, s = this.folder.add(e.offset, "x", 0, 1, 0.1).name("\u0421\u0434\u0432\u0438\u0433 \u043F\u043E X").listen(), i = this.folder.add(e.offset, "y", 0, 1, 0.1).name("\u0421\u0434\u0432\u0438\u0433 \u043F\u043E Y").listen();
       this.controllers.push(s, i);
     }
   }
@@ -645,32 +662,32 @@ let __tla = (async () => {
       ];
     }
     async loadModels() {
-      const t = new ee(), e = new B(0.49, 0.49), s = this.urls.map((i, n) => t.loadAsync(i).then((a) => {
-        const r = a.scene.children[0];
-        r.name = "panelTemplate_" + n;
+      const t = new J(), e = new W(0.49, 0.49), s = this.urls.map((i, n) => t.loadAsync(i).then((a) => {
+        const o = a.scene.children[0];
+        o.name = "panelTemplate_" + n;
         const l = [];
-        return r.traverse((h) => {
-          h.isMesh && (h.scale.set(1, 2, 1), l.push(h));
-        }), l.forEach((h) => {
-          const u = h.material, m = new w({
+        return o.traverse((c) => {
+          c.isMesh && (c.scale.set(1, 2, 1), l.push(c));
+        }), l.forEach((c) => {
+          const g = c.material, m = new y({
             color: 16777215,
-            normalMap: u.normalMap,
+            normalMap: g.normalMap,
             emissive: 0,
             metalness: 0.4,
             roughness: 0.8,
-            side: M
+            side: v
           });
-          h.castShadow = true, h.receiveShadow = true;
-          const c = new b(e, m);
-          c.position.y = 5e-4, c.rotation.x = -Math.PI / 2;
-        }), r;
+          c.castShadow = true, c.receiveShadow = true;
+          const h = new w(e, m);
+          h.position.y = 5e-4, h.rotation.x = -Math.PI / 2;
+        }), o;
       }));
       this.panels = await Promise.all(s), console.log("Models loaded with Backing Plates:", this.panels);
     }
   }
-  class le {
+  class oe {
     constructor(t) {
-      this.camera = t.camera, this.controls = t.controls, this.keys = {}, this.dollySpeed = 6, this.strafeSpeed = 4, this.offset = new g(), this.forward = new g(), this.right = new g(), window.addEventListener("keydown", (e) => {
+      this.camera = t.camera, this.controls = t.controls, this.keys = {}, this.dollySpeed = 6, this.strafeSpeed = 4, this.offset = new u(), this.forward = new u(), this.right = new u(), window.addEventListener("keydown", (e) => {
         (e.code === "KeyW" || e.code === "KeyA" || e.code === "KeyS" || e.code === "KeyD") && (this.keys[e.code] = true);
       }), window.addEventListener("keyup", (e) => {
         this.keys[e.code] = false;
@@ -694,67 +711,67 @@ let __tla = (async () => {
     }
   }
   console.clear();
-  const o = {};
-  o.clock = new se();
-  he();
-  async function he() {
+  const r = {};
+  r.clock = new te();
+  le();
+  async function le() {
     try {
-      await ce(), await de(), ye();
+      await he(), await ce(), fe();
     } catch (d) {
       console.error("Init error", d);
     }
   }
-  async function ce() {
-    o.gui = new te(), o.initClass = new ie(o), o.scene = o.initClass.scene, o.camera = o.initClass.camera, o.renderer = o.initClass.renderer, o.assetManager = new re(o), o.sceneClass = new ae(o), o.keyboardOrbitMove = new le(o), o.renderer.localClippingEnabled = true, o.guiClass = new oe(o);
+  async function he() {
+    r.gui = new ee(), r.initClass = new se(r), r.scene = r.initClass.scene, r.camera = r.initClass.camera, r.renderer = r.initClass.renderer, r.assetManager = new re(r), r.sceneClass = new ne(r), r.keyboardOrbitMove = new oe(r), r.renderer.localClippingEnabled = true, r.guiClass = new ae(r);
   }
-  async function de() {
-    await o.assetManager.loadModels(), ge(), ue(), me(), t();
-    const d = o.sceneClass;
+  async function ce() {
+    await r.assetManager.loadModels(), de(), ge(), ue(), t();
+    const d = r.sceneClass;
     for (let e = 1; e <= 4; e++) {
       const s = document.querySelector(".panel".concat(e));
       s && s.addEventListener("pointerdown", (i) => {
         i.preventDefault(), d.startDrag(e - 1, i);
       });
     }
-    o.sceneClass.createScene(), o.guiClass && (o.guiClass.refresh(), o.guiClass.refreshLight());
+    r.sceneClass.createScene(), r.guiClass && (r.guiClass.refresh(), r.guiClass.refreshLight());
     function t() {
       document.getElementById("random_rotate").onclick = () => {
-        o.sceneClass.randomRotate();
+        r.sceneClass.randomRotate();
       }, document.getElementById("random_shuffle").onclick = () => {
-        o.sceneClass.shufflePanelsOnWalls();
+        r.sceneClass.shufflePanelsOnWalls();
       }, document.getElementById("toglle_net").onclick = () => {
-        o.sceneClass.toggleNet();
+        r.sceneClass.toggleNet();
       };
       const e = document.getElementById("add-light-bulb");
       e && (e.onclick = () => {
-        o.sceneClass.addSideLightBulb();
+        r.sceneClass.addSideLightBulb();
       });
     }
   }
-  function ge() {
+  function de() {
     document.getElementById("btn-rot-left").onclick = () => {
-      o.sceneClass.rotateSelectedPanel(Math.PI / 2);
+      r.sceneClass.rotateSelectedPanel(Math.PI / 2);
     }, document.getElementById("btn-rot-right").onclick = () => {
-      o.sceneClass.rotateSelectedPanel(-Math.PI / 2);
+      r.sceneClass.rotateSelectedPanel(-Math.PI / 2);
     };
     const d = document.getElementById("panel-color-picker");
     d && d.addEventListener("input", (e) => {
-      o.sceneClass.changeSelectedPanelColor(e.target.value);
+      r.sceneClass.changeSelectedPanelColor(e.target.value);
     }), document.getElementById("btn-close-sel").onclick = () => {
-      o.sceneClass.deselectPanel();
+      r.sceneClass.deselectPanel();
     }, document.getElementById("btn-all-color").onclick = () => {
       const e = document.getElementById("panel-color-picker");
-      e && o.sceneClass.setAllPanelsColor(e.value);
+      e && r.sceneClass.setAllPanelsColor(e.value);
     };
     const t = document.getElementById("wall-color-picker");
     t && t.addEventListener("input", (e) => {
-      o.sceneClass.setAllWallsColor(e.target.value);
+      r.sceneClass.setAllWallsColor(e.target.value);
     });
   }
-  function ue() {
+  function ge() {
     if (!document.getElementById("light-selection-ui")) return;
     const t = () => {
-      const e = o.sceneClass.selectedLightBulb;
+      const e = r.sceneClass.selectedLightBulb;
       if (!e) return null;
       const s = e.userData.light;
       return s ? {
@@ -763,14 +780,14 @@ let __tla = (async () => {
       } : null;
     };
     document.getElementById("btn-close-light").onclick = () => {
-      o.sceneClass.deselectLightBulb();
+      r.sceneClass.deselectLightBulb();
     }, document.getElementById("light-color-picker").addEventListener("input", (e) => {
       const s = t();
       s && s.pointLight.color.set(e.target.value);
     }), document.getElementById("light-kelvin").addEventListener("input", (e) => {
       const s = t();
       if (!s) return;
-      const i = Number(e.target.value), n = o.guiClass.kelvinToHex(i);
+      const i = Number(e.target.value), n = r.guiClass.kelvinToHex(i);
       s.pointLight.color.set(n);
       const a = document.getElementById("light-color-picker");
       a && (a.value = "#" + s.pointLight.color.getHexString());
@@ -792,44 +809,44 @@ let __tla = (async () => {
     }), document.getElementById("btn-delete-light").onclick = () => {
       const e = t();
       if (!e) return;
-      o.scene.remove(e.bulbMesh), o.scene.remove(e.pointLight);
-      const s = o.sceneClass.lightBulbs.findIndex((i) => i.mesh === e.bulbMesh);
-      s !== -1 && o.sceneClass.lightBulbs.splice(s, 1), e.bulbMesh.geometry && e.bulbMesh.geometry.dispose(), e.bulbMesh.material && e.bulbMesh.material.dispose(), o.sceneClass.deselectLightBulb();
+      r.scene.remove(e.bulbMesh), r.scene.remove(e.pointLight);
+      const s = r.sceneClass.lightBulbs.findIndex((i) => i.mesh === e.bulbMesh);
+      s !== -1 && r.sceneClass.lightBulbs.splice(s, 1), e.bulbMesh.geometry && e.bulbMesh.geometry.dispose(), e.bulbMesh.material && e.bulbMesh.material.dispose(), r.sceneClass.deselectLightBulb();
     };
   }
-  function me() {
+  function ue() {
     const d = document.getElementById("btn-close-rug");
     if (!d) return;
     d.onclick = () => {
-      o.sceneClass.deselectRug();
+      r.sceneClass.deselectRug();
     };
     const t = () => {
       const s = Number(document.getElementById("rug-width").value), i = Number(document.getElementById("rug-depth").value), n = Number(document.getElementById("rug-pos-x").value), a = Number(document.getElementById("rug-pos-z").value);
-      o.sceneClass.updateRugTransform(s, i, n, a);
+      r.sceneClass.updateRugTransform(s, i, n, a);
     }, e = document.getElementById("rug-color-picker");
     e && e.addEventListener("input", (s) => {
-      o.sceneClass.changeRugColor(s.target.value);
+      r.sceneClass.changeRugColor(s.target.value);
     }), document.getElementById("rug-width").addEventListener("input", t), document.getElementById("rug-depth").addEventListener("input", t), document.getElementById("rug-pos-x").addEventListener("input", t), document.getElementById("rug-pos-z").addEventListener("input", t);
   }
-  function pe(d) {
-    o.testMesh && (o.testMesh.rotation.y += d * 0.5), o.keyboardOrbitMove && o.keyboardOrbitMove.update(d), o.controls, o.sceneClass && o.sceneClass.updateAnimations(d);
+  function me(d) {
+    r.testMesh && (r.testMesh.rotation.y += d * 0.5), r.keyboardOrbitMove && r.keyboardOrbitMove.update(d), r.controls, r.sceneClass && r.sceneClass.updateAnimations(d);
+  }
+  function pe() {
+    r.renderer && r.scene && r.camera && r.renderer.render(r.scene, r.camera), r.initClass && r.initClass.stats && r.initClass.stats.update();
   }
   function fe() {
-    o.renderer && o.scene && o.camera && o.renderer.render(o.scene, o.camera), o.initClass && o.initClass.stats && o.initClass.stats.update();
-  }
-  function ye() {
     let d = 0;
     const t = 1 / 60, e = 0.1;
-    o.renderer.setAnimationLoop(() => {
-      let s = o.clock.getDelta();
+    r.renderer.setAnimationLoop(() => {
+      let s = r.clock.getDelta();
       s > e && (s = e), d += s;
       let i = 5;
-      for (; d >= t && i > 0; ) pe(t), d -= t, i--;
-      d > t && (d = 0), fe();
+      for (; d >= t && i > 0; ) me(t), d -= t, i--;
+      d > t && (d = 0), pe();
     });
   }
 })();
 export {
   __tla,
-  we as __vite_legacy_guard
+  ye as __vite_legacy_guard
 };
