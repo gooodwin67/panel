@@ -50,6 +50,24 @@ export class SceneClass {
     this.baseBlankTexture = this.createBlankTexture();
     this.isNetVisible = true;
 
+    this.textureLoader = new THREE.TextureLoader();
+    this.wallTexture = this.textureLoader.load("textures/wall.jpg");
+
+    this.wallTexture.wrapS = THREE.RepeatWrapping;
+    this.wallTexture.wrapT = THREE.RepeatWrapping;
+    this.wallTexture.colorSpace = THREE.SRGBColorSpace;
+    this.wallTexture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
+
+    this.wallNormal = this.textureLoader.load("textures/wall-normal.jpg");
+    this.wallRoughness = this.textureLoader.load("textures/wall-roughness.jpg");
+
+    this.wallNormal.wrapS = THREE.RepeatWrapping;
+    this.wallNormal.wrapT = THREE.RepeatWrapping;
+
+    this.wallRoughness.wrapS = THREE.RepeatWrapping;
+    this.wallRoughness.wrapT = THREE.RepeatWrapping;
+
     this.createWalls();
     this.dragHandler = new PanelDragHandler(
       gameContext,
@@ -226,6 +244,19 @@ export class SceneClass {
     const repeatX = width / this.config.cellSize;
     const repeatY = height / this.config.cellSize;
 
+    const wallTexture = this.wallTexture.clone();
+    // wallTexture.repeat.set(repeatX, repeatY);
+    wallTexture.repeat.set(width / 2, height / 2);
+    wallTexture.wrapS = THREE.RepeatWrapping;
+    wallTexture.wrapT = THREE.RepeatWrapping;
+    wallTexture.needsUpdate = true;
+
+    const normalTexture = this.wallNormal.clone();
+    const roughTexture = this.wallRoughness.clone();
+
+    normalTexture.repeat.set(repeatX, repeatY);
+    roughTexture.repeat.set(repeatX, repeatY);
+
     const gridTexture = this.baseGridTexture.clone();
     gridTexture.repeat.set(repeatX, repeatY);
     gridTexture.wrapS = THREE.RepeatWrapping;
@@ -247,16 +278,21 @@ export class SceneClass {
     // });
 
     const material = new THREE.MeshStandardMaterial({
-      color: 0xcccccc,
-      map: gridTexture,
-      roughness: 0.9,
+      map: wallTexture,
+      normalMap: normalTexture,
+      roughnessMap: roughTexture,
+      normalScale: new THREE.Vector2(0.3, 0.3),
+
+      alphaMap: gridTexture,
+      transparent: true,
+
+      color: 0xffffff,
+      roughness: 1.0,
       metalness: 0.0,
-      transparent: false,
-      opacity: 1.0,
       side: THREE.FrontSide,
     });
 
-    material.envMapIntensity = 0.2;
+    material.envMapIntensity = 0.8;
 
     const mesh = new THREE.Mesh(geometry, material);
 
@@ -432,7 +468,7 @@ export class SceneClass {
       // 4) Функция: клетка -> локальная позиция на стене (как в snapToGrid)
       const width = wall.geometry.parameters.width;
       const height = wall.geometry.parameters.height;
-      const texture = wall.material.map;
+      const texture = wall.material.alphaMap;
 
       function cellToLocalPosition(gridX, gridY) {
         const centerGridU = gridX + 0.5;
@@ -637,30 +673,37 @@ export class SceneClass {
   }
 
   handleWallSelection(event) {
-    // const canvas = this.gameContext.renderer.domElement;
-    // const rect = canvas.getBoundingClientRect();
-    // this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    // this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-    // this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
-    // const intersects = this.raycaster.intersectObjects(this.walls, false);
-    // if (intersects.length > 0) {
-    //   const selectedWall = intersects[0].object;
-    // }
+    const canvas = this.gameContext.renderer.domElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+
+    const intersects = this.raycaster.intersectObjects(this.walls, false);
+
+    if (intersects.length > 0) {
+      this.setActiveWall(intersects[0].object);
+    }
   }
 
   setActiveWall(wallMesh) {
-    // const newIndex = this.walls.indexOf(wallMesh);
-    // this.activeWallIndex = newIndex;
-    // if (this.onWallChanged) this.onWallChanged(this.walls[this.activeWallIndex]);
+    const newIndex = this.walls.indexOf(wallMesh);
+    this.activeWallIndex = newIndex;
+
+    if (this.onWallChanged) {
+      this.onWallChanged();
+    }
   }
 
   highlightActiveWall() {
-    // this.walls.forEach((wall, index) => {
-    //   const isActive = (index === this.activeWallIndex);
-    //   wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
-    //   wall.material.opacity = !isActive ? 0.8 : 0.4;
-    // //   wall.material.emissive.setHex(!isActive ? 0x222222 : 0x000000);
-    // });
+    this.walls.forEach((wall, index) => {
+      const isActive = index === this.activeWallIndex;
+      wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
+      wall.material.opacity = !isActive ? 0.8 : 0.4;
+      //   wall.material.emissive.setHex(!isActive ? 0x222222 : 0x000000);
+    });
   }
 
   createGridTexture() {
@@ -710,11 +753,10 @@ export class SceneClass {
     this.walls.forEach((wall) => {
       if (!wall.material) return;
 
-      const nextTexture = this.isNetVisible
+      wall.material.alphaMap = this.isNetVisible
         ? wall.userData.gridTexture
-        : wall.userData.blankTexture;
+        : null;
 
-      wall.material.map = nextTexture;
       wall.material.needsUpdate = true;
     });
   }
