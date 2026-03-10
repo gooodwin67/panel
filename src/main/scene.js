@@ -51,7 +51,7 @@ export class SceneClass {
     this.isNetVisible = true;
 
     this.textureLoader = new THREE.TextureLoader();
-    this.wallTexture = this.textureLoader.load("textures/wall.jpg");
+    this.wallTexture = this.textureLoader.load("textures/1/wall-color.jpg");
 
     this.wallTexture.wrapS = THREE.RepeatWrapping;
     this.wallTexture.wrapT = THREE.RepeatWrapping;
@@ -59,14 +59,44 @@ export class SceneClass {
     this.wallTexture.anisotropy =
       this.gameContext.renderer.capabilities.getMaxAnisotropy();
 
-    this.wallNormal = this.textureLoader.load("textures/wall-normal.jpg");
-    this.wallRoughness = this.textureLoader.load("textures/wall-roughness.jpg");
+    this.wallNormal = this.textureLoader.load("textures/1/wall-normal.jpg");
+    this.wallRoughness = this.textureLoader.load(
+      "textures/1/wall-roughness.jpg"
+    );
 
     this.wallNormal.wrapS = THREE.RepeatWrapping;
     this.wallNormal.wrapT = THREE.RepeatWrapping;
 
     this.wallRoughness.wrapS = THREE.RepeatWrapping;
     this.wallRoughness.wrapT = THREE.RepeatWrapping;
+
+    // Текстуры пола (цвет, нормали, шероховатость)
+    this.floorTexture = this.textureLoader.load("textures/1/floor-color.jpg");
+    this.floorNormal = this.textureLoader.load("textures/1/floor-normal.jpg");
+    this.floorRoughness = this.textureLoader.load(
+      "textures/1/floor-roughness.jpg"
+    );
+
+    [this.floorTexture, this.floorNormal, this.floorRoughness].forEach(
+      (tex) => {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+      }
+    );
+    this.floorTexture.colorSpace = THREE.SRGBColorSpace;
+    this.floorTexture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
+
+    // Текстура потолка (обычно хватает только цвета)
+    this.ceilingTexture = this.textureLoader.load(
+      "textures/1/ceiling-color.jpg"
+    );
+    this.ceilingTexture.wrapS = THREE.RepeatWrapping;
+    this.ceilingTexture.wrapT = THREE.RepeatWrapping;
+    this.ceilingTexture.colorSpace = THREE.SRGBColorSpace;
+    this.ceilingTexture.anisotropy =
+      this.gameContext.renderer.capabilities.getMaxAnisotropy();
+    // -----------------------
 
     this.createWalls();
     this.dragHandler = new PanelDragHandler(
@@ -138,36 +168,55 @@ export class SceneClass {
 
   createFloorAndCeiling() {
     const { widthWallFront, widthWallSide, heightWall } = this.config;
-
     const geometry = new THREE.PlaneGeometry(widthWallFront, widthWallSide);
 
+    // Рассчитываем повторение текстуры. Делитель подбирай на глаз (сейчас стоит 2),
+    // чтобы плитка/паркет были нужного размера.
+    const repeatX = widthWallFront / 2;
+    const repeatY = widthWallSide / 2;
+
     // --- 1. ПОЛ ---
+    const floorMap = this.floorTexture.clone();
+    const floorNorm = this.floorNormal.clone();
+    const floorRough = this.floorRoughness.clone();
+
+    [floorMap, floorNorm, floorRough].forEach((tex) => {
+      tex.repeat.set(repeatX, repeatY);
+      tex.needsUpdate = true;
+    });
+
     const floorMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf0f0f0,
-      roughness: 0.9,
-      metalness: 0.0,
+      color: 0xffffff, // Ставим белый, чтобы текстура не красилась
+      map: floorMap,
+      normalMap: floorNorm,
+      roughnessMap: floorRough,
+      roughness: 1.0,
+      metalness: 0.1,
       side: THREE.FrontSide,
     });
-    this.floor = new THREE.Mesh(geometry, floorMaterial);
 
+    this.floor = new THREE.Mesh(geometry, floorMaterial);
     this.floor.rotation.x = -Math.PI / 2;
     this.floor.position.y = -heightWall / 2;
     this.floor.receiveShadow = true;
-
     this.gameContext.scene.add(this.floor);
 
     // --- 2. ПОТОЛОК ---
+    const ceilingMap = this.ceilingTexture.clone();
+    ceilingMap.repeat.set(repeatX, repeatY);
+    ceilingMap.needsUpdate = true;
+
     const ceilingMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf0f0f0,
+      color: 0xffffff,
+      map: ceilingMap,
       roughness: 0.9,
       side: THREE.FrontSide,
     });
-    this.ceiling = new THREE.Mesh(geometry, ceilingMaterial);
 
+    this.ceiling = new THREE.Mesh(geometry, ceilingMaterial);
     this.ceiling.rotation.x = Math.PI / 2;
     this.ceiling.position.y = heightWall / 2;
     this.ceiling.receiveShadow = true;
-
     this.gameContext.scene.add(this.ceiling);
   }
 
@@ -468,7 +517,7 @@ export class SceneClass {
       // 4) Функция: клетка -> локальная позиция на стене (как в snapToGrid)
       const width = wall.geometry.parameters.width;
       const height = wall.geometry.parameters.height;
-      const texture = wall.material.alphaMap;
+      const texture = wall.userData.gridTexture;
 
       function cellToLocalPosition(gridX, gridY) {
         const centerGridU = gridX + 0.5;
@@ -958,8 +1007,8 @@ export class SceneClass {
     const rugGeometry = new THREE.BoxGeometry(rugWidth, 0.005, rugDepth);
 
     const textureLoader = new THREE.TextureLoader();
-    const rugTexture = textureLoader.load("textures/carpet.jpg");
-    const rugBump = textureLoader.load("textures/carpet_normal.jpg");
+    const rugTexture = textureLoader.load("textures/1/carpet-color.jpg");
+    const rugBump = textureLoader.load("textures/1/carpet-normal.jpg");
 
     const repeatX = rugWidth;
     const repeatY = rugDepth;
