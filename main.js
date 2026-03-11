@@ -1,22 +1,20 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 import GUI from "three/addons/libs/lil-gui.module.min.js";
 
-import { InitClass } from "./src/main/init";
-import { SceneClass } from "./src/main/scene";
-import { GuiClass } from "./src/main/gui";
-import { AssetsManager } from "./src/assets/assets-manager";
-import { KeyboardOrbitMove } from "./src/main/keyboardOrbitMove";
+import { InitClass } from "./src/main/init.js";
+import { SceneClass } from "./src/main/scene.js";
+import { GuiClass } from "./src/main/gui.js";
+import { AssetsManager } from "./src/assets/assets-manager.js";
+import { KeyboardOrbitMove } from "./src/main/keyboardOrbitMove.js";
 
 console.clear();
 
 const gameContext = {};
 gameContext.clock = new THREE.Clock();
 
-/* =========================================
-   ENTRY POINT
-========================================= */
 startScene();
 
+// ---- Запускает приложение ----
 async function startScene() {
   try {
     await initClases();
@@ -27,6 +25,7 @@ async function startScene() {
   }
 }
 
+// ---- Создает основные классы ----
 async function initClases() {
   gameContext.gui = new GUI();
 
@@ -36,37 +35,29 @@ async function initClases() {
   gameContext.renderer = gameContext.initClass.renderer;
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
-
   gameContext.keyboardOrbitMove = new KeyboardOrbitMove(gameContext);
 
   gameContext.renderer.localClippingEnabled = true;
   gameContext.guiClass = new GuiClass(gameContext);
 }
 
-/* =========================================
-   INIT FUNCTIONS
-========================================= */
+// ---- Связывает стартовую логику ----
 async function initFunctions() {
   await gameContext.assetManager.loadModels();
 
-  // --- СОЗДАНИЕ UI ДЛЯ ВЫДЕЛЕННОЙ ПАНЕЛИ ---
   createSelectionUI();
-
   initLightSelectionUI();
-
   initRugSelectionUI();
-
-  InitBottomBtns();
+  initBottomBtns();
 
   const myScene = gameContext.sceneClass;
 
-  // Кнопки добавления панелей
   for (let i = 1; i <= 4; i++) {
     const panelBtn = document.querySelector(`.panel${i}`);
     if (panelBtn) {
-      panelBtn.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        myScene.startDrag(i - 1, e);
+      panelBtn.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        myScene.startDrag(i - 1, event);
       });
     }
   }
@@ -77,30 +68,32 @@ async function initFunctions() {
     gameContext.guiClass.refresh();
     gameContext.guiClass.refreshLight();
   }
+}
 
-  function InitBottomBtns() {
-    document.getElementById("random_rotate").onclick = () => {
-      gameContext.sceneClass.randomRotate();
+// ---- Подключает нижние кнопки ----
+function initBottomBtns() {
+  document.getElementById("random_rotate").onclick = () => {
+    gameContext.sceneClass.randomRotate();
+  };
+
+  document.getElementById("random_shuffle").onclick = () => {
+    gameContext.sceneClass.shufflePanelsOnWalls();
+  };
+
+  document.getElementById("toglle_net").onclick = () => {
+    gameContext.sceneClass.toggleNet();
+  };
+
+  const addLightBtn = document.getElementById("add-light-bulb");
+  if (addLightBtn) {
+    addLightBtn.onclick = () => {
+      gameContext.sceneClass.addSideLightBulb();
     };
-    document.getElementById("random_shuffle").onclick = () => {
-      gameContext.sceneClass.shufflePanelsOnWalls();
-    };
-    document.getElementById("toglle_net").onclick = () => {
-      gameContext.sceneClass.toggleNet();
-    };
-    const addLightBtn = document.getElementById("add-light-bulb");
-    if (addLightBtn) {
-      addLightBtn.onclick = () => {
-        gameContext.sceneClass.addSideLightBulb();
-      };
-    }
   }
 }
 
-// --- ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ UI ДЛЯ ПАНЕЛИ ---
+// ---- Подключает UI панели ----
 function createSelectionUI() {
-  // HTML теперь лежит в index.html, здесь только привязка событий
-
   document.getElementById("btn-rot-left").onclick = () => {
     gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2);
   };
@@ -126,7 +119,6 @@ function createSelectionUI() {
     gameContext.sceneClass.setAllPanelsColor(colorInput.value);
   };
 
-  // --- Цвет всех стен ---
   const wallColorPicker = document.getElementById("wall-color-picker");
   if (wallColorPicker) {
     wallColorPicker.addEventListener("input", (event) => {
@@ -135,6 +127,7 @@ function createSelectionUI() {
   }
 }
 
+// ---- Подключает UI света ----
 function initLightSelectionUI() {
   const lightUI = document.getElementById("light-selection-ui");
   if (!lightUI) return;
@@ -142,8 +135,10 @@ function initLightSelectionUI() {
   const getSelected = () => {
     const bulbMesh = gameContext.sceneClass.selectedLightBulb;
     if (!bulbMesh) return null;
+
     const pointLight = bulbMesh.userData.light;
     if (!pointLight) return null;
+
     return { bulbMesh, pointLight };
   };
 
@@ -164,12 +159,13 @@ function initLightSelectionUI() {
     if (!selected) return;
 
     const kelvin = Number(event.target.value);
-    const hex = gameContext.guiClass.kelvinToHex(kelvin); // уже есть :contentReference[oaicite:2]{index=2}
+    const hex = gameContext.guiClass.kelvinToHex(kelvin);
     selected.pointLight.color.set(hex);
 
     const colorInput = document.getElementById("light-color-picker");
-    if (colorInput)
+    if (colorInput) {
       colorInput.value = "#" + selected.pointLight.color.getHexString();
+    }
   });
 
   document
@@ -232,6 +228,7 @@ function initLightSelectionUI() {
   };
 }
 
+// ---- Подключает UI ковра ----
 function initRugSelectionUI() {
   const btnClose = document.getElementById("btn-close-rug");
   if (!btnClose) return;
@@ -241,12 +238,12 @@ function initRugSelectionUI() {
   };
 
   const updateRug = () => {
-    const w = Number(document.getElementById("rug-width").value);
-    const d = Number(document.getElementById("rug-depth").value);
-    const x = Number(document.getElementById("rug-pos-x").value);
-    const z = Number(document.getElementById("rug-pos-z").value);
+    const width = Number(document.getElementById("rug-width").value);
+    const depth = Number(document.getElementById("rug-depth").value);
+    const posX = Number(document.getElementById("rug-pos-x").value);
+    const posZ = Number(document.getElementById("rug-pos-z").value);
 
-    gameContext.sceneClass.updateRugTransform(w, d, x, z);
+    gameContext.sceneClass.updateRugTransform(width, depth, posX, posZ);
   };
 
   const rugColorPicker = document.getElementById("rug-color-picker");
@@ -262,6 +259,7 @@ function initRugSelectionUI() {
   document.getElementById("rug-pos-z").addEventListener("input", updateRug);
 }
 
+// ---- Обновляет кадр ----
 function update(delta) {
   if (gameContext.testMesh) {
     gameContext.testMesh.rotation.y += delta * 0.5;
@@ -271,38 +269,14 @@ function update(delta) {
     gameContext.keyboardOrbitMove.update(delta);
   }
 
-  if (gameContext.controls) {
-    // gameContext.controls.update();
-    // gameContext.controls.target.set(0, 0, 0);
-  }
-
-  // --- Обновление анимаций вращения ---
   if (gameContext.sceneClass) {
     gameContext.sceneClass.updateAnimations(delta);
   }
-
-  // if (!gameContext._debugTimer) gameContext._debugTimer = 0;
-  // gameContext._debugTimer += delta;
-  // if (gameContext._debugTimer > 1) {
-  //   gameContext._debugTimer = 0;
-  //   const info = gameContext.renderer.info;
-  //   console.log(
-  //     "calls",
-  //     info.render.calls,
-  //     "tris",
-  //     info.render.triangles,
-  //     "geoms",
-  //     info.memory.geometries,
-  //     "tex",
-  //     info.memory.textures
-  //   );
-  // }
 }
 
+// ---- Рисует сцену ----
 function render() {
   if (gameContext.renderer && gameContext.scene && gameContext.camera) {
-    // gameContext.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-
     gameContext.renderer.render(gameContext.scene, gameContext.camera);
   }
 
@@ -311,6 +285,7 @@ function render() {
   }
 }
 
+// ---- Запускает цикл анимации ----
 function startAnimationLoop() {
   let accumulator = 0;
   const dt = 1 / 60;
@@ -327,6 +302,7 @@ function startAnimationLoop() {
       accumulator -= dt;
       maxSteps--;
     }
+
     if (accumulator > dt) accumulator = 0;
     render();
   });

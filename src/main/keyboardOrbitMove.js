@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 export class KeyboardOrbitMove {
+// ---- Подключает клавиши камеры ----
   constructor(gameContext) {
     this.camera = gameContext.camera;
     this.controls = gameContext.controls;
@@ -27,14 +28,11 @@ export class KeyboardOrbitMove {
       this.keys[event.code] = false;
     });
   }
-
+// ---- Двигает камеру с клавиатуры ----
   update(delta) {
     if (!this.controls || !this.controls.enabled) return;
 
-    const target = this.controls.target;
-
-    // ВПЕРЁД / НАЗАД (W/S)
-    if (this.keys["KeyW"] || this.keys["KeyS"]) {
+    const target = this.controls.target;    if (this.keys["KeyW"] || this.keys["KeyS"]) {
       const direction = this.keys["KeyW"] ? 1 : -1;
 
       this.camera.getWorldDirection(this.forward);
@@ -43,10 +41,7 @@ export class KeyboardOrbitMove {
 
       const moveAmount = direction * this.dollySpeed * delta;
       this.camera.position.addScaledVector(this.forward, moveAmount);
-    }
-
-    // ВЛЕВО / ВПРАВО (A/D)
-    if (this.keys["KeyA"] || this.keys["KeyD"]) {
+    }    if (this.keys["KeyA"] || this.keys["KeyD"]) {
       const direction = this.keys["KeyD"] ? 1 : -1;
 
       this.camera.getWorldDirection(this.forward);

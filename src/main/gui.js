@@ -1,6 +1,7 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 
 export class GuiClass {
+  // ---- Готовит состояние GUI ----
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.sceneClass = gameContext.sceneClass;
@@ -11,27 +12,25 @@ export class GuiClass {
     this.init();
   }
 
+  // ---- Создает папки GUI ----
   init() {
-    // 1. Создаем папку в GUI
     if (this.gameContext.gui) {
       this.folder = this.gameContext.gui.addFolder("Настройки Стены");
     }
 
-    // 2. Подписываемся на события сцены
-    // Когда в сцене меняется стена, вызывается метод refresh этого класса
     this.sceneClass.onWallChanged = () => this.refresh();
-
-    // 3. Рисуем GUI для текущей активной стены сразу при старте
     this.refresh();
 
     if (this.gameContext.gui) {
       this.lightFolder = this.gameContext.gui.addFolder("Свет");
       this.ambientFolder = this.gameContext.gui.addFolder("Атмосфера");
     }
+
     this.refreshLight();
     this.refreshAmbient();
   }
 
+  // ---- Обновляет контролы света ----
   refreshLight() {
     if (!this.lightFolder) return;
 
@@ -55,7 +54,6 @@ export class GuiClass {
       kelvin: 2800,
     };
 
-    // Позиция
     const posFolder = this.lightFolder.addFolder("Позиция");
     const syncBulb = () => bulbMesh.position.copy(pointLight.position);
 
@@ -77,7 +75,6 @@ export class GuiClass {
 
     this.lightControllers.push(ctrlPosX, ctrlPosY, ctrlPosZ);
 
-    // Параметры света
     this.lightControllers.push(
       this.lightFolder
         .add(pointLight, "intensity", 0, 50, 0.1)
@@ -93,7 +90,6 @@ export class GuiClass {
         .listen()
     );
 
-    // Цвет света
     this.lightControllers.push(
       this.lightFolder
         .addColor(lightParams, "lightColor")
@@ -103,7 +99,6 @@ export class GuiClass {
         })
     );
 
-    // Температура (Kelvin -> цвет)
     this.lightControllers.push(
       this.lightFolder
         .add(lightParams, "kelvin", 1000, 12000, 50)
@@ -115,7 +110,6 @@ export class GuiClass {
         })
     );
 
-    // Корпус лампы
     const bulbFolder = this.lightFolder.addFolder("Корпус");
     this.lightControllers.push(
       bulbFolder
@@ -132,7 +126,6 @@ export class GuiClass {
         })
     );
 
-    // Тени
     const shadowFolder = this.lightFolder.addFolder("Тени");
     this.lightControllers.push(
       shadowFolder
@@ -157,10 +150,10 @@ export class GuiClass {
         })
     );
 
-    // синк позиции сразу
     syncBulb();
   }
 
+  // ---- Обновляет атмосферу ----
   refreshAmbient() {
     if (!this.ambientFolder) return;
 
@@ -189,7 +182,7 @@ export class GuiClass {
     );
   }
 
-  // очень простой Kelvin -> RGB (достаточно для GUI)
+  // ---- Переводит кельвины в цвет ----
   kelvinToHex(kelvin) {
     const temperature = kelvin / 100;
 
@@ -220,23 +213,21 @@ export class GuiClass {
     return "#" + color.getHexString();
   }
 
+  // ---- Обновляет контролы стены ----
   refresh() {
     if (!this.folder) return;
 
-    // --- Очистка старых контроллеров ---
-    // Для lil-gui метод destroy() удаляет контроллер из DOM и из памяти
     this.controllers.forEach((controller) => controller.destroy());
     this.controllers = [];
 
-    // --- Получение данных ---
     const activeWall = this.sceneClass.walls[this.sceneClass.activeWallIndex];
     if (!activeWall) return;
 
     const texture = activeWall.material.alphaMap;
+    if (!texture) return;
 
-    // --- Создание новых контроллеров ---
     const ctrlX = this.folder
-      .add(texture.offset, "x", 0, 1, 0.1) // 0.01 для плавности
+      .add(texture.offset, "x", 0, 1, 0.1)
       .name("Сдвиг по X")
       .listen();
 
@@ -245,7 +236,6 @@ export class GuiClass {
       .name("Сдвиг по Y")
       .listen();
 
-    // Сохраняем ссылки
     this.controllers.push(ctrlX, ctrlY);
   }
 }

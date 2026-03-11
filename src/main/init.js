@@ -4,6 +4,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 
 export class InitClass {
+// ---- Собирает базовую сцену ----
   constructor(gameContext) {
     this.gameContext = gameContext;
 
@@ -74,7 +75,7 @@ export class InitClass {
         pmremGenerator.dispose();
       });
   }
-
+// ---- Обновляет размер вьюпорта ----
   onWindowResize() {
     const maxWidth = 1920;
     const maxHeight = 1080;

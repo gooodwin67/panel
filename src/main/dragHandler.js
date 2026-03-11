@@ -1,6 +1,7 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 
 export class PanelDragHandler {
+  // ---- Готовит перенос панелей ----
   constructor(gameContext, walls, sceneConfig) {
     this.gameContext = gameContext;
     this.walls = walls;
@@ -18,12 +19,10 @@ export class PanelDragHandler {
     this.currentWall = null;
     this.canPlace = false;
     this.pendingPanel = null;
-
-    // --- НОВОЕ: Хранение цвета при переносе ---
     this.savedColor = null;
   }
 
-  // --- 1. Обработка нажатия ---
+  // ---- Ловит нажатие по панели ----
   handlePointerDown(event) {
     this.updatePointer(event);
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
@@ -32,13 +31,11 @@ export class PanelDragHandler {
 
     if (intersects.length > 0) {
       for (const hit of intersects) {
-        // Поднимаемся до стены
         let parentWall = hit.object;
         while (parentWall.parent && !this.walls.includes(parentWall)) {
           parentWall = parentWall.parent;
         }
 
-        // Если это стена и она не смотрит на камеру — пропускаем
         if (
           this.walls.includes(parentWall) &&
           !this.isWallFacingCamera(parentWall)
@@ -47,7 +44,6 @@ export class PanelDragHandler {
         }
 
         let targetObj = hit.object;
-
         while (
           targetObj.parent &&
           !targetObj.userData.isPanel &&
@@ -72,9 +68,9 @@ export class PanelDragHandler {
     return false;
   }
 
+  // ---- Проверяет сторону стены ----
   isWallFacingCamera(wall) {
     const camera = this.gameContext.camera;
-
     const wallPosition = new THREE.Vector3();
     wall.getWorldPosition(wallPosition);
 
@@ -90,7 +86,7 @@ export class PanelDragHandler {
     return toCamera.dot(wallNormal) > 0;
   }
 
-  // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Принимаем event ---
+  // ---- Запускает перенос панели ----
   startDrag(panelIndex, event) {
     if (this.gameContext.controls) {
       this.gameContext.controls.enabled = false;
@@ -101,11 +97,9 @@ export class PanelDragHandler {
 
     const templates = this.gameContext.assetManager.panels;
     const template = templates[panelIndex];
-
     if (!template) return;
 
     this.ghostMesh = template.clone();
-
     this.applyMaterialProperties(this.ghostMesh, {
       transparent: true,
       opacity: 0.5,
@@ -128,15 +122,14 @@ export class PanelDragHandler {
     this.gameContext.scene.add(this.ghostMesh);
     this.ghostMesh.visible = true;
 
-    // --- ВАЖНО: Принудительное обновление позиции при старте ---
     if (event) {
-      this.updatePointer(event); // Обновляем координаты вектора
-      this.onPointerMove(event); // Запускаем логику позиционирования
+      this.updatePointer(event);
+      this.onPointerMove(event);
     }
   }
 
+  // ---- Обновляет перенос панели ----
   onPointerMove(event) {
-    // А) Логика "отложенного" драга (если кликнули на существующую панель)
     if (this.pendingPanel && !this.isDragging) {
       const dist = Math.sqrt(
         Math.pow(event.clientX - this.mouseDownPointer.x, 2) +
@@ -148,7 +141,6 @@ export class PanelDragHandler {
       }
     }
 
-    // Б) Логика движения призрака
     if (!this.isDragging || !this.ghostMesh) return;
 
     this.updatePointer(event);
@@ -169,11 +161,13 @@ export class PanelDragHandler {
       }
 
       this.snapToGrid(hit, wall);
-    } else {
-      this.moveInAir();
+      return;
     }
+
+    this.moveInAir();
   }
 
+  // ---- Подхватывает старую панель ----
   pickupPendingPanel(event) {
     const targetObj = this.pendingPanel;
     const index = targetObj.userData.panelIndex;
@@ -181,36 +175,31 @@ export class PanelDragHandler {
     this.savedColor = null;
     targetObj.traverse((child) => {
       if (this.savedColor === null && child.isMesh && child.material) {
-        const mat = Array.isArray(child.material)
+        const material = Array.isArray(child.material)
           ? child.material[0]
           : child.material;
-        this.savedColor = mat.color.getHex();
+        this.savedColor = material.color.getHex();
       }
     });
 
     this.gameContext.sceneClass.deselectPanel();
-
     targetObj.parent.remove(targetObj);
     this.disposeModel(targetObj);
 
-    this.startDrag(index, event); // Передаем event и сюда, чтобы сразу подхватилось
+    this.startDrag(index, event);
     this.pendingPanel = null;
-
-    // onPointerMove уже вызовется внутри startDrag, но можно оставить и так
   }
 
+  // ---- Привязывает к сетке ----
   snapToGrid(hit, wall) {
     const width = wall.geometry.parameters.width;
     const height = wall.geometry.parameters.height;
-
     const gridTexture = wall.userData.gridTexture;
-
     const localPoint = wall.worldToLocal(hit.point.clone());
 
     let u = localPoint.x / width + 0.5;
     let v = localPoint.y / height + 0.5;
 
-    // учитываем трансформацию текстуры
     u = u * gridTexture.repeat.x + gridTexture.offset.x;
     v = v * gridTexture.repeat.y + gridTexture.offset.y;
 
@@ -232,13 +221,11 @@ export class PanelDragHandler {
 
     this.ghostMesh.visible = true;
     this.canPlace = true;
-
     this.ghostMesh.userData.gridX = gridX;
     this.ghostMesh.userData.gridY = gridY;
 
     const centerU = (gridX + 0.5 - gridTexture.offset.x) / gridTexture.repeat.x;
     const centerV = (gridY + 0.5 - gridTexture.offset.y) / gridTexture.repeat.y;
-
     const centerX = (centerU - 0.5) * width;
     const centerY = (centerV - 0.5) * height;
 
@@ -247,12 +234,12 @@ export class PanelDragHandler {
     localPoint.z = 0;
 
     const worldPoint = wall.localToWorld(localPoint);
-
     this.ghostMesh.position.copy(worldPoint);
     this.ghostMesh.quaternion.copy(wall.quaternion);
     this.ghostMesh.rotateX(Math.PI / 2);
   }
 
+  // ---- Двигает панель в воздухе ----
   moveInAir() {
     this.currentWall = null;
     this.canPlace = true;
@@ -262,8 +249,11 @@ export class PanelDragHandler {
     this.ghostMesh.quaternion.copy(this.gameContext.camera.quaternion);
   }
 
-  onPointerUp(event) {
-    if (this.gameContext.controls) this.gameContext.controls.enabled = true;
+  // ---- Завершает перенос панели ----
+  onPointerUp() {
+    if (this.gameContext.controls) {
+      this.gameContext.controls.enabled = true;
+    }
 
     if (this.pendingPanel) {
       this.gameContext.sceneClass.onPanelSelected(this.pendingPanel);
@@ -286,14 +276,13 @@ export class PanelDragHandler {
     this.cleanupGhost();
   }
 
+  // ---- Ставит панель на стену ----
   placePanel() {
     const templates = this.gameContext.assetManager.panels;
     const template = templates[this.draggedPanelIndex];
-
     if (!template) return;
 
     const newPanel = template.clone();
-
     newPanel.userData.isPanel = true;
     newPanel.userData.panelIndex = this.draggedPanelIndex;
     newPanel.userData.gridX = this.ghostMesh.userData.gridX;
@@ -303,7 +292,7 @@ export class PanelDragHandler {
     this.applyMaterialProperties(newPanel, {
       transparent: false,
       opacity: 1,
-      clippingPlanes: clippingPlanes,
+      clippingPlanes,
       cloneMaterial: true,
     });
 
@@ -314,8 +303,6 @@ export class PanelDragHandler {
     }
 
     const worldPosition = this.ghostMesh.position.clone();
-
-    // Добавляем микро-смещение по нормали от стены для предотвращения Z-fighting
     const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
       this.currentWall.quaternion
     );
@@ -331,61 +318,66 @@ export class PanelDragHandler {
     this.gameContext.sceneClass.onPanelSelected(newPanel);
   }
 
+  // ---- Красит материалы панели ----
   applyColor(object, colorValue) {
     object.traverse((child) => {
-      if (child.isMesh && child.material) {
-        const materials = Array.isArray(child.material)
-          ? child.material
-          : [child.material];
+      if (!child.isMesh || !child.material) return;
 
-        materials.forEach((material) => {
-          if (!material.color) return;
+      const materials = Array.isArray(child.material)
+        ? child.material
+        : [child.material];
 
-          // colorValue может быть "#rrggbb" (string) или 0xff00ff (number)
-          if (typeof colorValue === "string") {
-            material.color.set(colorValue);
-          } else {
-            material.color.setHex(colorValue);
-          }
+      materials.forEach((material) => {
+        if (!material.color) return;
 
-          material.needsUpdate = true;
-        });
-      }
+        if (typeof colorValue === "string") {
+          material.color.set(colorValue);
+        } else {
+          material.color.setHex(colorValue);
+        }
+
+        material.needsUpdate = true;
+      });
     });
   }
 
+  // ---- Обновляет свойства материалов ----
   applyMaterialProperties(
     object,
     { transparent, opacity, clippingPlanes, cloneMaterial }
   ) {
     object.traverse((child) => {
-      if (child.isMesh) {
-        if (cloneMaterial) {
-          if (Array.isArray(child.material)) {
-            child.material = child.material.map((m) => m.clone());
-          } else {
-            child.material = child.material.clone();
-          }
+      if (!child.isMesh) return;
+
+      if (cloneMaterial) {
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((material) => material.clone());
+        } else {
+          child.material = child.material.clone();
         }
-        const mats = Array.isArray(child.material)
-          ? child.material
-          : [child.material];
-        mats.forEach((mat) => {
-          if (transparent !== undefined) mat.transparent = transparent;
-          if (opacity !== undefined) mat.opacity = opacity;
-          if (clippingPlanes !== undefined) mat.clippingPlanes = clippingPlanes;
-          mat.needsUpdate = true;
-        });
       }
+
+      const materials = Array.isArray(child.material)
+        ? child.material
+        : [child.material];
+
+      materials.forEach((material) => {
+        if (transparent !== undefined) material.transparent = transparent;
+        if (opacity !== undefined) material.opacity = opacity;
+        if (clippingPlanes !== undefined) {
+          material.clippingPlanes = clippingPlanes;
+        }
+        material.needsUpdate = true;
+      });
     });
   }
 
+  // ---- Убирает временную панель ----
   cleanupGhost() {
     this.isDragging = false;
     this.currentWall = null;
     this.canPlace = false;
     this.pendingPanel = null;
-
     this.savedColor = null;
 
     if (this.ghostMesh) {
@@ -395,21 +387,24 @@ export class PanelDragHandler {
     }
   }
 
+  // ---- Освобождает ресурсы модели ----
   disposeModel(model) {
     model.traverse((child) => {
-      if (child.isMesh) {
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((m) => m.dispose());
-          } else {
-            child.material.dispose();
-          }
+      if (!child.isMesh) return;
+
+      if (child.geometry) child.geometry.dispose();
+
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((material) => material.dispose());
+        } else {
+          child.material.dispose();
         }
       }
     });
   }
 
+  // ---- Пересчитывает указатель ----
   updatePointer(event) {
     const canvas = this.gameContext.renderer.domElement;
     const rect = canvas.getBoundingClientRect();
@@ -418,6 +413,7 @@ export class PanelDragHandler {
     this.pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
   }
 
+  // ---- Строит клиппинг стены ----
   getWallClippingPlanes(wall) {
     const width = wall.geometry.parameters.width;
     const height = wall.geometry.parameters.height;

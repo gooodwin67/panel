@@ -1,7 +1,8 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export class AssetsManager {
+// ---- Настраивает пути к ассетам ----
   constructor(gamecontext) {
     this.gamecontext = gamecontext;
     this.panels = [];
@@ -12,7 +13,8 @@ export class AssetsManager {
       "models/panels/panel4.gltf",
     ];
   }
-
+  // ---- Загружает модели панелей ----
+// ---- Загружает модели панелей ----
   async loadModels() {
     const gltfLoader = new GLTFLoader();
 
