@@ -1,4 +1,4 @@
-export class SceneInteractionController {
+﻿export class SceneInteractionController {
 // ---- Готовит обработку ввода ----
   constructor(sceneClass, dragHandler) {
     this.sceneClass = sceneClass;
@@ -24,6 +24,12 @@ export class SceneInteractionController {
     if (hitBulb) {
       this.sceneClass.selectLightBulb(hitBulb);
       this.sceneClass.lightManager.startDragLightBulb(hitBulb, event);
+      return;
+    }
+
+    const hitFurniture = this.sceneClass.furnitureManager.hitTest(event);
+    if (hitFurniture) {
+      this.sceneClass.selectFurniture(hitFurniture);
       return;
     }
 

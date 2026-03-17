@@ -82,6 +82,22 @@ export class SceneClass {
     return this.furnitureManager.addTable();
   }
 
+  // ---- Выбирает мебель ----
+  selectFurniture(furniture) {
+    this.clearSelections();
+    this.furnitureManager.selectFurniture(furniture);
+  }
+
+  // ---- Снимает выбор мебели ----
+  deselectFurniture() {
+    this.furnitureManager.deselectFurniture();
+  }
+
+  // ---- Обновляет трансформацию мебели ----
+  updateFurnitureTransform(width, depth, posX, posZ) {
+    this.furnitureManager.updateFurnitureTransform(width, depth, posX, posZ);
+  }
+
   // ---- Обрабатывает выбор панели ----
   onPanelSelected(panelMesh) {
     this.selectPanel(panelMesh);
@@ -110,6 +126,7 @@ export class SceneClass {
     this.panelManager.deselectPanel();
     this.lightManager.deselectLightBulb();
     this.rugManager.deselectRug();
+    this.furnitureManager.deselectFurniture();
   }
 
   // ---- Снимает выбор панели ----
@@ -270,6 +287,11 @@ export class SceneClass {
   // ---- Возвращает выбранный ковёр ----
   get selectedRug() {
     return this.rugManager.selectedRug;
+  }
+
+  // ---- Возвращает выбранную мебель ----
+  get selectedFurniture() {
+    return this.furnitureManager.selectedFurniture;
   }
 
   // ---- Возвращает выбранную панель ----

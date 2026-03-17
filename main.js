@@ -48,6 +48,7 @@ async function initFunctions() {
   createSelectionUI();
   initLightSelectionUI();
   initRugSelectionUI();
+  initFurnitureSelectionUI();
   initBottomBtns();
 
   const myScene = gameContext.sceneClass;
@@ -264,6 +265,38 @@ function initRugSelectionUI() {
   document.getElementById("rug-depth").addEventListener("input", updateRug);
   document.getElementById("rug-pos-x").addEventListener("input", updateRug);
   document.getElementById("rug-pos-z").addEventListener("input", updateRug);
+}
+
+// ---- Подключает UI мебели ----
+function initFurnitureSelectionUI() {
+  const btnClose = document.getElementById("btn-close-furniture");
+  if (!btnClose) return;
+
+  btnClose.onclick = () => {
+    gameContext.sceneClass.deselectFurniture();
+  };
+
+  const updateFurniture = () => {
+    const width = Number(document.getElementById("furniture-width").value);
+    const depth = Number(document.getElementById("furniture-depth").value);
+    const posX = Number(document.getElementById("furniture-pos-x").value);
+    const posZ = Number(document.getElementById("furniture-pos-z").value);
+
+    gameContext.sceneClass.updateFurnitureTransform(width, depth, posX, posZ);
+  };
+
+  document
+    .getElementById("furniture-width")
+    .addEventListener("input", updateFurniture);
+  document
+    .getElementById("furniture-depth")
+    .addEventListener("input", updateFurniture);
+  document
+    .getElementById("furniture-pos-x")
+    .addEventListener("input", updateFurniture);
+  document
+    .getElementById("furniture-pos-z")
+    .addEventListener("input", updateFurniture);
 }
 
 // ---- Обновляет кадр ----
