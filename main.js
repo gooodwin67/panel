@@ -90,6 +90,13 @@ function initBottomBtns() {
       gameContext.sceneClass.addSideLightBulb();
     };
   }
+
+  const addTableBtn = document.getElementById("add-table");
+  if (addTableBtn) {
+    addTableBtn.onclick = () => {
+      gameContext.sceneClass.addTable();
+    };
+  }
 }
 
 // ---- Подключает UI панели ----

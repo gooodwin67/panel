@@ -1,12 +1,13 @@
-import { PanelDragHandler } from "./dragHandler.js";
+﻿import { PanelDragHandler } from "./dragHandler.js";
 import { LightManager } from "../scene/LightManager.js";
 import { PanelManager } from "../scene/PanelManager.js";
 import { RoomManager } from "../scene/RoomManager.js";
 import { RugManager } from "../scene/RugManager.js";
+import { FurnitureManager } from "../scene/FurnitureManager.js";
 import { SceneInteractionController } from "../scene/SceneInteractionController.js";
 
 export class SceneClass {
-// ---- Собирает модули сцены ----
+  // ---- Собирает модули сцены ----
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.onWallChanged = null;
@@ -27,6 +28,7 @@ export class SceneClass {
     this.panelManager = new PanelManager(this.roomManager);
     this.lightManager = new LightManager(gameContext, this.config);
     this.rugManager = new RugManager(gameContext, this.config);
+    this.furnitureManager = new FurnitureManager(gameContext, this.config);
 
     this.dragHandler = new PanelDragHandler(
       gameContext,
@@ -38,202 +40,260 @@ export class SceneClass {
       this.dragHandler
     );
   }
-// ---- Создает содержимое сцены ----
+
+  // ---- Создает содержимое сцены ----
   createScene() {
     this.roomManager.createScene();
     this.rugManager.createScene();
     this.lightManager.createScene();
     this.interactionController.bindEvents();
   }
-// ---- Меняет цвет комнаты ----
+
+  // ---- Меняет цвет комнаты ----
   setRoomColor(target, hexColor) {
     this.roomManager.setRoomColor(target, hexColor);
   }
-// ---- Обновляет анимации панелей ----
+
+  // ---- Обновляет анимации панелей ----
   updateAnimations(delta) {
     this.panelManager.updateAnimations(delta);
   }
-// ---- Стартует перенос панели ----
+
+  // ---- Стартует перенос панели ----
   startDrag(type, event) {
     this.clearSelections();
     this.dragHandler.startDrag(type, event);
   }
-// ---- Случайно вращает панели ----
+
+  // ---- Случайно вращает панели ----
   randomRotate() {
     this.panelManager.randomRotate();
   }
-// ---- Перемешивает панели по стенам ----
+
+  // ---- Перемешивает панели по стенам ----
   shufflePanelsOnWalls() {
     this.clearSelections();
     this.panelManager.shufflePanelsOnWalls();
   }
-// ---- Обрабатывает выбор панели ----
+
+  // ---- Добавляет стол в комнату ----
+  addTable() {
+    this.clearSelections();
+    return this.furnitureManager.addTable();
+  }
+
+  // ---- Обрабатывает выбор панели ----
   onPanelSelected(panelMesh) {
     this.selectPanel(panelMesh);
   }
-// ---- Выбирает панель ----
+
+  // ---- Выбирает панель ----
   selectPanel(panelMesh) {
     this.clearSelections();
     this.panelManager.onPanelSelected(panelMesh);
   }
-// ---- Выбирает лампочку ----
+
+  // ---- Выбирает лампочку ----
   selectLightBulb(bulbMesh) {
     this.clearSelections();
     this.lightManager.selectLightBulb(bulbMesh);
   }
-// ---- Выбирает ковёр ----
+
+  // ---- Выбирает ковёр ----
   selectRug() {
     this.clearSelections();
     this.rugManager.selectRug();
   }
-// ---- Сбрасывает все выделения ----
+
+  // ---- Сбрасывает все выделения ----
   clearSelections() {
     this.panelManager.deselectPanel();
     this.lightManager.deselectLightBulb();
     this.rugManager.deselectRug();
   }
-// ---- Снимает выбор панели ----
+
+  // ---- Снимает выбор панели ----
   deselectPanel() {
     this.clearSelections();
   }
-// ---- Снимает выбор лампочки ----
+
+  // ---- Снимает выбор лампочки ----
   deselectLightBulb() {
     this.lightManager.deselectLightBulb();
   }
-// ---- Снимает выбор ковра ----
+
+  // ---- Снимает выбор ковра ----
   deselectRug() {
     this.rugManager.deselectRug();
   }
-// ---- Меняет цвет выбранной панели ----
+
+  // ---- Меняет цвет выбранной панели ----
   changeSelectedPanelColor(colorValue) {
     this.panelManager.changeSelectedPanelColor(colorValue);
   }
-// ---- Поворачивает выбранную панель ----
+
+  // ---- Поворачивает выбранную панель ----
   rotateSelectedPanel(angle) {
     this.panelManager.rotateSelectedPanel(angle);
   }
-// ---- Обрабатывает выбор стены ----
+
+  // ---- Обрабатывает выбор стены ----
   handleWallSelection(event) {
     this.roomManager.handleWallSelection(event);
   }
-// ---- Назначает активную стену ----
+
+  // ---- Назначает активную стену ----
   setActiveWall(wallMesh) {
     this.roomManager.setActiveWall(wallMesh);
   }
-// ---- Подсвечивает активную стену ----
+
+  // ---- Подсвечивает активную стену ----
   highlightActiveWall() {
     this.roomManager.highlightActiveWall();
   }
-// ---- Переключает сетку стены ----
+
+  // ---- Переключает сетку стены ----
   toggleNet() {
     this.roomManager.toggleNet();
   }
-// ---- Красит все стены ----
+
+  // ---- Красит все стены ----
   setAllWallsColor(colorValue) {
     this.roomManager.setAllWallsColor(colorValue);
   }
-// ---- Красит все панели ----
+
+  // ---- Красит все панели ----
   setAllPanelsColor(colorValue) {
     this.panelManager.setAllPanelsColor(colorValue);
   }
-// ---- Добавляет боковую лампочку ----
+
+  // ---- Добавляет боковую лампочку ----
   addSideLightBulb() {
     this.lightManager.addSideLightBulb();
   }
-// ---- Обновляет UI лампочки ----
+
+  // ---- Обновляет UI лампочки ----
   refreshLightBulbUI() {
     this.lightManager.refreshLightBulbUI();
   }
-// ---- Стартует перенос лампочки ----
+
+  // ---- Стартует перенос лампочки ----
   startDragLightBulb(bulbMesh, event) {
     this.lightManager.startDragLightBulb(bulbMesh, event);
   }
-// ---- Двигает лампочку при переносе ----
+
+  // ---- Двигает лампочку при переносе ----
   onPointerMoveLightBulb(event) {
     this.lightManager.onPointerMoveLightBulb(event);
   }
-// ---- Завершает перенос лампочки ----
+
+  // ---- Завершает перенос лампочки ----
   stopDragLightBulb() {
     this.lightManager.stopDragLightBulb();
   }
-// ---- Обновляет трансформацию ковра ----
+
+  // ---- Обновляет трансформацию ковра ----
   updateRugTransform(width, depth, posX, posZ) {
     this.rugManager.updateRugTransform(width, depth, posX, posZ);
   }
-// ---- Меняет цвет ковра ----
+
+  // ---- Меняет цвет ковра ----
   changeRugColor(hexColor) {
     this.rugManager.changeRugColor(hexColor);
   }
-// ---- Возвращает стены ----
+
+  // ---- Возвращает стены ----
   get walls() {
     return this.roomManager.walls;
   }
-// ---- Возвращает индекс активной стены ----
+
+  // ---- Возвращает индекс активной стены ----
   get activeWallIndex() {
     return this.roomManager.activeWallIndex;
   }
-// ---- Возвращает пол ----
+
+  // ---- Возвращает пол ----
   get floor() {
     return this.roomManager.floor;
   }
-// ---- Возвращает потолок ----
+
+  // ---- Возвращает потолок ----
   get ceiling() {
     return this.roomManager.ceiling;
   }
-// ---- Возвращает атмосферный свет ----
+
+  // ---- Возвращает атмосферный свет ----
   get ambientLight() {
     return this.lightManager.ambientLight;
   }
-// ---- Возвращает основной свет ----
+
+  // ---- Возвращает основной свет ----
   get centerLight() {
     return this.lightManager.centerLight;
   }
-// ---- Возвращает меш лампы ----
+
+  // ---- Возвращает меш лампы ----
   get lightBulbMesh() {
     return this.lightManager.lightBulbMesh;
   }
-// ---- Возвращает боковой свет ----
+
+  // ---- Возвращает боковой свет ----
   get sideLight() {
     return this.lightManager.sideLight;
   }
-// ---- Возвращает меш боковой лампы ----
+
+  // ---- Возвращает меш боковой лампы ----
   get sideBulbMesh() {
     return this.lightManager.sideBulbMesh;
   }
-// ---- Возвращает лампочки ----
+
+  // ---- Возвращает лампочки ----
   get lightBulbs() {
     return this.lightManager.lightBulbs;
   }
-// ---- Возвращает выбранную лампочку ----
+
+  // ---- Возвращает выбранную лампочку ----
   get selectedLightBulb() {
     return this.lightManager.selectedLightBulb;
   }
-// ---- Возвращает перенос лампочки ----
+
+  // ---- Возвращает перенос лампочки ----
   get isDraggingLightBulb() {
     return this.lightManager.isDraggingLightBulb;
   }
-// ---- Возвращает ковёр ----
+
+  // ---- Возвращает ковёр ----
   get rug() {
     return this.rugManager.rug;
   }
-// ---- Возвращает выбранный ковёр ----
+
+  // ---- Возвращает выбранный ковёр ----
   get selectedRug() {
     return this.rugManager.selectedRug;
   }
-// ---- Возвращает выбранную панель ----
+
+  // ---- Возвращает выбранную панель ----
   get selectedPanel() {
     return this.panelManager.selectedPanel;
   }
-// ---- Возвращает анимируемые панели ----
+
+  // ---- Возвращает анимируемые панели ----
   get animatingPanels() {
     return this.panelManager.animatingPanels;
   }
-// ---- Возвращает общий цвет панелей ----
+
+  // ---- Возвращает общий цвет панелей ----
   get globalPanelColor() {
     return this.panelManager.globalPanelColor;
   }
-// ---- Возвращает состояние сетки ----
+
+  // ---- Возвращает состояние сетки ----
   get isNetVisible() {
     return this.roomManager.isNetVisible;
+  }
+
+  // ---- Возвращает мебель в сцене ----
+  get furnitureItems() {
+    return this.furnitureManager.furnitureItems;
   }
 }
