@@ -11,9 +11,9 @@
    <link rel="icon" type="image/x-icon" href="./assets/favicon-Bw0IQTl4.ico">
    <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
 
-  <script type="module" crossorigin src="./assets/index-D2IDWUkl.js"></script>
+  <script type="module" crossorigin src="./assets/index-BnfucoNA.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/three-DkjEceXl.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-DYi9NFdL.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-Dt1miJ0W.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
@@ -21,11 +21,29 @@
 <body>
 
    <div class="main_screen">
+      <div class="app-mode-modal" id="app-mode-modal">
+         <div class="app-mode-dialog">
+            <div class="app-mode-title">Выберите режим просмотра</div>
+            <div class="app-mode-actions">
+               <button id="btn-start-3d" class="action-btn primary">3D конфигуратор</button>
+               <button id="btn-start-2d" class="action-btn">2D раскладка</button>
+            </div>
+         </div>
+      </div>
+
+      <div class="panel-2d-app" id="panel-2d-app" style="display:none;">
+         <div class="panel-2d-board-wrap">
+            <div class="panel-2d-board" id="panel-2d-board">
+               <div class="panel-2d-empty" id="panel-2d-empty">Добавьте панели снизу и раскладывайте рисунок в 2D</div>
+            </div>
+         </div>
+      </div>
 
 
       <div class="bottom_panel" id="bottom_panel">
          <div class="panel-header">
             <div class="drag-handle"></div>
+            <button id="btn-presets" class="panel-presets-btn" title="Сохранить / загрузить">💾</button>
             <div class="panel-controls">
                <button id="btn-compact" title="Компактный вид">🗕</button>
                <button id="btn-hide" title="Свернуть">⏬</button>
@@ -131,6 +149,9 @@
 
             <div class="ui-row">
                <button id="btn-all-color" class="action-btn primary" style="width:100%">Применить ко всем</button>
+            </div>
+            <div class="ui-row">
+               <button id="btn-delete-2d-panel" class="action-btn" style="width:100%; background: rgba(255,50,50,0.2); border-color:#ff3232; color:#ff3232; display:none;">Удалить панель</button>
             </div>
          </div>
       </div>
@@ -268,11 +289,40 @@
             </div>
          </div>
       </div>
+
+      <div class="save-load-modal" id="save-load-modal" style="display:none;">
+         <div class="save-load-backdrop" id="save-load-backdrop"></div>
+         <div class="save-load-dialog">
+            <div class="ui-header">
+               <span class="ui-title">Сохранение и загрузка</span>
+               <button id="btn-close-save-load" class="ui-close-btn">✖</button>
+            </div>
+            <div class="ui-body">
+               <div class="ui-row" style="gap: 10px; justify-content: stretch;">
+                  <button id="btn-save-scene-state" class="action-btn primary" style="flex:1">Сохранить</button>
+                  <button id="btn-load-scene-storage" class="action-btn" style="flex:1">Загрузить из памяти</button>
+               </div>
+               <div class="ui-row" style="gap: 10px; justify-content: stretch;">
+                  <button id="btn-copy-scene-state" class="action-btn" style="flex:1">Копировать строку</button>
+                  <button id="btn-paste-scene-state" class="action-btn" style="flex:1">Вставить из буфера</button>
+               </div>
+               <div class="ui-row" style="justify-content: stretch;">
+                  <button id="btn-load-scene-text" class="action-btn" style="width:100%">Загрузить из поля</button>
+               </div>
+               <textarea id="scene-state-text" class="scene-state-text" placeholder="После сохранения здесь появится строка состояния. Сюда же можно вставить строку от другого человека."></textarea>
+               <div class="scene-state-saved-block">
+                  <div class="scene-state-saved-title">Сохраненные на этом устройстве</div>
+                  <div id="scene-state-saved-list" class="scene-state-saved-list"></div>
+               </div>
+               <div id="scene-state-status" class="scene-state-status"></div>
+            </div>
+         </div>
+      </div>
    </div>
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-von9FTEk.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-CGKe5AoU.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DRYPkwnJ.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-KGyrbySq.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
