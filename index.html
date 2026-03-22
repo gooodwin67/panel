@@ -18,11 +18,29 @@
 <body>
 
    <div class="main_screen">
+      <div class="app-mode-modal" id="app-mode-modal">
+         <div class="app-mode-dialog">
+            <div class="app-mode-title">Выберите режим просмотра</div>
+            <div class="app-mode-actions">
+               <button id="btn-start-3d" class="action-btn primary">3D конфигуратор</button>
+               <button id="btn-start-2d" class="action-btn">2D раскладка</button>
+            </div>
+         </div>
+      </div>
+
+      <div class="panel-2d-app" id="panel-2d-app" style="display:none;">
+         <div class="panel-2d-board-wrap">
+            <div class="panel-2d-board" id="panel-2d-board">
+               <div class="panel-2d-empty" id="panel-2d-empty">Добавьте панели снизу и раскладывайте рисунок в 2D</div>
+            </div>
+         </div>
+      </div>
 
 
       <div class="bottom_panel" id="bottom_panel">
          <div class="panel-header">
             <div class="drag-handle"></div>
+            <button id="btn-presets" class="panel-presets-btn" title="Сохранить / загрузить">💾</button>
             <div class="panel-controls">
                <button id="btn-compact" title="Компактный вид">🗕</button>
                <button id="btn-hide" title="Свернуть">⏬</button>
@@ -128,6 +146,9 @@
 
             <div class="ui-row">
                <button id="btn-all-color" class="action-btn primary" style="width:100%">Применить ко всем</button>
+            </div>
+            <div class="ui-row">
+               <button id="btn-delete-2d-panel" class="action-btn" style="width:100%; background: rgba(255,50,50,0.2); border-color:#ff3232; color:#ff3232; display:none;">Удалить панель</button>
             </div>
          </div>
       </div>
@@ -262,6 +283,35 @@
             </div>
             <div class="ui-row">
                <button id="btn-delete-table-lamp-ui" class="action-btn" style="width:100%; background: rgba(255,50,50,0.2); border-color:#ff3232; color:#ff3232;">Удалить лампу</button>
+            </div>
+         </div>
+      </div>
+
+      <div class="save-load-modal" id="save-load-modal" style="display:none;">
+         <div class="save-load-backdrop" id="save-load-backdrop"></div>
+         <div class="save-load-dialog">
+            <div class="ui-header">
+               <span class="ui-title">Сохранение и загрузка</span>
+               <button id="btn-close-save-load" class="ui-close-btn">✖</button>
+            </div>
+            <div class="ui-body">
+               <div class="ui-row" style="gap: 10px; justify-content: stretch;">
+                  <button id="btn-save-scene-state" class="action-btn primary" style="flex:1">Сохранить</button>
+                  <button id="btn-load-scene-storage" class="action-btn" style="flex:1">Загрузить из памяти</button>
+               </div>
+               <div class="ui-row" style="gap: 10px; justify-content: stretch;">
+                  <button id="btn-copy-scene-state" class="action-btn" style="flex:1">Копировать строку</button>
+                  <button id="btn-paste-scene-state" class="action-btn" style="flex:1">Вставить из буфера</button>
+               </div>
+               <div class="ui-row" style="justify-content: stretch;">
+                  <button id="btn-load-scene-text" class="action-btn" style="width:100%">Загрузить из поля</button>
+               </div>
+               <textarea id="scene-state-text" class="scene-state-text" placeholder="После сохранения здесь появится строка состояния. Сюда же можно вставить строку от другого человека."></textarea>
+               <div class="scene-state-saved-block">
+                  <div class="scene-state-saved-title">Сохраненные на этом устройстве</div>
+                  <div id="scene-state-saved-list" class="scene-state-saved-list"></div>
+               </div>
+               <div id="scene-state-status" class="scene-state-status"></div>
             </div>
          </div>
       </div>

@@ -51,6 +51,281 @@ export class SceneClass {
     this.interactionController.bindEvents();
   }
 
+  // ---- Возвращает сериализуемое состояние сцены ----
+  getSceneState() {
+    const panels = this.panelManager.getAllPanels().map((panel) => {
+      let color = "#ffffff";
+      panel.traverse((child) => {
+        if (child.isMesh && child.material && color === "#ffffff") {
+          const material = Array.isArray(child.material)
+            ? child.material[0]
+            : child.material;
+          color = "#" + material.color.getHexString();
+        }
+      });
+
+      return {
+        wallIndex: this.roomManager.walls.indexOf(panel.parent),
+        panelIndex: panel.userData.panelIndex,
+        gridX: panel.userData.gridX,
+        gridY: panel.userData.gridY,
+        position: panel.position.toArray(),
+        quaternion: panel.quaternion.toArray(),
+        color,
+      };
+    });
+
+    const wallStates = this.roomManager.walls.map((wall) => ({
+      color: wall.material?.color ? "#" + wall.material.color.getHexString() : "#ffffff",
+      offsetX: wall.userData.gridTexture?.offset.x || 0,
+      offsetY: wall.userData.gridTexture?.offset.y || 0,
+    }));
+
+    const sideLights = this.lightManager.lightBulbs.map(({ mesh, light }) => ({
+      position: mesh.position.toArray(),
+      color: "#" + light.color.getHexString(),
+      intensity: light.intensity,
+      distance: light.distance,
+      decay: light.decay,
+      visible: mesh.visible,
+      emissiveIntensity: mesh.material?.emissiveIntensity ?? 2,
+    }));
+
+    const rug = this.rugManager.rug
+      ? {
+          width: this.rugManager.rug.userData.baseWidth * this.rugManager.rug.scale.x,
+          depth: this.rugManager.rug.userData.baseDepth * this.rugManager.rug.scale.z,
+          posX: this.rugManager.rug.position.x,
+          posZ: this.rugManager.rug.position.z,
+          color: "#" + this.rugManager.rug.material.color.getHexString(),
+        }
+      : null;
+
+    const table = this.furnitureManager.furnitureItems[0]
+      ? {
+          width:
+            this.furnitureManager.furnitureItems[0].userData.baseWidth *
+            this.furnitureManager.furnitureItems[0].scale.x,
+          depth:
+            this.furnitureManager.furnitureItems[0].userData.baseDepth *
+            this.furnitureManager.furnitureItems[0].scale.z,
+          posX: this.furnitureManager.furnitureItems[0].position.x,
+          posZ: this.furnitureManager.furnitureItems[0].position.z,
+          rotationStep: this.furnitureManager.furnitureItems[0].userData.rotationStep || 0,
+        }
+      : null;
+
+    const lamp = this.furnitureManager.tableLamps[0]
+      ? {
+          width:
+            this.furnitureManager.tableLamps[0].userData.baseWidth *
+            this.furnitureManager.tableLamps[0].scale.x,
+          height:
+            this.furnitureManager.tableLamps[0].userData.baseHeight *
+            this.furnitureManager.tableLamps[0].scale.y,
+          posX: this.furnitureManager.tableLamps[0].position.x,
+          posY: this.furnitureManager.tableLamps[0].position.y,
+          posZ: this.furnitureManager.tableLamps[0].position.z,
+        }
+      : null;
+
+    return {
+      version: 1,
+      worldScale: this.config.worldScale,
+      activeWallIndex: this.roomManager.activeWallIndex,
+      isNetVisible: this.roomManager.isNetVisible,
+      globalPanelColor: this.panelManager.globalPanelColor,
+      walls: wallStates,
+      panels,
+      sideLights,
+      ambientLight: {
+        intensity: this.lightManager.ambientLight.intensity,
+        color: "#" + this.lightManager.ambientLight.color.getHexString(),
+      },
+      centerLight: this.lightManager.centerLight
+        ? {
+            position: this.lightManager.centerLight.position.toArray(),
+            color: "#" + this.lightManager.centerLight.color.getHexString(),
+            intensity: this.lightManager.centerLight.intensity,
+            distance: this.lightManager.centerLight.distance,
+            decay: this.lightManager.centerLight.decay,
+          }
+        : null,
+      rug,
+      table,
+      lamp,
+    };
+  }
+
+  // ---- Применяет сохраненное состояние сцены ----
+  applySceneState(state) {
+    if (!state || typeof state !== "object") {
+      throw new Error("Некорректное состояние сцены");
+    }
+
+    this.clearSelections();
+
+    this.roomManager.walls.forEach((wall) => {
+      wall.children
+        .filter((child) => child.userData?.isPanel)
+        .forEach((panel) => {
+          wall.remove(panel);
+          this.dragHandler.disposeModel(panel);
+        });
+    });
+
+    this.lightManager.lightBulbs.forEach(({ mesh, light }) => {
+      this.gameContext.scene.remove(mesh);
+      this.gameContext.scene.remove(light);
+      mesh.geometry?.dispose?.();
+      mesh.material?.dispose?.();
+    });
+    this.lightManager.lightBulbs = [];
+    this.lightManager.deselectLightBulb();
+
+    this.furnitureManager.deleteTableLamp();
+    this.furnitureManager.deleteTable();
+
+    if (Array.isArray(state.walls)) {
+      state.walls.forEach((wallState, index) => {
+        const wall = this.roomManager.walls[index];
+        if (!wall) return;
+
+        if (wallState.color && wall.material?.color) {
+          wall.material.color.set(wallState.color);
+        }
+
+        if (wall.userData.gridTexture) {
+          wall.userData.gridTexture.offset.x = Number(wallState.offsetX || 0);
+          wall.userData.gridTexture.offset.y = Number(wallState.offsetY || 0);
+          wall.userData.gridTexture.needsUpdate = true;
+        }
+      });
+    }
+
+    if (typeof state.activeWallIndex === "number") {
+      this.roomManager.activeWallIndex = state.activeWallIndex;
+    }
+
+    if (typeof state.isNetVisible === "boolean" && state.isNetVisible !== this.roomManager.isNetVisible) {
+      this.roomManager.toggleNet();
+    }
+
+    this.panelManager.globalPanelColor = state.globalPanelColor || null;
+
+    (state.panels || []).forEach((panelState) => {
+      const wall = this.roomManager.walls[panelState.wallIndex];
+      const template = this.gameContext.assetManager.panels[panelState.panelIndex];
+      if (!wall || !template) return;
+
+      const panel = template.clone();
+      panel.userData.isPanel = true;
+      panel.userData.panelIndex = panelState.panelIndex;
+      panel.userData.gridX = panelState.gridX;
+      panel.userData.gridY = panelState.gridY;
+
+      const clippingPlanes = this.dragHandler.getWallClippingPlanes(wall);
+      this.dragHandler.applyMaterialProperties(panel, {
+        transparent: false,
+        opacity: 1,
+        clippingPlanes,
+        cloneMaterial: true,
+      });
+
+      if (panelState.color) {
+        this.dragHandler.applyColor(panel, panelState.color);
+      } else if (this.panelManager.globalPanelColor) {
+        this.dragHandler.applyColor(panel, this.panelManager.globalPanelColor);
+      }
+
+      wall.add(panel);
+      if (Array.isArray(panelState.position)) {
+        panel.position.fromArray(panelState.position);
+      }
+      if (Array.isArray(panelState.quaternion)) {
+        panel.quaternion.fromArray(panelState.quaternion);
+      } else {
+        panel.rotation.set(0, 0, 0);
+        panel.rotateX(Math.PI / 2);
+      }
+    });
+
+    if (state.ambientLight) {
+      this.lightManager.ambientLight.intensity = Number(state.ambientLight.intensity ?? this.lightManager.ambientLight.intensity);
+      if (state.ambientLight.color) {
+        this.lightManager.ambientLight.color.set(state.ambientLight.color);
+      }
+    }
+
+    if (state.centerLight && this.lightManager.centerLight) {
+      this.lightManager.centerLight.position.fromArray(state.centerLight.position || this.lightManager.centerLight.position.toArray());
+      this.lightManager.lightBulbMesh.position.copy(this.lightManager.centerLight.position);
+      this.lightManager.centerLight.color.set(state.centerLight.color || "#ffe6c2");
+      this.lightManager.centerLight.intensity = Number(state.centerLight.intensity ?? this.lightManager.centerLight.intensity);
+      this.lightManager.centerLight.distance = Number(state.centerLight.distance ?? this.lightManager.centerLight.distance);
+      this.lightManager.centerLight.decay = Number(state.centerLight.decay ?? this.lightManager.centerLight.decay);
+    }
+
+    (state.sideLights || []).forEach((lightState) => {
+      this.lightManager.addSideLightBulb();
+      const latest = this.lightManager.lightBulbs[this.lightManager.lightBulbs.length - 1];
+      if (!latest) return;
+
+      latest.mesh.position.fromArray(lightState.position || latest.mesh.position.toArray());
+      latest.light.position.copy(latest.mesh.position);
+      latest.light.color.set(lightState.color || "#ffaa66");
+      latest.light.intensity = Number(lightState.intensity ?? latest.light.intensity);
+      latest.light.distance = Number(lightState.distance ?? latest.light.distance);
+      latest.light.decay = Number(lightState.decay ?? latest.light.decay);
+      latest.mesh.visible = lightState.visible !== false;
+      if (latest.mesh.material?.emissiveIntensity !== undefined) {
+        latest.mesh.material.emissiveIntensity = Number(
+          lightState.emissiveIntensity ?? latest.mesh.material.emissiveIntensity
+        );
+      }
+    });
+
+    if (state.rug && this.rugManager.rug) {
+      this.rugManager.updateRugTransform(
+        Number(state.rug.width),
+        Number(state.rug.depth),
+        Number(state.rug.posX),
+        Number(state.rug.posZ)
+      );
+      if (state.rug.color) {
+        this.rugManager.changeRugColor(state.rug.color);
+      }
+    }
+
+    if (state.table) {
+      const table = this.addTable();
+      if (table) {
+        this.furnitureManager.selectFurniture(table);
+        this.updateFurnitureTransform(
+          Number(state.table.width),
+          Number(state.table.depth),
+          Number(state.table.posX),
+          Number(state.table.posZ)
+        );
+        this.updateFurnitureRotation(Number(state.table.rotationStep || 0));
+      }
+    }
+
+    if (state.lamp) {
+      const lamp = this.addTableLamp();
+      if (lamp) {
+        this.selectTableLamp(lamp);
+        this.updateTableLampTransform(
+          Number(state.lamp.width),
+          Number(state.lamp.height),
+          Number(state.lamp.posX),
+          Number(state.lamp.posY),
+          Number(state.lamp.posZ)
+        );
+      }
+    }
+  }
+
   // ---- Меняет цвет комнаты ----
   setRoomColor(target, hexColor) {
     this.roomManager.setRoomColor(target, hexColor);

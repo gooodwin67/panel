@@ -6,6 +6,7 @@ import { SceneClass } from "./src/main/scene.js";
 import { GuiClass } from "./src/main/gui.js";
 import { AssetsManager } from "./src/assets/assets-manager.js";
 import { KeyboardOrbitMove } from "./src/main/keyboardOrbitMove.js";
+import { Panel2DApp } from "./src/main/Panel2DApp.js";
 
 console.clear();
 
@@ -14,14 +15,18 @@ gameContext.clock = new THREE.Clock();
 gameContext.sceneConfig = {
   worldScale: 10,
 };
+gameContext.appMode = null;
+const SCENE_STATE_STORAGE_KEY = "room-configurator-scene-state";
+const SCENE_STATE_LIBRARY_KEY = "room-configurator-scene-library";
 
-startScene();
+initStaticUI();
+initAppModeChooser();
 
 // ---- Запускает приложение ----
 async function startScene() {
   try {
     await initClases();
-    await initFunctions();
+    await initSceneFunctions();
     startAnimationLoop();
   } catch (error) {
     console.error("Init error", error);
@@ -45,27 +50,13 @@ async function initClases() {
 }
 
 // ---- Связывает стартовую логику ----
-async function initFunctions() {
+async function initSceneFunctions() {
   await gameContext.assetManager.loadModels();
 
-  createSelectionUI();
   initLightSelectionUI();
   initRugSelectionUI();
   initFurnitureSelectionUI();
   initTableLampSelectionUI();
-  initBottomBtns();
-
-  const myScene = gameContext.sceneClass;
-
-  for (let i = 1; i <= 4; i++) {
-    const panelBtn = document.querySelector(`.panel${i}`);
-    if (panelBtn) {
-      panelBtn.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        myScene.startDrag(i - 1, event);
-      });
-    }
-  }
 
   gameContext.sceneClass.createScene();
 
@@ -75,38 +66,99 @@ async function initFunctions() {
   }
 }
 
+function initStaticUI() {
+  createSelectionUI();
+  initBottomBtns();
+  initPanelPalette();
+  initSaveLoadUI();
+}
+
+function initAppModeChooser() {
+  const chooser = document.getElementById("app-mode-modal");
+  const start3dBtn = document.getElementById("btn-start-3d");
+  const start2dBtn = document.getElementById("btn-start-2d");
+
+  if (!chooser || !start3dBtn || !start2dBtn) return;
+
+  const closeChooser = () => {
+    chooser.style.display = "none";
+  };
+
+  start3dBtn.onclick = async () => {
+    closeChooser();
+    document.body.classList.remove("mode-2d");
+    gameContext.appMode = "3d";
+    await startScene();
+  };
+
+  start2dBtn.onclick = () => {
+    closeChooser();
+    document.body.classList.add("mode-2d");
+    gameContext.appMode = "2d";
+    gameContext.panel2dApp = new Panel2DApp(gameContext);
+    gameContext.panel2dApp.init();
+    gameContext.panel2dApp.show();
+  };
+}
+
+function getActiveConfigurator() {
+  if (gameContext.appMode === "2d") {
+    return gameContext.panel2dApp || null;
+  }
+
+  return gameContext.sceneClass || null;
+}
+
+function initPanelPalette() {
+  for (let i = 1; i <= 4; i++) {
+    const panelBtn = document.querySelector(`.panel${i}`);
+    if (!panelBtn) continue;
+
+    panelBtn.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+
+      if (gameContext.appMode === "2d") {
+        gameContext.panel2dApp?.startPaletteDrag(i - 1, event);
+        return;
+      }
+
+      gameContext.sceneClass?.startDrag(i - 1, event);
+    });
+  }
+}
+
 // ---- Подключает нижние кнопки ----
 function initBottomBtns() {
   document.getElementById("random_rotate").onclick = () => {
-    gameContext.sceneClass.randomRotate();
+    getActiveConfigurator()?.randomRotate?.();
   };
 
   document.getElementById("random_shuffle").onclick = () => {
-    gameContext.sceneClass.shufflePanelsOnWalls();
+    getActiveConfigurator()?.shufflePanelsOnWalls?.();
   };
 
   document.getElementById("toglle_net").onclick = () => {
-    gameContext.sceneClass.toggleNet();
+    getActiveConfigurator()?.toggleNet?.();
   };
 
   const addLightBtn = document.getElementById("add-light-bulb");
   if (addLightBtn) {
     addLightBtn.onclick = () => {
-      gameContext.sceneClass.addSideLightBulb();
+      gameContext.sceneClass?.addSideLightBulb();
     };
   }
 
   const addTableBtn = document.getElementById("add-table");
   if (addTableBtn) {
     addTableBtn.onclick = () => {
-      gameContext.sceneClass.addTable();
+      gameContext.sceneClass?.addTable();
     };
   }
 
   const addTableLampBtn = document.getElementById("add-table-lamp");
   if (addTableLampBtn) {
     addTableLampBtn.onclick = () => {
-      gameContext.sceneClass.addTableLamp();
+      gameContext.sceneClass?.addTableLamp();
     };
   }
 }
@@ -114,34 +166,43 @@ function initBottomBtns() {
 // ---- Подключает UI панели ----
 function createSelectionUI() {
   document.getElementById("btn-rot-left").onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(Math.PI / 2);
+    getActiveConfigurator()?.rotateSelectedPanel?.(Math.PI / 2);
   };
 
   document.getElementById("btn-rot-right").onclick = () => {
-    gameContext.sceneClass.rotateSelectedPanel(-Math.PI / 2);
+    getActiveConfigurator()?.rotateSelectedPanel?.(-Math.PI / 2);
   };
 
   const colorPicker = document.getElementById("panel-color-picker");
   if (colorPicker) {
     colorPicker.addEventListener("input", (event) => {
-      gameContext.sceneClass.changeSelectedPanelColor(event.target.value);
+      if (gameContext.appMode !== "3d") return;
+      gameContext.sceneClass?.changeSelectedPanelColor(event.target.value);
     });
   }
 
   document.getElementById("btn-close-sel").onclick = () => {
-    gameContext.sceneClass.deselectPanel();
+    getActiveConfigurator()?.deselectPanel?.();
   };
+
+  const delete2dPanelBtn = document.getElementById("btn-delete-2d-panel");
+  if (delete2dPanelBtn) {
+    delete2dPanelBtn.onclick = () => {
+      getActiveConfigurator()?.deleteSelectedPanel?.();
+    };
+  }
 
   document.getElementById("btn-all-color").onclick = () => {
     const colorInput = document.getElementById("panel-color-picker");
     if (!colorInput) return;
-    gameContext.sceneClass.setAllPanelsColor(colorInput.value);
+    if (gameContext.appMode !== "3d") return;
+    gameContext.sceneClass?.setAllPanelsColor(colorInput.value);
   };
 
   const wallColorPicker = document.getElementById("wall-color-picker");
   if (wallColorPicker) {
     wallColorPicker.addEventListener("input", (event) => {
-      gameContext.sceneClass.setAllWallsColor(event.target.value);
+      gameContext.sceneClass?.setAllWallsColor(event.target.value);
     });
   }
 }
@@ -455,6 +516,306 @@ function initTableLampSelectionUI() {
       gameContext.sceneClass.deleteTableLamp();
     };
   }
+}
+
+// ---- Подключает UI сохранения/загрузки ----
+function initSaveLoadUI() {
+  const modal = document.getElementById("save-load-modal");
+  const openBtn = document.getElementById("btn-presets");
+  const closeBtn = document.getElementById("btn-close-save-load");
+  const backdrop = document.getElementById("save-load-backdrop");
+  const saveBtn = document.getElementById("btn-save-scene-state");
+  const loadStorageBtn = document.getElementById("btn-load-scene-storage");
+  const copyBtn = document.getElementById("btn-copy-scene-state");
+  const pasteBtn = document.getElementById("btn-paste-scene-state");
+  const loadTextBtn = document.getElementById("btn-load-scene-text");
+  const textArea = document.getElementById("scene-state-text");
+  const status = document.getElementById("scene-state-status");
+  const savedList = document.getElementById("scene-state-saved-list");
+
+  if (!modal || !openBtn || !textArea || !status || !savedList) return;
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  const encodeState = (state) =>
+    "roomcfg:" + btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const decodeState = (encoded) => {
+    const normalized = encoded.trim().replace(/^roomcfg:/, "");
+    return JSON.parse(decodeURIComponent(escape(atob(normalized))));
+  };
+  const buildStatePayload = () => {
+    const activeConfigurator = getActiveConfigurator();
+    if (!activeConfigurator?.getSceneState) {
+      throw new Error("Активный режим еще не выбран");
+    }
+
+    return {
+      mode: gameContext.appMode || "3d",
+      state: activeConfigurator.getSceneState(),
+    };
+  };
+  const applyStatePayload = (payload) => {
+    const isWrappedState =
+      payload &&
+      typeof payload === "object" &&
+      payload.mode &&
+      Object.prototype.hasOwnProperty.call(payload, "state");
+
+    const targetMode = isWrappedState ? payload.mode : "3d";
+    const targetState = isWrappedState ? payload.state : payload;
+
+    if (targetMode !== gameContext.appMode) {
+      throw new Error("Сохранение сделано для другого режима");
+    }
+
+    const activeConfigurator = getActiveConfigurator();
+    if (!activeConfigurator?.applySceneState) {
+      throw new Error("Активный режим еще не выбран");
+    }
+
+    activeConfigurator.applySceneState(targetState);
+  };
+
+  const readStoredLibrary = () => {
+    try {
+      const parsed = JSON.parse(
+        localStorage.getItem(SCENE_STATE_LIBRARY_KEY) || "[]"
+      );
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(
+        (item) => typeof item === "string" && item.trim().length > 0
+      );
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  const writeStoredLibrary = (items) => {
+    localStorage.setItem(SCENE_STATE_LIBRARY_KEY, JSON.stringify(items));
+  };
+
+  const persistStateString = (encoded) => {
+    const normalized = encoded.trim();
+    const library = readStoredLibrary();
+    const alreadyExists = library.includes(normalized);
+    const nextLibrary = alreadyExists
+      ? library
+      : [normalized, ...library];
+
+    localStorage.setItem(SCENE_STATE_STORAGE_KEY, normalized);
+    writeStoredLibrary(nextLibrary);
+
+    return { alreadyExists, library: nextLibrary };
+  };
+
+  const renderSavedList = () => {
+    const library = readStoredLibrary();
+    savedList.innerHTML = "";
+
+    if (!library.length) {
+      const empty = document.createElement("div");
+      empty.className = "scene-state-saved-empty";
+      empty.textContent = "Пока нет сохраненных состояний.";
+      savedList.appendChild(empty);
+      return;
+    }
+
+    library.forEach((encoded, index) => {
+      const item = document.createElement("div");
+      item.className = "scene-state-saved-item";
+
+      const preview = document.createElement("div");
+      preview.className = "scene-state-saved-preview";
+      preview.textContent = `${index + 1}. ${encoded}`;
+
+      const actions = document.createElement("div");
+      actions.className = "scene-state-saved-actions";
+
+      const loadBtn = document.createElement("button");
+      loadBtn.className = "action-btn";
+      loadBtn.textContent = "Загрузить";
+      loadBtn.onclick = () => {
+        try {
+          textArea.value = encoded;
+          applyStatePayload(decodeState(encoded));
+          localStorage.setItem(SCENE_STATE_STORAGE_KEY, encoded);
+          setStatus("Состояние загружено из списка сохранений.");
+        } catch (error) {
+          setStatus("Не удалось загрузить выбранное состояние.");
+          console.error(error);
+        }
+      };
+
+      const copyItemBtn = document.createElement("button");
+      copyItemBtn.className = "action-btn";
+      copyItemBtn.textContent = "Копировать";
+      copyItemBtn.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(encoded);
+          textArea.value = encoded;
+          localStorage.setItem(SCENE_STATE_STORAGE_KEY, encoded);
+          setStatus("Строка состояния скопирована из списка.");
+        } catch (error) {
+          setStatus("Не удалось скопировать выбранную строку.");
+          console.error(error);
+        }
+      };
+
+      const deleteItemBtn = document.createElement("button");
+      deleteItemBtn.className = "action-btn";
+      deleteItemBtn.textContent = "Удалить";
+      deleteItemBtn.onclick = () => {
+        const nextLibrary = readStoredLibrary().filter((item) => item !== encoded);
+        writeStoredLibrary(nextLibrary);
+
+        if ((textArea.value || "").trim() === encoded) {
+          textArea.value = "";
+        }
+
+        if ((localStorage.getItem(SCENE_STATE_STORAGE_KEY) || "").trim() === encoded) {
+          const nextCurrent = nextLibrary[0] || "";
+          if (nextCurrent) {
+            localStorage.setItem(SCENE_STATE_STORAGE_KEY, nextCurrent);
+          } else {
+            localStorage.removeItem(SCENE_STATE_STORAGE_KEY);
+          }
+        }
+
+        renderSavedList();
+        setStatus("Сохранение удалено из памяти устройства.");
+      };
+
+      actions.appendChild(loadBtn);
+      actions.appendChild(copyItemBtn);
+      actions.appendChild(deleteItemBtn);
+      item.appendChild(preview);
+      item.appendChild(actions);
+      savedList.appendChild(item);
+    });
+  };
+
+  const rememberLegacySingleState = () => {
+    const legacy = localStorage.getItem(SCENE_STATE_STORAGE_KEY);
+    if (!legacy || readStoredLibrary().includes(legacy)) return;
+    writeStoredLibrary([legacy, ...readStoredLibrary()]);
+  };
+
+  const openModal = () => {
+    modal.style.display = "block";
+    textArea.value = localStorage.getItem(SCENE_STATE_STORAGE_KEY) || "";
+    rememberLegacySingleState();
+    renderSavedList();
+    setStatus("");
+  };
+
+  const closeModal = () => {
+    modal.style.display = "none";
+  };
+
+  openBtn.onclick = openModal;
+  if (closeBtn) closeBtn.onclick = closeModal;
+  if (backdrop) backdrop.onclick = closeModal;
+
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      try {
+        const encoded = encodeState(buildStatePayload());
+        const { alreadyExists } = persistStateString(encoded);
+        textArea.value = encoded;
+        renderSavedList();
+        setStatus(
+          alreadyExists
+            ? "Такое состояние уже есть в памяти. Строка обновлена ниже."
+            : "Состояние сохранено в память и добавлено в список."
+        );
+      } catch (error) {
+        setStatus("Не удалось сохранить состояние.");
+        console.error(error);
+      }
+    };
+  }
+
+  if (loadStorageBtn) {
+    loadStorageBtn.onclick = () => {
+      try {
+        const encoded = localStorage.getItem(SCENE_STATE_STORAGE_KEY);
+        if (!encoded) {
+          setStatus("В локальном хранилище пока ничего нет.");
+          return;
+        }
+        textArea.value = encoded;
+        applyStatePayload(decodeState(encoded));
+        renderSavedList();
+        setStatus("Состояние загружено из локального хранилища.");
+      } catch (error) {
+        setStatus("Не удалось загрузить из локального хранилища.");
+        console.error(error);
+      }
+    };
+  }
+
+  if (copyBtn) {
+    copyBtn.onclick = async () => {
+      try {
+        if (!textArea.value.trim()) {
+          const encoded = encodeState(buildStatePayload());
+          persistStateString(encoded);
+          textArea.value = encoded;
+          renderSavedList();
+        }
+        await navigator.clipboard.writeText(textArea.value);
+        setStatus("Строка состояния скопирована.");
+      } catch (error) {
+        setStatus("Не удалось скопировать строку.");
+        console.error(error);
+      }
+    };
+  }
+
+  if (pasteBtn) {
+    pasteBtn.onclick = async () => {
+      try {
+        const clipboardText = await navigator.clipboard.readText();
+        if (!clipboardText.trim()) {
+          setStatus("Буфер обмена пуст.");
+          return;
+        }
+        textArea.value = clipboardText;
+        applyStatePayload(decodeState(clipboardText));
+        persistStateString(clipboardText);
+        renderSavedList();
+        setStatus("Состояние загружено из буфера обмена.");
+      } catch (error) {
+        setStatus("Не удалось прочитать буфер обмена.");
+        console.error(error);
+      }
+    };
+  }
+
+  if (loadTextBtn) {
+    loadTextBtn.onclick = () => {
+      try {
+        if (!textArea.value.trim()) {
+          setStatus("Поле со строкой пустое.");
+          return;
+        }
+        const encoded = textArea.value.trim();
+        applyStatePayload(decodeState(encoded));
+        persistStateString(encoded);
+        renderSavedList();
+        setStatus("Состояние загружено из текстового поля.");
+      } catch (error) {
+        setStatus("Строка состояния повреждена или не подходит.");
+        console.error(error);
+      }
+    };
+  }
+
+  rememberLegacySingleState();
+  renderSavedList();
 }
 
 // ---- Обновляет кадр ----
