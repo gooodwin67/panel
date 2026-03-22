@@ -9,21 +9,24 @@ const TABLE_POSITIONS = [
   { x: 1.2, z: -1.2 },
 ];
 
+const TABLE_LAMP_POSITION = {
+  x: 0,
+  y: -0.2,
+  z: 0,
+};
+
 export class FurnitureManager {
   // ---- Готовит состояние мебели ----
   constructor(gameContext, config) {
     this.gameContext = gameContext;
     this.config = config;
+    this.worldScale = config.worldScale || 1;
     this.furnitureItems = [];
     this.tableLamps = [];
     this.selectedFurniture = null;
     this.selectedLamp = null;
-    this.isDraggingLamp = false;
-    this.draggedLamp = null;
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
-    this.lampDragPlane = new THREE.Plane();
-    this.lampDragPoint = new THREE.Vector3();
     this._tempQuaternion = new THREE.Quaternion();
   }
 
@@ -77,7 +80,11 @@ export class FurnitureManager {
     const floorY = -this.config.heightWall / 2;
     const placement =
       TABLE_POSITIONS[this.furnitureItems.length % TABLE_POSITIONS.length];
-    holder.position.set(placement.x, floorY, placement.z);
+    holder.position.set(
+      placement.x * this.worldScale,
+      floorY,
+      placement.z * this.worldScale
+    );
 
     this.gameContext.scene.add(holder);
     this.furnitureItems.push(holder);
@@ -90,8 +97,6 @@ export class FurnitureManager {
     const table = this.furnitureItems[0];
     if (!table) return;
 
-    this.deleteTableLamp();
-
     this.removeObject(table);
     this.furnitureItems = [];
 
@@ -100,16 +105,12 @@ export class FurnitureManager {
     }
   }
 
-  // ---- Добавляет лампу на стол ----
+  // ---- Добавляет независимую лампу в комнату ----
   addTableLamp() {
     if (this.tableLamps.length > 0) {
-      return this.tableLamps[0];
-    }
-
-    const targetTable = this.getLampTargetTable();
-    if (!targetTable) {
-      console.warn("Сначала добавь стол");
-      return null;
+      const existingLamp = this.tableLamps[0];
+      this.selectLamp(existingLamp);
+      return existingLamp;
     }
 
     const template = this.gameContext.assetManager.furniture.tableLamp;
@@ -122,9 +123,6 @@ export class FurnitureManager {
     const lamp = template.clone(true);
     holder.name = `table_lamp_${this.tableLamps.length + 1}`;
     holder.userData.isTableLamp = true;
-    holder.userData.parentTable = targetTable;
-    holder.userData.anchorX = 0;
-    holder.userData.anchorZ = 0;
     holder.userData.type = "tableLamp";
     holder.add(lamp);
 
@@ -152,10 +150,15 @@ export class FurnitureManager {
     holder.userData.baseWidth = size.x;
     holder.userData.baseDepth = size.z;
     holder.userData.baseHeight = size.y;
+    holder.position.set(
+      TABLE_LAMP_POSITION.x * this.worldScale,
+      TABLE_LAMP_POSITION.y * this.worldScale,
+      TABLE_LAMP_POSITION.z * this.worldScale
+    );
 
     this.gameContext.scene.add(holder);
     this.tableLamps.push(holder);
-    this.updateLampPlacement(holder);
+    this.selectLamp(holder);
     return holder;
   }
 
@@ -164,25 +167,12 @@ export class FurnitureManager {
     const lamp = this.tableLamps[0];
     if (!lamp) return;
 
-    if (this.draggedLamp === lamp) {
-      this.stopDragLamp();
-    }
-
     this.removeObject(lamp);
     this.tableLamps = [];
 
     if (this.selectedLamp === lamp) {
-      this.selectedLamp = null;
+      this.deselectLamp();
     }
-  }
-
-  // ---- Подбирает стол для лампы ----
-  getLampTargetTable() {
-    if (this.selectedFurniture?.userData.type === "table") {
-      return this.selectedFurniture;
-    }
-
-    return this.furnitureItems[this.furnitureItems.length - 1] || null;
   }
 
   // ---- Подстраивает материалы мебели ----
@@ -336,11 +326,33 @@ export class FurnitureManager {
     const width = furniture.userData.baseWidth * furniture.scale.x;
     const depth = furniture.userData.baseDepth * furniture.scale.z;
     const rotationStep = furniture.userData.rotationStep || 0;
+    const maxWidth = Math.max(this.config.widthWallFront * 0.9, width);
+    const maxDepth = Math.max(this.config.widthWallSide * 0.9, depth);
+    const minWidth = Math.max(furniture.userData.baseWidth * 0.5, 0.1);
+    const minDepth = Math.max(furniture.userData.baseDepth * 0.5, 0.1);
+    const posLimitX = Math.max((this.config.widthWallFront - width) / 2, 0);
+    const posLimitZ = Math.max((this.config.widthWallSide - depth) / 2, 0);
 
-    if (widthInput) widthInput.value = String(width);
-    if (depthInput) depthInput.value = String(depth);
-    if (posXInput) posXInput.value = String(furniture.position.x);
-    if (posZInput) posZInput.value = String(furniture.position.z);
+    if (widthInput) {
+      widthInput.min = String(minWidth);
+      widthInput.max = String(maxWidth);
+      widthInput.value = String(width);
+    }
+    if (depthInput) {
+      depthInput.min = String(minDepth);
+      depthInput.max = String(maxDepth);
+      depthInput.value = String(depth);
+    }
+    if (posXInput) {
+      posXInput.min = String(-posLimitX);
+      posXInput.max = String(posLimitX);
+      posXInput.value = String(furniture.position.x);
+    }
+    if (posZInput) {
+      posZInput.min = String(-posLimitZ);
+      posZInput.max = String(posLimitZ);
+      posZInput.value = String(furniture.position.z);
+    }
     if (rotationInput) rotationInput.value = String(rotationStep);
     if (rotationValue) rotationValue.textContent = `${rotationStep * 90}\u00b0`;
   }
@@ -354,11 +366,14 @@ export class FurnitureManager {
     const baseDepth = furniture.userData.baseDepth || 1;
 
     furniture.scale.set(width / baseWidth, 1, depth / baseDepth);
-    furniture.position.x = posX;
-    furniture.position.z = posZ;
+
+    const posLimitX = Math.max((this.config.widthWallFront - width) / 2, 0);
+    const posLimitZ = Math.max((this.config.widthWallSide - depth) / 2, 0);
+    furniture.position.x = THREE.MathUtils.clamp(posX, -posLimitX, posLimitX);
+    furniture.position.z = THREE.MathUtils.clamp(posZ, -posLimitZ, posLimitZ);
     furniture.position.y = -this.config.heightWall / 2;
 
-    this.syncLampsForFurniture(furniture);
+    this.refreshFurnitureUI();
   }
 
   // ---- Поворачивает мебель по шагам ----
@@ -375,108 +390,98 @@ export class FurnitureManager {
       rotationValue.textContent = `${normalizedStep * 90}\u00b0`;
     }
 
-    this.syncLampsForFurniture(furniture);
   }
 
-  // ---- Стартует перенос лампы ----
-  startDragLamp(lamp, event) {
-    const parentTable = lamp.userData.parentTable;
-    if (!parentTable) return;
-
-    this.isDraggingLamp = true;
-    this.draggedLamp = lamp;
+  // ---- Выбирает настольную лампу ----
+  selectLamp(lamp) {
     this.selectedLamp = lamp;
 
-    if (this.gameContext.controls) {
-      this.gameContext.controls.enabled = false;
-    }
+    const ui = document.querySelector(".table-lamp-selection-ui");
+    if (ui) ui.style.display = "flex";
 
-    this.updateLampDragPlane(parentTable);
-    this.onPointerMoveLamp(event);
+    this.refreshLampUI();
   }
 
-  // ---- Двигает лампу по столу ----
-  onPointerMoveLamp(event) {
-    if (!this.isDraggingLamp || !this.draggedLamp) return;
-
-    const parentTable = this.draggedLamp.userData.parentTable;
-    if (!parentTable) return;
-
-    this.updatePointer(event);
-    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
-
-    if (!this.raycaster.ray.intersectPlane(this.lampDragPlane, this.lampDragPoint)) {
-      return;
-    }
-
-    const localPoint = parentTable.worldToLocal(this.lampDragPoint.clone());
-    const limits = this.getLampLimits(parentTable, this.draggedLamp);
-    const clampedX = THREE.MathUtils.clamp(localPoint.x, -limits.x, limits.x);
-    const clampedZ = THREE.MathUtils.clamp(localPoint.z, -limits.z, limits.z);
-
-    this.draggedLamp.userData.anchorX = limits.x > 0 ? clampedX / limits.x : 0;
-    this.draggedLamp.userData.anchorZ = limits.z > 0 ? clampedZ / limits.z : 0;
-
-    this.updateLampPlacement(this.draggedLamp);
-  }
-
-  // ---- Завершает перенос лампы ----
-  stopDragLamp() {
-    this.isDraggingLamp = false;
-    this.draggedLamp = null;
+  // ---- Снимает выбор настольной лампы ----
+  deselectLamp() {
     this.selectedLamp = null;
 
-    if (this.gameContext.controls) {
-      this.gameContext.controls.enabled = true;
+    const ui = document.querySelector(".table-lamp-selection-ui");
+    if (ui) ui.style.display = "none";
+  }
+
+  // ---- Обновляет UI настольной лампы ----
+  refreshLampUI() {
+    const lamp = this.selectedLamp;
+    if (!lamp) return;
+
+    const widthInput = document.getElementById("table-lamp-width");
+    const heightInput = document.getElementById("table-lamp-height");
+    const posXInput = document.getElementById("table-lamp-pos-x");
+    const posYInput = document.getElementById("table-lamp-pos-y");
+    const posZInput = document.getElementById("table-lamp-pos-z");
+    const width = lamp.userData.baseWidth * lamp.scale.x;
+    const height = lamp.userData.baseHeight * lamp.scale.y;
+    const posLimitX = this.config.widthWallFront / 2;
+    const posLimitY = this.config.heightWall / 2;
+    const posLimitZ = this.config.widthWallSide / 2;
+
+    if (widthInput) {
+      widthInput.min = String(Math.max(lamp.userData.baseWidth * 0.5, 0.1));
+      widthInput.max = String(Math.max(lamp.userData.baseWidth * 3, width));
+      widthInput.value = String(width);
+    }
+
+    if (heightInput) {
+      heightInput.min = String(Math.max(lamp.userData.baseHeight * 0.5, 0.1));
+      heightInput.max = String(Math.max(lamp.userData.baseHeight * 3, height));
+      heightInput.value = String(height);
+    }
+
+    if (posXInput) {
+      posXInput.min = String(-posLimitX);
+      posXInput.max = String(posLimitX);
+      posXInput.value = String(lamp.position.x);
+    }
+
+    if (posYInput) {
+      posYInput.min = String(-posLimitY);
+      posYInput.max = String(posLimitY);
+      posYInput.value = String(lamp.position.y);
+    }
+
+    if (posZInput) {
+      posZInput.min = String(-posLimitZ);
+      posZInput.max = String(posLimitZ);
+      posZInput.value = String(lamp.position.z);
     }
   }
 
-  // ---- Обновляет плоскость переноса лампы ----
-  updateLampDragPlane(parentTable) {
-    const tableTopPoint = parentTable.localToWorld(
-      new THREE.Vector3(0, parentTable.userData.baseHeight + 0.01, 0)
+  // ---- Меняет размер и позицию настольной лампы ----
+  updateLampTransform(width, height, posX, posY, posZ) {
+    const lamp = this.selectedLamp;
+    if (!lamp) return;
+
+    const baseWidth = lamp.userData.baseWidth || 1;
+    const baseHeight = lamp.userData.baseHeight || 1;
+    const footprintScale = width / baseWidth;
+    lamp.scale.set(footprintScale, height / baseHeight, footprintScale);
+    lamp.position.x = THREE.MathUtils.clamp(
+      posX,
+      -this.config.widthWallFront / 2,
+      this.config.widthWallFront / 2
     );
-    const tableUp = new THREE.Vector3(0, 1, 0).applyQuaternion(
-      parentTable.getWorldQuaternion(this._tempQuaternion)
+    lamp.position.y = THREE.MathUtils.clamp(
+      posY,
+      -this.config.heightWall / 2,
+      this.config.heightWall / 2
     );
-    this.lampDragPlane.setFromNormalAndCoplanarPoint(tableUp, tableTopPoint);
-  }
-
-  // ---- Считает границы лампы на столе ----
-  getLampLimits(parentTable, lamp) {
-    const lampHalfWidth = (lamp.userData.baseWidth || 0.2) / Math.max(parentTable.scale.x, 0.001) / 2;
-    const lampHalfDepth = (lamp.userData.baseDepth || 0.2) / Math.max(parentTable.scale.z, 0.001) / 2;
-
-    return {
-      x: Math.max(parentTable.userData.baseWidth / 2 - lampHalfWidth - 0.05, 0),
-      z: Math.max(parentTable.userData.baseDepth / 2 - lampHalfDepth - 0.05, 0),
-    };
-  }
-
-  // ---- Ставит лампу на стол ----
-  updateLampPlacement(lamp) {
-    const parentTable = lamp.userData.parentTable;
-    if (!parentTable) return;
-
-    const limits = this.getLampLimits(parentTable, lamp);
-    const localX = (lamp.userData.anchorX || 0) * limits.x;
-    const localZ = (lamp.userData.anchorZ || 0) * limits.z;
-    const localY = parentTable.userData.baseHeight + 0.01;
-
-    const worldPosition = parentTable.localToWorld(
-      new THREE.Vector3(localX, localY, localZ)
+    lamp.position.z = THREE.MathUtils.clamp(
+      posZ,
+      -this.config.widthWallSide / 2,
+      this.config.widthWallSide / 2
     );
-    lamp.position.copy(worldPosition);
-    lamp.quaternion.copy(parentTable.getWorldQuaternion(this._tempQuaternion));
-  }
-
-  // ---- Синхронизирует лампы стола ----
-  syncLampsForFurniture(furniture) {
-    this.tableLamps.forEach((lamp) => {
-      if (lamp.userData.parentTable === furniture) {
-        this.updateLampPlacement(lamp);
-      }
-    });
+    this.refreshLampUI();
   }
 
   // ---- Считает координаты указателя ----

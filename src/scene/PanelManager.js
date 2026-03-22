@@ -79,6 +79,7 @@ export class PanelManager {
         gridX: panel.userData.gridX,
         gridY: panel.userData.gridY,
       }));
+      const panelOffset = this.roomManager.config.panelDepth * 0.1;
 
       for (let i = occupiedCells.length - 1; i > 0; i--) {
         const randomIndex = Math.floor(Math.random() * (i + 1));
@@ -89,6 +90,8 @@ export class PanelManager {
 
       const width = wall.geometry.parameters.width;
       const height = wall.geometry.parameters.height;
+      const texture = wall.userData.gridTexture;
+      if (!texture) return;
 // ---- Переводит ячейку в позицию ----
       function cellToLocalPosition(gridX, gridY) {
         const centerGridU = gridX + 0.5;
@@ -99,7 +102,7 @@ export class PanelManager {
         return new THREE.Vector3(
           (newU - 0.5) * width,
           (newV - 0.5) * height,
-          0.005
+          panelOffset
         );
       }
 

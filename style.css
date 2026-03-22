@@ -351,6 +351,12 @@ canvas {
     right: 20px;
 }
 
+.table-lamp-selection-ui {
+    left: auto;
+    right: 20px;
+    top: 280px;
+}
+
 .ui-header {
     display: flex;
     justify-content: space-between;
@@ -432,6 +438,12 @@ canvas {
     .light-selection-ui {
         left: 10px;
         right: 10px;
+    }
+
+    .table-lamp-selection-ui {
+        left: 10px;
+        right: 10px;
+        top: auto;
     }
 
     .ui-header {

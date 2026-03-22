@@ -5,6 +5,11 @@ export class LightManager {
   constructor(gameContext, config) {
     this.gameContext = gameContext;
     this.config = config;
+    this.worldScale = config.worldScale || 1;
+    this.worldScaleSquared = this.worldScale * this.worldScale;
+    this.defaultCenterLightIntensity = 52 * this.worldScaleSquared;
+    this.defaultSideLightIntensity = 18 * this.worldScaleSquared;
+    this.defaultSideLightDistance = 6 * this.worldScale;
 
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
     this.centerLight = null;
@@ -32,7 +37,11 @@ export class LightManager {
   createCenterLight() {
     const { heightWall } = this.config;
 
-    const bulbGeometry = new THREE.BoxGeometry(1, 0.05, 1);
+    const bulbGeometry = new THREE.BoxGeometry(
+      1 * this.worldScale,
+      0.05 * this.worldScale,
+      1 * this.worldScale
+    );
     const bulbMaterial = new THREE.MeshStandardMaterial({
       color: 0x111111,
       emissive: 0xffffee,
@@ -41,12 +50,17 @@ export class LightManager {
     });
 
     this.lightBulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
-    const lightY = heightWall / 2 - 0.03;
+    const lightY = heightWall / 2 - 0.03 * this.worldScale;
     this.lightBulbMesh.position.set(0, lightY, 0);
     this.gameContext.scene.add(this.lightBulbMesh);
 
-    this.centerLight = new THREE.PointLight(0xffe6c2, 52, 0, 2);
-    this.centerLight.position.set(0, lightY, 1);
+    this.centerLight = new THREE.PointLight(
+      0xffe6c2,
+      this.defaultCenterLightIntensity,
+      0,
+      2
+    );
+    this.centerLight.position.set(0, lightY, 1 * this.worldScale);
     this.centerLight.castShadow = true;
     this.centerLight.shadow.mapSize.width = 2048;
     this.centerLight.shadow.mapSize.height = 2048;
@@ -55,7 +69,11 @@ export class LightManager {
     this.centerLight.shadow.radius = 8;
     this.gameContext.scene.add(this.centerLight);
 
-    const sideBulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const sideBulbGeometry = new THREE.BoxGeometry(
+      0.1 * this.worldScale,
+      0.1 * this.worldScale,
+      0.1 * this.worldScale
+    );
     const sideBulbMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
       emissive: 0xffaa77,
@@ -65,10 +83,23 @@ export class LightManager {
     });
 
     this.sideBulbMesh = new THREE.Mesh(sideBulbGeometry, sideBulbMaterial);
-    this.sideBulbMesh.position.set(1.5, 0.5, -1);
+    this.sideBulbMesh.position.set(
+      1.5 * this.worldScale,
+      0.5 * this.worldScale,
+      -1 * this.worldScale
+    );
 
-    this.sideLight = new THREE.PointLight(0xffaa66, 18, 0, 2);
-    this.sideLight.position.set(1.5, 0.5, -1);
+    this.sideLight = new THREE.PointLight(
+      0xffaa66,
+      this.defaultSideLightIntensity,
+      0,
+      2
+    );
+    this.sideLight.position.set(
+      1.5 * this.worldScale,
+      0.5 * this.worldScale,
+      -1 * this.worldScale
+    );
     this.sideLight.castShadow = true;
     this.sideLight.shadow.mapSize.width = 1024;
     this.sideLight.shadow.mapSize.height = 1024;
@@ -82,7 +113,11 @@ export class LightManager {
   }
   // ---- Создает боковую лампочку ----
   addSideLightBulb() {
-    const bulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const bulbGeometry = new THREE.BoxGeometry(
+      0.1 * this.worldScale,
+      0.1 * this.worldScale,
+      0.1 * this.worldScale
+    );
     const bulbMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
       emissive: 0xffaa77,
@@ -97,7 +132,12 @@ export class LightManager {
     const z = (Math.random() - 0.5) * this.config.widthWallSide;
     bulbMesh.position.set(x, y, z);
 
-    const pointLight = new THREE.PointLight(0xffaa66, 18, 6, 1.7);
+    const pointLight = new THREE.PointLight(
+      0xffaa66,
+      this.defaultSideLightIntensity,
+      this.defaultSideLightDistance,
+      1.7
+    );
     pointLight.position.copy(bulbMesh.position);
     pointLight.castShadow = false;
 
@@ -135,15 +175,31 @@ export class LightManager {
 
     const pointLight = bulbMesh.userData.light;
     if (!pointLight) return;
+    const intensityRangeMax = Math.max(
+      50,
+      this.defaultSideLightIntensity * 4,
+      pointLight.intensity * 1.5
+    );
+    const distanceRangeMax = Math.max(
+      20,
+      this.defaultSideLightDistance * 3,
+      pointLight.distance * 1.5
+    );
 
     const colorInput = document.getElementById("light-color-picker");
     if (colorInput) colorInput.value = "#" + pointLight.color.getHexString();
 
     const intensityInput = document.getElementById("light-intensity");
-    if (intensityInput) intensityInput.value = String(pointLight.intensity);
+    if (intensityInput) {
+      intensityInput.max = String(intensityRangeMax);
+      intensityInput.value = String(pointLight.intensity);
+    }
 
     const distanceInput = document.getElementById("light-distance");
-    if (distanceInput) distanceInput.value = String(pointLight.distance);
+    if (distanceInput) {
+      distanceInput.max = String(distanceRangeMax);
+      distanceInput.value = String(pointLight.distance);
+    }
 
     const decayInput = document.getElementById("light-decay");
     if (decayInput) decayInput.value = String(pointLight.decay);

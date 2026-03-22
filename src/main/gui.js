@@ -41,8 +41,12 @@ export class GuiClass {
     const sceneClass = this.sceneClass;
     const pointLight = sceneClass.centerLight;
     const bulbMesh = sceneClass.lightBulbMesh;
+    const worldScale = sceneClass.config?.worldScale || 1;
+    const lightPositionLimit = 10 * worldScale;
 
     if (!pointLight || !bulbMesh) return;
+    const intensityLimit = Math.max(50, pointLight.intensity * 2);
+    const distanceLimit = Math.max(50 * worldScale, pointLight.distance * 2);
 
     const lightParams = {
       lightColor: "#" + pointLight.color.getHexString(),
@@ -58,17 +62,17 @@ export class GuiClass {
     const syncBulb = () => bulbMesh.position.copy(pointLight.position);
 
     const ctrlPosX = posFolder
-      .add(pointLight.position, "x", -10, 10, 0.01)
+      .add(pointLight.position, "x", -lightPositionLimit, lightPositionLimit, 0.01)
       .name("X")
       .listen()
       .onChange(syncBulb);
     const ctrlPosY = posFolder
-      .add(pointLight.position, "y", -10, 10, 0.01)
+      .add(pointLight.position, "y", -lightPositionLimit, lightPositionLimit, 0.01)
       .name("Y")
       .listen()
       .onChange(syncBulb);
     const ctrlPosZ = posFolder
-      .add(pointLight.position, "z", -10, 10, 0.01)
+      .add(pointLight.position, "z", -lightPositionLimit, lightPositionLimit, 0.01)
       .name("Z")
       .listen()
       .onChange(syncBulb);
@@ -77,11 +81,11 @@ export class GuiClass {
 
     this.lightControllers.push(
       this.lightFolder
-        .add(pointLight, "intensity", 0, 50, 0.1)
+        .add(pointLight, "intensity", 0, intensityLimit, 0.1)
         .name("Яркость")
         .listen(),
       this.lightFolder
-        .add(pointLight, "distance", 0, 50, 0.1)
+        .add(pointLight, "distance", 0, distanceLimit, 0.1)
         .name("Дальность")
         .listen(),
       this.lightFolder

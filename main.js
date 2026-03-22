@@ -11,6 +11,9 @@ console.clear();
 
 const gameContext = {};
 gameContext.clock = new THREE.Clock();
+gameContext.sceneConfig = {
+  worldScale: 10,
+};
 
 startScene();
 
@@ -49,6 +52,7 @@ async function initFunctions() {
   initLightSelectionUI();
   initRugSelectionUI();
   initFurnitureSelectionUI();
+  initTableLampSelectionUI();
   initBottomBtns();
 
   const myScene = gameContext.sceneClass;
@@ -99,24 +103,10 @@ function initBottomBtns() {
     };
   }
 
-  const deleteTableBtn = document.getElementById("delete-table");
-  if (deleteTableBtn) {
-    deleteTableBtn.onclick = () => {
-      gameContext.sceneClass.deleteTable();
-    };
-  }
-
   const addTableLampBtn = document.getElementById("add-table-lamp");
   if (addTableLampBtn) {
     addTableLampBtn.onclick = () => {
       gameContext.sceneClass.addTableLamp();
-    };
-  }
-
-  const deleteTableLampBtn = document.getElementById("delete-table-lamp");
-  if (deleteTableLampBtn) {
-    deleteTableLampBtn.onclick = () => {
-      gameContext.sceneClass.deleteTableLamp();
     };
   }
 }
@@ -160,6 +150,22 @@ function createSelectionUI() {
 function initLightSelectionUI() {
   const lightUI = document.getElementById("light-selection-ui");
   if (!lightUI) return;
+  const worldScale = gameContext.sceneConfig?.worldScale || 1;
+  const worldScaleSquared = worldScale * worldScale;
+  const defaultLightIntensity = 18 * worldScaleSquared;
+  const defaultLightDistance = 6 * worldScale;
+
+  const intensityInput = document.getElementById("light-intensity");
+  if (intensityInput) {
+    intensityInput.max = String(Math.max(defaultLightIntensity * 4, 50));
+    intensityInput.value = String(defaultLightIntensity);
+  }
+
+  const distanceInput = document.getElementById("light-distance");
+  if (distanceInput) {
+    distanceInput.max = String(Math.max(defaultLightDistance * 3, 20));
+    distanceInput.value = String(defaultLightDistance);
+  }
 
   const getSelected = () => {
     const bulbMesh = gameContext.sceneClass.selectedLightBulb;
@@ -261,6 +267,31 @@ function initLightSelectionUI() {
 function initRugSelectionUI() {
   const btnClose = document.getElementById("btn-close-rug");
   if (!btnClose) return;
+  const { widthWallFront, widthWallSide } = gameContext.sceneClass.config;
+  const rugWidthInput = document.getElementById("rug-width");
+  const rugDepthInput = document.getElementById("rug-depth");
+  const rugPosXInput = document.getElementById("rug-pos-x");
+  const rugPosZInput = document.getElementById("rug-pos-z");
+
+  if (rugWidthInput) {
+    rugWidthInput.min = String(gameContext.sceneConfig.worldScale);
+    rugWidthInput.max = String(widthWallFront * 0.95);
+  }
+
+  if (rugDepthInput) {
+    rugDepthInput.min = String(gameContext.sceneConfig.worldScale);
+    rugDepthInput.max = String(widthWallSide * 0.95);
+  }
+
+  if (rugPosXInput) {
+    rugPosXInput.min = String(-widthWallFront / 2);
+    rugPosXInput.max = String(widthWallFront / 2);
+  }
+
+  if (rugPosZInput) {
+    rugPosZInput.min = String(-widthWallSide / 2);
+    rugPosZInput.max = String(widthWallSide / 2);
+  }
 
   btnClose.onclick = () => {
     gameContext.sceneClass.deselectRug();
@@ -292,6 +323,29 @@ function initRugSelectionUI() {
 function initFurnitureSelectionUI() {
   const btnClose = document.getElementById("btn-close-furniture");
   if (!btnClose) return;
+  const { widthWallFront, widthWallSide } = gameContext.sceneClass.config;
+  const furnitureWidthInput = document.getElementById("furniture-width");
+  const furnitureDepthInput = document.getElementById("furniture-depth");
+  const furniturePosXInput = document.getElementById("furniture-pos-x");
+  const furniturePosZInput = document.getElementById("furniture-pos-z");
+
+  if (furnitureWidthInput) {
+    furnitureWidthInput.max = String(widthWallFront * 0.9);
+  }
+
+  if (furnitureDepthInput) {
+    furnitureDepthInput.max = String(widthWallSide * 0.9);
+  }
+
+  if (furniturePosXInput) {
+    furniturePosXInput.min = String(-widthWallFront / 2);
+    furniturePosXInput.max = String(widthWallFront / 2);
+  }
+
+  if (furniturePosZInput) {
+    furniturePosZInput.min = String(-widthWallSide / 2);
+    furniturePosZInput.max = String(widthWallSide / 2);
+  }
 
   btnClose.onclick = () => {
     gameContext.sceneClass.deselectFurniture();
@@ -322,13 +376,83 @@ function initFurnitureSelectionUI() {
   document
     .getElementById("furniture-rotation")
     .addEventListener("input", (event) => {
-      gameContext.sceneClass.updateFurnitureRotation(Number(event.target.value));
+      gameContext.sceneClass.updateFurnitureRotation(
+        Number(event.target.value)
+      );
     });
 
   const deleteFurnitureBtn = document.getElementById("btn-delete-furniture");
   if (deleteFurnitureBtn) {
     deleteFurnitureBtn.onclick = () => {
       gameContext.sceneClass.deleteTable();
+    };
+  }
+}
+
+// ---- Подключает UI настольной лампы ----
+function initTableLampSelectionUI() {
+  const btnClose = document.getElementById("btn-close-table-lamp");
+  if (!btnClose) return;
+  const { widthWallFront, widthWallSide, heightWall } = gameContext.sceneClass.config;
+  const lampPosXInput = document.getElementById("table-lamp-pos-x");
+  const lampPosYInput = document.getElementById("table-lamp-pos-y");
+  const lampPosZInput = document.getElementById("table-lamp-pos-z");
+
+  if (lampPosXInput) {
+    lampPosXInput.min = String(-widthWallFront / 2);
+    lampPosXInput.max = String(widthWallFront / 2);
+  }
+
+  if (lampPosYInput) {
+    lampPosYInput.min = String(-heightWall / 2);
+    lampPosYInput.max = String(heightWall / 2);
+  }
+
+  if (lampPosZInput) {
+    lampPosZInput.min = String(-widthWallSide / 2);
+    lampPosZInput.max = String(widthWallSide / 2);
+  }
+
+  btnClose.onclick = () => {
+    gameContext.sceneClass.deselectTableLamp();
+  };
+
+  const updateTableLamp = () => {
+    const width = Number(document.getElementById("table-lamp-width").value);
+    const height = Number(document.getElementById("table-lamp-height").value);
+    const posX = Number(document.getElementById("table-lamp-pos-x").value);
+    const posY = Number(document.getElementById("table-lamp-pos-y").value);
+    const posZ = Number(document.getElementById("table-lamp-pos-z").value);
+
+    gameContext.sceneClass.updateTableLampTransform(
+      width,
+      height,
+      posX,
+      posY,
+      posZ
+    );
+  };
+
+  document
+    .getElementById("table-lamp-width")
+    .addEventListener("input", updateTableLamp);
+  document
+    .getElementById("table-lamp-height")
+    .addEventListener("input", updateTableLamp);
+  document
+    .getElementById("table-lamp-pos-x")
+    .addEventListener("input", updateTableLamp);
+  document
+    .getElementById("table-lamp-pos-y")
+    .addEventListener("input", updateTableLamp);
+  document
+    .getElementById("table-lamp-pos-z")
+    .addEventListener("input", updateTableLamp);
+
+  const deleteLampBtn = document.getElementById("btn-delete-table-lamp-ui");
+  if (deleteLampBtn) {
+    deleteLampBtn.onclick = () => {
+      gameContext.sceneClass.deleteTableLamp();
     };
   }
 }
@@ -381,4 +505,3 @@ function startAnimationLoop() {
     render();
   });
 }
-

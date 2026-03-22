@@ -11,13 +11,15 @@ export class SceneClass {
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.onWallChanged = null;
+    const worldScale = gameContext.sceneConfig?.worldScale || 1;
 
     this.config = {
-      cellSize: 0.5,
-      panelDepth: 0.05,
-      widthWallFront: 5,
-      heightWall: 2.7,
-      widthWallSide: 4,
+      worldScale,
+      cellSize: 0.5 * worldScale,
+      panelDepth: 0.05 * worldScale,
+      widthWallFront: 5 * worldScale,
+      heightWall: 2.7 * worldScale,
+      widthWallSide: 4 * worldScale,
     };
 
     this.roomManager = new RoomManager(gameContext, this.config, () => {
@@ -97,6 +99,22 @@ export class SceneClass {
     this.furnitureManager.deleteTableLamp();
   }
 
+  // ---- Выбирает настольную лампу ----
+  selectTableLamp(lamp) {
+    this.clearSelections();
+    this.furnitureManager.selectLamp(lamp);
+  }
+
+  // ---- Снимает выбор настольной лампы ----
+  deselectTableLamp() {
+    this.furnitureManager.deselectLamp();
+  }
+
+  // ---- Обновляет трансформацию настольной лампы ----
+  updateTableLampTransform(width, height, posX, posY, posZ) {
+    this.furnitureManager.updateLampTransform(width, height, posX, posY, posZ);
+  }
+
   // ---- Выбирает мебель ----
   selectFurniture(furniture) {
     this.clearSelections();
@@ -147,6 +165,7 @@ export class SceneClass {
     this.lightManager.deselectLightBulb();
     this.rugManager.deselectRug();
     this.furnitureManager.deselectFurniture();
+    this.furnitureManager.deselectLamp();
   }
 
   // ---- Снимает выбор панели ----

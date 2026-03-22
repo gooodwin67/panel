@@ -6,6 +6,7 @@ export class InitClass {
   // ---- Собирает базовую сцену ----
   constructor(gameContext) {
     this.gameContext = gameContext;
+    const worldScale = gameContext.sceneConfig?.worldScale || 1;
 
     this.onWindowResize = this.onWindowResize.bind(this);
 
@@ -14,12 +15,12 @@ export class InitClass {
     this.camera = new THREE.PerspectiveCamera(
       40,
       window.innerWidth / window.innerHeight,
-      0.1,
-      40
+      0.1 * worldScale,
+      40 * worldScale
     );
     this.camera.position.x = 0;
     this.camera.position.y = 0;
-    this.camera.position.z = 10;
+    this.camera.position.z = 10 * worldScale;
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

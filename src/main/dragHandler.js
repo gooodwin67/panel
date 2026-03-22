@@ -6,6 +6,7 @@ export class PanelDragHandler {
     this.gameContext = gameContext;
     this.walls = walls;
 
+    this.worldScale = sceneConfig.worldScale || 1;
     this.cellSize = sceneConfig.cellSize || 0.5;
     this.panelDepth = sceneConfig.panelDepth || 0.05;
 
@@ -245,7 +246,7 @@ export class PanelDragHandler {
     this.canPlace = true;
     this.ghostMesh.visible = true;
     this.applyMaterialProperties(this.ghostMesh, { clippingPlanes: [] });
-    this.raycaster.ray.at(10, this.ghostMesh.position);
+    this.raycaster.ray.at(10 * this.worldScale, this.ghostMesh.position);
     this.ghostMesh.quaternion.copy(this.gameContext.camera.quaternion);
   }
 
@@ -306,7 +307,7 @@ export class PanelDragHandler {
     const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
       this.currentWall.quaternion
     );
-    worldPosition.add(normal.multiplyScalar(0.005));
+    worldPosition.add(normal.multiplyScalar(this.panelDepth * 0.1));
 
     this.currentWall.add(newPanel);
     this.currentWall.worldToLocal(worldPosition);

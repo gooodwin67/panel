@@ -6,6 +6,11 @@ export class AssetsManager {
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.loader = new GLTFLoader();
+    this.worldScale = gameContext.sceneConfig?.worldScale || 1;
+    this.basePanelCellSize = 0.5;
+    this.basePanelGap = 0.01;
+    this.panelTargetSize =
+      this.basePanelCellSize * this.worldScale - this.basePanelGap;
     this.panels = [];
     this.furniture = {
       table: null,
@@ -39,6 +44,16 @@ export class AssetsManager {
           child.scale.set(1, 2, 1);
           meshesToProcess.push(child);
         });
+
+        root.updateMatrixWorld(true);
+        const bounds = new THREE.Box3().setFromObject(root);
+        const size = bounds.getSize(new THREE.Vector3());
+        const faceDimensions = [size.x, size.y, size.z]
+          .filter((value) => value > 0)
+          .sort((a, b) => b - a);
+        const sourceFaceSize = faceDimensions[1] || faceDimensions[0] || 1;
+        const panelScale = this.panelTargetSize / sourceFaceSize;
+        root.scale.multiplyScalar(panelScale);
 
         meshesToProcess.forEach((child) => {
           const oldMaterial = child.material;
@@ -78,6 +93,9 @@ export class AssetsManager {
       this.loader.loadAsync("models/mebel/table.gltf"),
       this.loader.loadAsync("models/mebel/lampgltf.gltf"),
     ]);
+
+    tableModel.scene.scale.multiplyScalar(this.worldScale);
+    lampModel.scene.scale.multiplyScalar(this.worldScale);
 
     this.furniture.table = tableModel.scene;
     this.furniture.tableLamp = lampModel.scene;
