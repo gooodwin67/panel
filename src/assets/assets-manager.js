@@ -9,6 +9,7 @@ export class AssetsManager {
     this.panels = [];
     this.furniture = {
       table: null,
+      tableLamp: null,
     };
     this.panelUrls = [
       "models/panels/panel1.gltf",
@@ -73,7 +74,12 @@ export class AssetsManager {
 
   // ---- Загружает мебель ----
   async loadFurniture() {
-    const tableModel = await this.loader.loadAsync("models/mebel/table.gltf");
+    const [tableModel, lampModel] = await Promise.all([
+      this.loader.loadAsync("models/mebel/table.gltf"),
+      this.loader.loadAsync("models/mebel/lampgltf.gltf"),
+    ]);
+
     this.furniture.table = tableModel.scene;
+    this.furniture.tableLamp = lampModel.scene;
   }
 }

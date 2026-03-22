@@ -58,6 +58,9 @@
                   <button id="random_shuffle" class="action-btn">🔀 <span class="btn-text">Случайное расположение</span></button>
                   <button id="toglle_net" class="action-btn">🔲 <span class="btn-text">Вкл/выкл сетку</span></button>
                   <button id="add-table" class="action-btn primary">🪑 <span class="btn-text">Добавить стол</span></button>
+                  <button id="delete-table" class="action-btn">🗑️ <span class="btn-text">Удалить стол</span></button>
+                  <button id="add-table-lamp" class="action-btn">💡 <span class="btn-text">Добавить лампу</span></button>
+                  <button id="delete-table-lamp" class="action-btn">🗑️ <span class="btn-text">Удалить лампу</span></button>
 
                   <div class="color-picker-group action-btn">
                      🎨 <span class="btn-text">Цвет:</span>
@@ -193,6 +196,14 @@
                <span>??? Z:</span>
                <input type="range" id="furniture-pos-z" min="-4" max="4" step="0.1" value="0">
             </div>
+            <div class="ui-row">
+               <span>Поворот:</span>
+               <input type="range" id="furniture-rotation" min="0" max="3" step="1" value="0">
+               <span id="furniture-rotation-value">0°</span>
+            </div>
+            <div class="ui-row">
+               <button id="btn-delete-furniture" class="action-btn" style="width:100%; background: rgba(255,50,50,0.2); border-color:#ff3232; color:#ff3232;">Удалить стол</button>
+            </div>
          </div>
       </div>
 
@@ -229,3 +240,4 @@
 </body>
 
 </html>
+

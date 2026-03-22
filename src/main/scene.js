@@ -82,6 +82,21 @@ export class SceneClass {
     return this.furnitureManager.addTable();
   }
 
+  // ---- Удаляет стол из комнаты ----
+  deleteTable() {
+    this.furnitureManager.deleteTable();
+  }
+
+  // ---- Добавляет лампу на стол ----
+  addTableLamp() {
+    return this.furnitureManager.addTableLamp();
+  }
+
+  // ---- Удаляет лампу со стола ----
+  deleteTableLamp() {
+    this.furnitureManager.deleteTableLamp();
+  }
+
   // ---- Выбирает мебель ----
   selectFurniture(furniture) {
     this.clearSelections();
@@ -96,6 +111,11 @@ export class SceneClass {
   // ---- Обновляет трансформацию мебели ----
   updateFurnitureTransform(width, depth, posX, posZ) {
     this.furnitureManager.updateFurnitureTransform(width, depth, posX, posZ);
+  }
+
+  // ---- Поворачивает мебель ----
+  updateFurnitureRotation(step) {
+    this.furnitureManager.updateFurnitureRotation(step);
   }
 
   // ---- Обрабатывает выбор панели ----

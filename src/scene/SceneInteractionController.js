@@ -27,6 +27,12 @@
       return;
     }
 
+    const hitLamp = this.sceneClass.furnitureManager.hitLampTest(event);
+    if (hitLamp) {
+      this.sceneClass.furnitureManager.startDragLamp(hitLamp, event);
+      return;
+    }
+
     const hitFurniture = this.sceneClass.furnitureManager.hitTest(event);
     if (hitFurniture) {
       this.sceneClass.selectFurniture(hitFurniture);
@@ -51,12 +57,22 @@
       return;
     }
 
+    if (this.sceneClass.furnitureManager.isDraggingLamp) {
+      this.sceneClass.furnitureManager.onPointerMoveLamp(event);
+      return;
+    }
+
     this.dragHandler.onPointerMove(event);
   }
 // ---- Обрабатывает отпускание указателя ----
   onPointerUp(event) {
     if (this.sceneClass.lightManager.isDraggingLightBulb) {
       this.sceneClass.lightManager.stopDragLightBulb();
+      return;
+    }
+
+    if (this.sceneClass.furnitureManager.isDraggingLamp) {
+      this.sceneClass.furnitureManager.stopDragLamp();
       return;
     }
 

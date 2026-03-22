@@ -98,6 +98,27 @@ function initBottomBtns() {
       gameContext.sceneClass.addTable();
     };
   }
+
+  const deleteTableBtn = document.getElementById("delete-table");
+  if (deleteTableBtn) {
+    deleteTableBtn.onclick = () => {
+      gameContext.sceneClass.deleteTable();
+    };
+  }
+
+  const addTableLampBtn = document.getElementById("add-table-lamp");
+  if (addTableLampBtn) {
+    addTableLampBtn.onclick = () => {
+      gameContext.sceneClass.addTableLamp();
+    };
+  }
+
+  const deleteTableLampBtn = document.getElementById("delete-table-lamp");
+  if (deleteTableLampBtn) {
+    deleteTableLampBtn.onclick = () => {
+      gameContext.sceneClass.deleteTableLamp();
+    };
+  }
 }
 
 // ---- Подключает UI панели ----
@@ -297,6 +318,19 @@ function initFurnitureSelectionUI() {
   document
     .getElementById("furniture-pos-z")
     .addEventListener("input", updateFurniture);
+
+  document
+    .getElementById("furniture-rotation")
+    .addEventListener("input", (event) => {
+      gameContext.sceneClass.updateFurnitureRotation(Number(event.target.value));
+    });
+
+  const deleteFurnitureBtn = document.getElementById("btn-delete-furniture");
+  if (deleteFurnitureBtn) {
+    deleteFurnitureBtn.onclick = () => {
+      gameContext.sceneClass.deleteTable();
+    };
+  }
 }
 
 // ---- Обновляет кадр ----
@@ -347,3 +381,4 @@ function startAnimationLoop() {
     render();
   });
 }
+

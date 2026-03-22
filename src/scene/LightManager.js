@@ -1,12 +1,12 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 
 export class LightManager {
-// ---- Готовит состояние света ----
+  // ---- Готовит состояние света ----
   constructor(gameContext, config) {
     this.gameContext = gameContext;
     this.config = config;
 
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
     this.centerLight = null;
     this.lightBulbMesh = null;
     this.sideLight = null;
@@ -22,12 +22,13 @@ export class LightManager {
     this.pointer = new THREE.Vector2();
     this.raycaster = new THREE.Raycaster();
   }
-// ---- Создает свет сцены ----
+
+  // ---- Создает свет сцены ----
   createScene() {
     this.createCenterLight();
     this.addAmbientLight();
   }
-// ---- Создает основной свет ----
+  // ---- Создает основной свет ----
   createCenterLight() {
     const { heightWall } = this.config;
 
@@ -44,12 +45,14 @@ export class LightManager {
     this.lightBulbMesh.position.set(0, lightY, 0);
     this.gameContext.scene.add(this.lightBulbMesh);
 
-    this.centerLight = new THREE.PointLight(0xffe6c2, 60, 0, 2);
+    this.centerLight = new THREE.PointLight(0xffe6c2, 52, 0, 2);
     this.centerLight.position.set(0, lightY, 1);
     this.centerLight.castShadow = true;
-    this.centerLight.shadow.mapSize.width = 1024;
-    this.centerLight.shadow.mapSize.height = 1024;
-    this.centerLight.shadow.bias = -0.0001;
+    this.centerLight.shadow.mapSize.width = 2048;
+    this.centerLight.shadow.mapSize.height = 2048;
+    this.centerLight.shadow.bias = -0.00003;
+    this.centerLight.shadow.normalBias = 0.02;
+    this.centerLight.shadow.radius = 8;
     this.gameContext.scene.add(this.centerLight);
 
     const sideBulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
@@ -64,18 +67,20 @@ export class LightManager {
     this.sideBulbMesh = new THREE.Mesh(sideBulbGeometry, sideBulbMaterial);
     this.sideBulbMesh.position.set(1.5, 0.5, -1);
 
-    this.sideLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
+    this.sideLight = new THREE.PointLight(0xffaa66, 18, 0, 2);
     this.sideLight.position.set(1.5, 0.5, -1);
     this.sideLight.castShadow = true;
     this.sideLight.shadow.mapSize.width = 1024;
     this.sideLight.shadow.mapSize.height = 1024;
-    this.sideLight.shadow.bias = -0.0001;
+    this.sideLight.shadow.bias = -0.00003;
+    this.sideLight.shadow.normalBias = 0.02;
+    this.sideLight.shadow.radius = 6;
   }
-// ---- Добавляет атмосферный свет ----
+  // ---- Добавляет атмосферный свет ----
   addAmbientLight() {
     this.gameContext.scene.add(this.ambientLight);
   }
-// ---- Создает боковую лампочку ----
+  // ---- Создает боковую лампочку ----
   addSideLightBulb() {
     const bulbGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
     const bulbMaterial = new THREE.MeshStandardMaterial({
@@ -92,7 +97,7 @@ export class LightManager {
     const z = (Math.random() - 0.5) * this.config.widthWallSide;
     bulbMesh.position.set(x, y, z);
 
-    const pointLight = new THREE.PointLight(0xffaa66, 20, 0, 2);
+    const pointLight = new THREE.PointLight(0xffaa66, 18, 6, 1.7);
     pointLight.position.copy(bulbMesh.position);
     pointLight.castShadow = false;
 
@@ -107,7 +112,7 @@ export class LightManager {
       light: pointLight,
     });
   }
-// ---- Выбирает лампочку ----
+  // ---- Выбирает лампочку ----
   selectLightBulb(bulbMesh) {
     this.selectedLightBulb = bulbMesh;
 
@@ -116,14 +121,14 @@ export class LightManager {
 
     this.refreshLightBulbUI();
   }
-// ---- Снимает выбор лампочки ----
+  // ---- Снимает выбор лампочки ----
   deselectLightBulb() {
     this.selectedLightBulb = null;
 
     const lightUI = document.querySelector(".light-selection-ui");
     if (lightUI) lightUI.style.display = "none";
   }
-// ---- Синхронизирует UI лампочки ----
+  // ---- Синхронизирует UI лампочки ----
   refreshLightBulbUI() {
     const bulbMesh = this.selectedLightBulb;
     if (!bulbMesh) return;
@@ -155,7 +160,7 @@ export class LightManager {
       emissiveInput.value = String(bulbMesh.material.emissiveIntensity);
     }
   }
-// ---- Ищет попадание по лампочке ----
+  // ---- Ищет попадание по лампочке ----
   findLightBulbHit(event) {
     const bulbMeshes = this.lightBulbs.map((entry) => entry.mesh);
     if (bulbMeshes.length === 0) return null;
@@ -168,7 +173,7 @@ export class LightManager {
 
     return intersects[0].object;
   }
-// ---- Стартует перенос лампочки ----
+  // ---- Стартует перенос лампочки ----
   startDragLightBulb(bulbMesh, event) {
     this.isDraggingLightBulb = true;
     this.draggedLightBulbMesh = bulbMesh;
@@ -201,7 +206,7 @@ export class LightManager {
       this.lightDragOffset.set(0, 0, 0);
     }
   }
-// ---- Обновляет перенос лампочки ----
+  // ---- Обновляет перенос лампочки ----
   onPointerMoveLightBulb(event) {
     if (!this.isDraggingLightBulb || !this.draggedLightBulbMesh) return;
 
@@ -228,7 +233,7 @@ export class LightManager {
       pointLight.position.copy(newPosition);
     }
   }
-// ---- Останавливает перенос лампочки ----
+  // ---- Останавливает перенос лампочки ----
   stopDragLightBulb() {
     this.isDraggingLightBulb = false;
     this.draggedLightBulbMesh = null;
@@ -237,7 +242,7 @@ export class LightManager {
       this.gameContext.controls.enabled = true;
     }
   }
-// ---- Считает координаты указателя ----
+  // ---- Считает координаты указателя ----
   updatePointer(event) {
     const canvas = this.gameContext.renderer.domElement;
     const rect = canvas.getBoundingClientRect();

@@ -4,7 +4,7 @@ const _tempVec = new THREE.Vector3();
 const _tempNormal = new THREE.Vector3();
 
 export class RoomManager {
-// ---- Готовит ресурсы комнаты ----
+  // ---- Готовит ресурсы комнаты ----
   constructor(gameContext, config, onWallChanged) {
     this.gameContext = gameContext;
     this.config = config;
@@ -26,25 +26,30 @@ export class RoomManager {
     this.wallTexture.anisotropy =
       this.gameContext.renderer.capabilities.getMaxAnisotropy();
 
-    this.wallNormal = this.textureLoader.load("textures/1/wall-normal.jpg");
-    this.wallRoughness = this.textureLoader.load("textures/1/wall-roughness.jpg");
-    this.wallNormal.wrapS = THREE.RepeatWrapping;
-    this.wallNormal.wrapT = THREE.RepeatWrapping;
+    this.wallRoughness = this.textureLoader.load(
+      "textures/1/wall-roughness.jpg"
+    );
     this.wallRoughness.wrapS = THREE.RepeatWrapping;
     this.wallRoughness.wrapT = THREE.RepeatWrapping;
 
     this.floorTexture = this.textureLoader.load("textures/1/floor-color.jpg");
     this.floorNormal = this.textureLoader.load("textures/1/floor-normal.jpg");
-    this.floorRoughness = this.textureLoader.load("textures/1/floor-roughness.jpg");
-    [this.floorTexture, this.floorNormal, this.floorRoughness].forEach((tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-    });
+    this.floorRoughness = this.textureLoader.load(
+      "textures/1/floor-roughness.jpg"
+    );
+    [this.floorTexture, this.floorNormal, this.floorRoughness].forEach(
+      (tex) => {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+      }
+    );
     this.floorTexture.colorSpace = THREE.SRGBColorSpace;
     this.floorTexture.anisotropy =
       this.gameContext.renderer.capabilities.getMaxAnisotropy();
 
-    this.ceilingTexture = this.textureLoader.load("textures/1/ceiling-color.jpg");
+    this.ceilingTexture = this.textureLoader.load(
+      "textures/1/ceiling-color.jpg"
+    );
     this.ceilingTexture.wrapS = THREE.RepeatWrapping;
     this.ceilingTexture.wrapT = THREE.RepeatWrapping;
     this.ceilingTexture.colorSpace = THREE.SRGBColorSpace;
@@ -53,12 +58,12 @@ export class RoomManager {
 
     this.createWalls();
   }
-// ---- Создает комнату ----
+  // ---- Создает комнату ----
   createScene() {
     this.loadWalls();
     this.createFloorAndCeiling();
   }
-// ---- Создает стены ----
+  // ---- Создает стены ----
   createWalls() {
     const { widthWallFront, heightWall, widthWallSide } = this.config;
 
@@ -79,7 +84,7 @@ export class RoomManager {
 
     this.walls = [this.wall, this.wall2, this.wall3, this.wall4];
   }
-// ---- Строит одну стену ----
+  // ---- Строит одну стену ----
   createWallPlane(width, height) {
     const geometry = new THREE.PlaneGeometry(width, height);
     const repeatX = width / this.config.cellSize;
@@ -91,9 +96,7 @@ export class RoomManager {
     wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.needsUpdate = true;
 
-    const normalTexture = this.wallNormal.clone();
     const roughTexture = this.wallRoughness.clone();
-    normalTexture.repeat.set(repeatX, repeatY);
     roughTexture.repeat.set(repeatX, repeatY);
 
     const gridTexture = this.baseGridTexture.clone();
@@ -110,9 +113,7 @@ export class RoomManager {
 
     const material = new THREE.MeshStandardMaterial({
       map: wallTexture,
-      normalMap: normalTexture,
       roughnessMap: roughTexture,
-      normalScale: new THREE.Vector2(0.3, 0.3),
       alphaMap: gridTexture,
       transparent: true,
       color: 0xffffff,
@@ -140,11 +141,11 @@ export class RoomManager {
 
     return mesh;
   }
-// ---- Добавляет стены в сцену ----
+  // ---- Добавляет стены в сцену ----
   loadWalls() {
     this.walls.forEach((wall) => this.gameContext.scene.add(wall));
   }
-// ---- Создает пол и потолок ----
+  // ---- Создает пол и потолок ----
   createFloorAndCeiling() {
     const { widthWallFront, widthWallSide, heightWall } = this.config;
     const geometry = new THREE.PlaneGeometry(widthWallFront, widthWallSide);
@@ -193,7 +194,7 @@ export class RoomManager {
     this.ceiling.receiveShadow = true;
     this.gameContext.scene.add(this.ceiling);
   }
-// ---- Меняет цвет комнаты ----
+  // ---- Меняет цвет комнаты ----
   setRoomColor(target, hexColor) {
     if (target === "floor" && this.floor) {
       this.floor.material.color.setHex(hexColor);
@@ -201,7 +202,7 @@ export class RoomManager {
       this.ceiling.material.color.setHex(hexColor);
     }
   }
-// ---- Ловит выбор стены ----
+  // ---- Ловит выбор стены ----
   handleWallSelection(event) {
     const pointer = this.getPointer(event);
     const raycaster = new THREE.Raycaster();
@@ -212,7 +213,7 @@ export class RoomManager {
       this.setActiveWall(intersects[0].object);
     }
   }
-// ---- Сохраняет активную стену ----
+  // ---- Сохраняет активную стену ----
   setActiveWall(wallMesh) {
     const nextIndex = this.walls.indexOf(wallMesh);
     if (nextIndex === -1) return;
@@ -222,7 +223,7 @@ export class RoomManager {
       this.onWallChanged();
     }
   }
-// ---- Подсвечивает стену ----
+  // ---- Подсвечивает стену ----
   highlightActiveWall() {
     this.walls.forEach((wall, index) => {
       const isActive = index === this.activeWallIndex;
@@ -230,7 +231,7 @@ export class RoomManager {
       wall.material.opacity = !isActive ? 0.8 : 0.4;
     });
   }
-// ---- Показывает сетку стены ----
+  // ---- Показывает сетку стены ----
   toggleNet() {
     this.isNetVisible = !this.isNetVisible;
 
@@ -243,7 +244,7 @@ export class RoomManager {
       wall.material.needsUpdate = true;
     });
   }
-// ---- Красит все стены ----
+  // ---- Красит все стены ----
   setAllWallsColor(colorValue) {
     this.walls.forEach((wall) => {
       if (wall.material?.color) {
@@ -251,7 +252,7 @@ export class RoomManager {
       }
     });
   }
-// ---- Создает текстуру сетки ----
+  // ---- Создает текстуру сетки ----
   createGridTexture() {
     const canvas = document.createElement("canvas");
     canvas.width = 128;
@@ -273,7 +274,7 @@ export class RoomManager {
 
     return texture;
   }
-// ---- Создает пустую текстуру ----
+  // ---- Создает пустую текстуру ----
   createBlankTexture() {
     const canvas = document.createElement("canvas");
     canvas.width = 128;
@@ -292,7 +293,7 @@ export class RoomManager {
 
     return texture;
   }
-// ---- Считает координаты указателя ----
+  // ---- Считает координаты указателя ----
   getPointer(event) {
     const canvas = this.gameContext.renderer.domElement;
     const rect = canvas.getBoundingClientRect();
