@@ -1,7 +1,7 @@
-import { S as he, P as ue, W as de, a as A, b as ge, A as me, O as pe, c as fe, R as k, V as F, d as b, e as N, f as ye, B as R, M as B, g as E, h as _, Q as K, i as V, E as be, L as we, j as Me, T as le, k as M, l as $, F as j, C as ie, m as se, n as J, o as W, G as ne, D as Q, p as xe, q as Se, r as Ce, s as Le } from "./three-DkjEceXl.js";
-let et;
+import { S as ce, P as ue, W as de, a as A, b as ge, A as me, O as pe, c as fe, R as X, V as R, d as b, e as k, f as ye, B as O, M as F, g as D, h as _, Q as K, i as G, E as be, L as Me, j as we, T as le, k as w, l as $, F as V, C as ie, m as se, n as J, o as T, G as ne, D as Q, p as xe, q as Se, r as Ce, s as Le, t as Ie } from "./three-CLYm0m9O.js";
+let tt;
 let __tla = (async () => {
-  et = function() {
+  tt = function() {
     import.meta.url, import("_").then(async (m) => {
       await m.__tla;
       return m;
@@ -29,25 +29,25 @@ let __tla = (async () => {
       fetch(n.href, s);
     }
   })();
-  class Ie {
+  class Pe {
     constructor(e) {
       var _a;
       this.gameContext = e;
       const t = ((_a = e.sceneConfig) == null ? void 0 : _a.worldScale) || 1;
-      this.onWindowResize = this.onWindowResize.bind(this), this.scene = new he(), this.camera = new ue(40, window.innerWidth / window.innerHeight, 0.1 * t, 40 * t), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10 * t, this.renderer = new de({
+      this.onWindowResize = this.onWindowResize.bind(this), this.scene = new ce(), this.camera = new ue(40, window.innerWidth / window.innerHeight, 0.1 * t, 40 * t), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10 * t, this.renderer = new de({
         antialias: true
       }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = A, this.renderer.shadowMap.enabled = true, this.renderer.shadowMap.type = ge, this.renderer.toneMapping = me, this.renderer.toneMappingExposure = 0.58, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new pe(this.camera, this.renderer.domElement), this.controls.rotateSpeed = 0.5, this.gameContext.controls = this.controls, this.stats = new fe(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
     }
     onWindowResize() {
       const i = window.innerWidth, n = window.innerHeight, s = Math.min(i, 1920), a = Math.min(n, 1080);
       this.renderer.setSize(s, a, false);
-      const r = this.renderer.domElement;
-      r.style.position = "fixed", r.style.left = "50%", r.style.top = "50%", r.style.transform = "translate(-50%, -50%)", r.style.width = s + "px", r.style.height = a + "px", this.camera.aspect = s / a, this.camera.updateProjectionMatrix();
+      const o = this.renderer.domElement;
+      o.style.position = "fixed", o.style.left = "50%", o.style.top = "50%", o.style.transform = "translate(-50%, -50%)", o.style.width = s + "px", o.style.height = a + "px", this.camera.aspect = s / a, this.camera.updateProjectionMatrix();
     }
   }
-  class Pe {
+  class ve {
     constructor(e, t, i) {
-      this.gameContext = e, this.walls = t, this.worldScale = i.worldScale || 1, this.cellSize = i.cellSize || 0.5, this.panelDepth = i.panelDepth || 0.05, this.raycaster = new k(), this.pointer = new F(), this.mouseDownPointer = new F(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
+      this.gameContext = e, this.walls = t, this.worldScale = i.worldScale || 1, this.cellSize = i.cellSize || 0.5, this.panelDepth = i.panelDepth || 0.05, this.raycaster = new X(), this.pointer = new R(), this.mouseDownPointer = new R(), this.isDragging = false, this.ghostMesh = null, this.draggedPanelIndex = null, this.currentWall = null, this.canPlace = false, this.pendingPanel = null, this.savedColor = null;
     }
     handlePointerDown(e) {
       this.updatePointer(e), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
@@ -109,16 +109,16 @@ let __tla = (async () => {
     }
     snapToGrid(e, t) {
       const i = t.geometry.parameters.width, n = t.geometry.parameters.height, s = t.userData.gridTexture, a = t.worldToLocal(e.point.clone());
-      let r = a.x / i + 0.5, l = a.y / n + 0.5;
-      r = r * s.repeat.x + s.offset.x, l = l * s.repeat.y + s.offset.y;
-      const o = Math.floor(r), d = Math.floor(l);
-      if (t.children.some((x) => x.userData.isPanel && x.userData.gridX === o && x.userData.gridY === d)) {
+      let o = a.x / i + 0.5, l = a.y / n + 0.5;
+      o = o * s.repeat.x + s.offset.x, l = l * s.repeat.y + s.offset.y;
+      const r = Math.floor(o), u = Math.floor(l);
+      if (t.children.some((x) => x.userData.isPanel && x.userData.gridX === r && x.userData.gridY === u)) {
         this.ghostMesh.visible = false, this.canPlace = false;
         return;
       }
-      this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = o, this.ghostMesh.userData.gridY = d;
-      const m = (o + 0.5 - s.offset.x) / s.repeat.x, p = (d + 0.5 - s.offset.y) / s.repeat.y, w = (m - 0.5) * i, S = (p - 0.5) * n;
-      a.x = w, a.y = S, a.z = 0;
+      this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = r, this.ghostMesh.userData.gridY = u;
+      const m = (r + 0.5 - s.offset.x) / s.repeat.x, p = (u + 0.5 - s.offset.y) / s.repeat.y, M = (m - 0.5) * i, S = (p - 0.5) * n;
+      a.x = M, a.y = S, a.z = 0;
       const f = t.localToWorld(a);
       this.ghostMesh.position.copy(f), this.ghostMesh.quaternion.copy(t.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
     }
@@ -147,7 +147,7 @@ let __tla = (async () => {
         cloneMaterial: true
       }), this.savedColor !== null ? this.applyColor(i, this.savedColor) : this.gameContext.sceneClass.globalPanelColor !== null && this.applyColor(i, this.gameContext.sceneClass.globalPanelColor);
       const s = this.ghostMesh.position.clone(), a = new b(0, 0, 1).applyQuaternion(this.currentWall.quaternion);
-      s.add(a.multiplyScalar(this.panelDepth * 0.1)), this.currentWall.add(i), this.currentWall.worldToLocal(s), i.position.copy(s), i.rotation.set(0, 0, 0), i.rotateX(Math.PI / 2), this.gameContext.sceneClass.onPanelSelected(i);
+      s.add(a.multiplyScalar(this.panelDepth * 0.25)), this.currentWall.add(i), this.currentWall.worldToLocal(s), i.position.copy(s), i.rotation.set(0, 0, 0), i.rotateX(Math.PI / 2), this.gameContext.sceneClass.onPanelSelected(i);
     }
     applyColor(e, t) {
       e.traverse((i) => {
@@ -184,55 +184,55 @@ let __tla = (async () => {
     getWallClippingPlanes(e) {
       const t = e.geometry.parameters.width, i = e.geometry.parameters.height, n = new b(1, 0, 0).applyQuaternion(e.quaternion), s = new b(0, 1, 0).applyQuaternion(e.quaternion), a = e.position;
       return [
-        new N().setFromNormalAndCoplanarPoint(n.clone().negate(), a.clone().add(n.clone().multiplyScalar(t / 2))),
-        new N().setFromNormalAndCoplanarPoint(n.clone(), a.clone().add(n.clone().multiplyScalar(-t / 2))),
-        new N().setFromNormalAndCoplanarPoint(s.clone().negate(), a.clone().add(s.clone().multiplyScalar(i / 2))),
-        new N().setFromNormalAndCoplanarPoint(s.clone(), a.clone().add(s.clone().multiplyScalar(-i / 2)))
+        new k().setFromNormalAndCoplanarPoint(n.clone().negate(), a.clone().add(n.clone().multiplyScalar(t / 2))),
+        new k().setFromNormalAndCoplanarPoint(n.clone(), a.clone().add(n.clone().multiplyScalar(-t / 2))),
+        new k().setFromNormalAndCoplanarPoint(s.clone().negate(), a.clone().add(s.clone().multiplyScalar(i / 2))),
+        new k().setFromNormalAndCoplanarPoint(s.clone(), a.clone().add(s.clone().multiplyScalar(-i / 2)))
       ];
     }
   }
-  class ve {
+  class Be {
     constructor(e, t) {
-      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.worldScaleSquared = this.worldScale * this.worldScale, this.defaultCenterLightIntensity = 52 * this.worldScaleSquared, this.defaultSideLightIntensity = 18 * this.worldScaleSquared, this.defaultSideLightDistance = 6 * this.worldScale, this.ambientLight = new ye(16777215, 0.18), this.centerLight = null, this.lightBulbMesh = null, this.sideLight = null, this.sideBulbMesh = null, this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new N(), this.lightDragIntersectionPoint = new b(), this.lightDragOffset = new b(), this.pointer = new F(), this.raycaster = new k();
+      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.worldScaleSquared = this.worldScale * this.worldScale, this.defaultCenterLightIntensity = 52 * this.worldScaleSquared, this.defaultSideLightIntensity = 18 * this.worldScaleSquared, this.defaultSideLightDistance = 6 * this.worldScale, this.ambientLight = new ye(16777215, 0.18), this.centerLight = null, this.lightBulbMesh = null, this.sideLight = null, this.sideBulbMesh = null, this.lightBulbs = [], this.selectedLightBulb = null, this.isDraggingLightBulb = false, this.draggedLightBulbMesh = null, this.lightDragPlane = new k(), this.lightDragIntersectionPoint = new b(), this.lightDragOffset = new b(), this.pointer = new R(), this.raycaster = new X();
     }
     createScene() {
       this.createCenterLight(), this.addAmbientLight();
     }
     createCenterLight() {
-      const { heightWall: e } = this.config, t = new R(1 * this.worldScale, 0.05 * this.worldScale, 1 * this.worldScale), i = new B({
+      const { heightWall: e } = this.config, t = new O(1 * this.worldScale, 0.05 * this.worldScale, 1 * this.worldScale), i = new F({
         color: 1118481,
         emissive: 16777198,
         emissiveIntensity: 2,
         roughness: 0.7
       });
-      this.lightBulbMesh = new E(t, i);
+      this.lightBulbMesh = new D(t, i);
       const n = e / 2 - 0.03 * this.worldScale;
       this.lightBulbMesh.position.set(0, n, 0), this.gameContext.scene.add(this.lightBulbMesh), this.centerLight = new _(16770754, this.defaultCenterLightIntensity, 0, 2), this.centerLight.position.set(0, n, 1 * this.worldScale), this.centerLight.castShadow = true, this.centerLight.shadow.mapSize.width = 2048, this.centerLight.shadow.mapSize.height = 2048, this.centerLight.shadow.bias = -3e-5, this.centerLight.shadow.normalBias = 0.02, this.centerLight.shadow.radius = 8, this.gameContext.scene.add(this.centerLight);
-      const s = new R(0.1 * this.worldScale, 0.1 * this.worldScale, 0.1 * this.worldScale), a = new B({
+      const s = new O(0.1 * this.worldScale, 0.1 * this.worldScale, 0.1 * this.worldScale), a = new F({
         color: 0,
         emissive: 16755319,
         emissiveIntensity: 2,
         roughness: 0.8,
         metalness: 0.8
       });
-      this.sideBulbMesh = new E(s, a), this.sideBulbMesh.position.set(1.5 * this.worldScale, 0.5 * this.worldScale, -1 * this.worldScale), this.sideLight = new _(16755302, this.defaultSideLightIntensity, 0, 2), this.sideLight.position.set(1.5 * this.worldScale, 0.5 * this.worldScale, -1 * this.worldScale), this.sideLight.castShadow = true, this.sideLight.shadow.mapSize.width = 1024, this.sideLight.shadow.mapSize.height = 1024, this.sideLight.shadow.bias = -3e-5, this.sideLight.shadow.normalBias = 0.02, this.sideLight.shadow.radius = 6;
+      this.sideBulbMesh = new D(s, a), this.sideBulbMesh.position.set(1.5 * this.worldScale, 0.5 * this.worldScale, -1 * this.worldScale), this.sideLight = new _(16755302, this.defaultSideLightIntensity, 0, 2), this.sideLight.position.set(1.5 * this.worldScale, 0.5 * this.worldScale, -1 * this.worldScale), this.sideLight.castShadow = true, this.sideLight.shadow.mapSize.width = 1024, this.sideLight.shadow.mapSize.height = 1024, this.sideLight.shadow.bias = -3e-5, this.sideLight.shadow.normalBias = 0.02, this.sideLight.shadow.radius = 6;
     }
     addAmbientLight() {
       this.gameContext.scene.add(this.ambientLight);
     }
     addSideLightBulb() {
-      const e = new R(0.1 * this.worldScale, 0.1 * this.worldScale, 0.1 * this.worldScale), t = new B({
+      const e = new O(0.1 * this.worldScale, 0.1 * this.worldScale, 0.1 * this.worldScale), t = new F({
         color: 0,
         emissive: 16755319,
         emissiveIntensity: 2,
         roughness: 0.8,
         metalness: 0.8
-      }), i = new E(e, t), n = (Math.random() - 0.5) * this.config.widthWallFront, s = (Math.random() - 0.5) * this.config.heightWall, a = (Math.random() - 0.5) * this.config.widthWallSide;
+      }), i = new D(e, t), n = (Math.random() - 0.5) * this.config.widthWallFront, s = (Math.random() - 0.5) * this.config.heightWall, a = (Math.random() - 0.5) * this.config.widthWallSide;
       i.position.set(n, s, a);
-      const r = new _(16755302, this.defaultSideLightIntensity, this.defaultSideLightDistance, 1.7);
-      r.position.copy(i.position), r.castShadow = false, i.userData.isLightBulb = true, i.userData.light = r, this.gameContext.scene.add(i), this.gameContext.scene.add(r), this.lightBulbs.push({
+      const o = new _(16755302, this.defaultSideLightIntensity, this.defaultSideLightDistance, 1.7);
+      o.position.copy(i.position), o.castShadow = false, i.userData.isLightBulb = true, i.userData.light = o, this.gameContext.scene.add(i), this.gameContext.scene.add(o), this.lightBulbs.push({
         mesh: i,
-        light: r
+        light: o
       });
     }
     selectLightBulb(e) {
@@ -254,14 +254,14 @@ let __tla = (async () => {
       s && (s.value = "#" + t.color.getHexString());
       const a = document.getElementById("light-intensity");
       a && (a.max = String(i), a.value = String(t.intensity));
-      const r = document.getElementById("light-distance");
-      r && (r.max = String(n), r.value = String(t.distance));
+      const o = document.getElementById("light-distance");
+      o && (o.max = String(n), o.value = String(t.distance));
       const l = document.getElementById("light-decay");
       l && (l.value = String(t.decay));
-      const o = document.getElementById("bulb-visible");
-      o && (o.checked = e.visible);
-      const d = document.getElementById("bulb-emissive");
-      d && e.material && e.material.emissiveIntensity !== void 0 && (d.value = String(e.material.emissiveIntensity));
+      const r = document.getElementById("bulb-visible");
+      r && (r.checked = e.visible);
+      const u = document.getElementById("bulb-emissive");
+      u && e.material && e.material.emissiveIntensity !== void 0 && (u.value = String(e.material.emissiveIntensity));
     }
     findLightBulbHit(e) {
       const t = this.lightBulbs.map((n) => n.mesh);
@@ -290,14 +290,14 @@ let __tla = (async () => {
       this.pointer.x = (e.clientX - i.left) / i.width * 2 - 1, this.pointer.y = -((e.clientY - i.top) / i.height * 2 - 1);
     }
   }
-  class Be {
+  class Ee {
     constructor(e) {
       this.roomManager = e, this.selectedPanel = null, this.animatingPanels = [], this.globalPanelColor = null;
     }
     updateAnimations(e) {
       for (let n = this.animatingPanels.length - 1; n >= 0; n--) {
-        const s = this.animatingPanels[n], a = !!s.userData.targetQuaternion, r = !!s.userData.targetPosition;
-        a && (s.quaternion.slerp(s.userData.targetQuaternion, e * 10), s.quaternion.angleTo(s.userData.targetQuaternion) < 0.01 && (s.quaternion.copy(s.userData.targetQuaternion), delete s.userData.targetQuaternion)), r && (s.position.lerp(s.userData.targetPosition, e * 10), s.position.distanceTo(s.userData.targetPosition) < 1e-3 && (s.position.copy(s.userData.targetPosition), delete s.userData.targetPosition)), !s.userData.targetQuaternion && !s.userData.targetPosition && this.animatingPanels.splice(n, 1);
+        const s = this.animatingPanels[n], a = !!s.userData.targetQuaternion, o = !!s.userData.targetPosition;
+        a && (s.quaternion.slerp(s.userData.targetQuaternion, e * 10), s.quaternion.angleTo(s.userData.targetQuaternion) < 0.01 && (s.quaternion.copy(s.userData.targetQuaternion), delete s.userData.targetQuaternion)), o && (s.position.lerp(s.userData.targetPosition, e * 10), s.position.distanceTo(s.userData.targetPosition) < 1e-3 && (s.position.copy(s.userData.targetPosition), delete s.userData.targetPosition)), !s.userData.targetQuaternion && !s.userData.targetPosition && this.animatingPanels.splice(n, 1);
       }
     }
     randomRotate() {
@@ -317,25 +317,25 @@ let __tla = (async () => {
     }
     shufflePanelsOnWalls() {
       this.roomManager.walls.forEach((e) => {
-        const t = e.children.filter((o) => o.userData && o.userData.isPanel);
+        const t = e.children.filter((r) => r.userData && r.userData.isPanel);
         if (t.length < 2) return;
-        const i = t.map((o) => ({
-          gridX: o.userData.gridX,
-          gridY: o.userData.gridY
+        const i = t.map((r) => ({
+          gridX: r.userData.gridX,
+          gridY: r.userData.gridY
         })), n = this.roomManager.config.panelDepth * 0.1;
-        for (let o = i.length - 1; o > 0; o--) {
-          const d = Math.floor(Math.random() * (o + 1)), g = i[o];
-          i[o] = i[d], i[d] = g;
+        for (let r = i.length - 1; r > 0; r--) {
+          const u = Math.floor(Math.random() * (r + 1)), g = i[r];
+          i[r] = i[u], i[u] = g;
         }
-        const s = e.geometry.parameters.width, a = e.geometry.parameters.height, r = e.userData.gridTexture;
-        if (!r) return;
-        function l(o, d) {
-          const g = o + 0.5, m = d + 0.5, p = (g - r.offset.x) / r.repeat.x, w = (m - r.offset.y) / r.repeat.y;
-          return new b((p - 0.5) * s, (w - 0.5) * a, n);
+        const s = e.geometry.parameters.width, a = e.geometry.parameters.height, o = e.userData.gridTexture;
+        if (!o) return;
+        function l(r, u) {
+          const g = r + 0.5, m = u + 0.5, p = (g - o.offset.x) / o.repeat.x, M = (m - o.offset.y) / o.repeat.y;
+          return new b((p - 0.5) * s, (M - 0.5) * a, n);
         }
-        t.forEach((o, d) => {
-          const g = i[d];
-          o.userData.gridX = g.gridX, o.userData.gridY = g.gridY, o.userData.targetPosition = l(g.gridX, g.gridY), this.enqueueAnimation(o);
+        t.forEach((r, u) => {
+          const g = i[u];
+          r.userData.gridX = g.gridX, r.userData.gridY = g.gridY, r.userData.targetPosition = l(g.gridX, g.gridY), this.enqueueAnimation(r);
         });
       });
     }
@@ -385,7 +385,7 @@ let __tla = (async () => {
       e && (this.selectedPanel.remove(e), e.geometry && e.geometry.dispose(), e.material && e.material.dispose());
     }
     addSelectionOutline(e) {
-      const t = new V(), i = new b();
+      const t = new G(), i = new b();
       e.updateMatrixWorld(true);
       const n = e.matrixWorld.clone().invert();
       let s = false;
@@ -393,18 +393,18 @@ let __tla = (async () => {
         if (m.isMesh && m.geometry) {
           const p = m.geometry.attributes.position;
           if (!p) return;
-          for (let w = 0; w < p.count; w++) i.fromBufferAttribute(p, w), i.applyMatrix4(m.matrixWorld), i.applyMatrix4(n), t.expandByPoint(i);
+          for (let M = 0; M < p.count; M++) i.fromBufferAttribute(p, M), i.applyMatrix4(m.matrixWorld), i.applyMatrix4(n), t.expandByPoint(i);
           s = true;
         }
       }), s || t.set(new b(-0.25, -0.25, 0), new b(0.25, 0.25, 0.05));
-      const a = new b(), r = new b();
-      t.getSize(a), t.getCenter(r), a.multiplyScalar(1.02);
-      const l = new R(a.x, a.y, a.z), o = new be(l), d = new we({
+      const a = new b(), o = new b();
+      t.getSize(a), t.getCenter(o), a.multiplyScalar(1.02);
+      const l = new O(a.x, a.y, a.z), r = new be(l), u = new Me({
         color: 65535,
         depthTest: false,
         depthWrite: false
-      }), g = new Me(o, d);
-      g.position.copy(r), g.name = "selection_outline", g.raycast = () => {
+      }), g = new we(r, u);
+      g.position.copy(o), g.name = "selection_outline", g.raycast = () => {
       }, e.add(g);
     }
     enqueueAnimation(e) {
@@ -419,16 +419,16 @@ let __tla = (async () => {
       }), e;
     }
   }
-  const q = new b(), ae = new b();
-  class Ee {
+  const j = new b(), ae = new b();
+  class De {
     constructor(e, t, i) {
-      this.gameContext = e, this.config = t, this.onWallChanged = i, this.floor = null, this.ceiling = null, this.isNetVisible = true, this.activeWallIndex = 0, this.textureLoader = new le(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.wallTexture = this.textureLoader.load("textures/1/wall-color.jpg"), this.wallTexture.wrapS = M, this.wallTexture.wrapT = M, this.wallTexture.colorSpace = A, this.wallTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.wallRoughness = this.textureLoader.load("textures/1/wall-roughness.jpg"), this.wallRoughness.wrapS = M, this.wallRoughness.wrapT = M, this.floorTexture = this.textureLoader.load("textures/1/floor-color.jpg"), this.floorNormal = this.textureLoader.load("textures/1/floor-normal.jpg"), this.floorRoughness = this.textureLoader.load("textures/1/floor-roughness.jpg"), [
+      this.gameContext = e, this.config = t, this.onWallChanged = i, this.floor = null, this.ceiling = null, this.isNetVisible = true, this.activeWallIndex = 0, this.textureLoader = new le(), this.baseGridTexture = this.createGridTexture(), this.baseBlankTexture = this.createBlankTexture(), this.wallTexture = this.textureLoader.load("textures/1/wall-color.jpg"), this.wallTexture.wrapS = w, this.wallTexture.wrapT = w, this.wallTexture.colorSpace = A, this.wallTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.wallRoughness = this.textureLoader.load("textures/1/wall-roughness.jpg"), this.wallRoughness.wrapS = w, this.wallRoughness.wrapT = w, this.floorTexture = this.textureLoader.load("textures/1/floor-color.jpg"), this.floorNormal = this.textureLoader.load("textures/1/floor-normal.jpg"), this.floorRoughness = this.textureLoader.load("textures/1/floor-roughness.jpg"), [
         this.floorTexture,
         this.floorNormal,
         this.floorRoughness
       ].forEach((n) => {
-        n.wrapS = M, n.wrapT = M;
-      }), this.floorTexture.colorSpace = A, this.floorTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.ceilingTexture = this.textureLoader.load("textures/1/ceiling-color.jpg"), this.ceilingTexture.wrapS = M, this.ceilingTexture.wrapT = M, this.ceilingTexture.colorSpace = A, this.ceilingTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.createWalls();
+        n.wrapS = w, n.wrapT = w;
+      }), this.floorTexture.colorSpace = A, this.floorTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.ceilingTexture = this.textureLoader.load("textures/1/ceiling-color.jpg"), this.ceilingTexture.wrapS = w, this.ceilingTexture.wrapT = w, this.ceilingTexture.colorSpace = A, this.ceilingTexture.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), this.createWalls();
     }
     createScene() {
       this.loadWalls(), this.createFloorAndCeiling();
@@ -444,28 +444,28 @@ let __tla = (async () => {
     }
     createWallPlane(e, t) {
       const i = new $(e, t), n = e / this.config.cellSize, s = t / this.config.cellSize, a = this.wallTexture.clone();
-      a.repeat.set(e / 2, t / 2), a.wrapS = M, a.wrapT = M, a.needsUpdate = true;
-      const r = this.wallRoughness.clone();
-      r.repeat.set(n, s);
+      a.repeat.set(e / 2, t / 2), a.wrapS = w, a.wrapT = w, a.needsUpdate = true;
+      const o = this.wallRoughness.clone();
+      o.repeat.set(n, s);
       const l = this.baseGridTexture.clone();
-      l.repeat.set(n, s), l.wrapS = M, l.wrapT = M, l.needsUpdate = true;
-      const o = this.baseBlankTexture.clone();
-      o.repeat.set(n, s), o.wrapS = M, o.wrapT = M, o.needsUpdate = true;
-      const d = new B({
+      l.repeat.set(n, s), l.wrapS = w, l.wrapT = w, l.needsUpdate = true;
+      const r = this.baseBlankTexture.clone();
+      r.repeat.set(n, s), r.wrapS = w, r.wrapT = w, r.needsUpdate = true;
+      const u = new F({
         map: a,
-        roughnessMap: r,
+        roughnessMap: o,
         alphaMap: l,
         transparent: true,
         color: 16777215,
         roughness: 1,
         metalness: 0,
-        side: j
+        side: V
       });
-      d.envMapIntensity = 0.8;
-      const g = new E(i, d);
-      return g.userData.gridTexture = l, g.userData.blankTexture = o, g.receiveShadow = true, g.onBeforeRender = (m, p, w) => {
-        g.getWorldPosition(q), q.subVectors(w.position, q), ae.set(0, 0, 1).transformDirection(g.matrixWorld);
-        const S = q.dot(ae) > 0;
+      u.envMapIntensity = 0.8;
+      const g = new D(i, u);
+      return g.userData.gridTexture = l, g.userData.blankTexture = r, g.receiveShadow = true, g.onBeforeRender = (m, p, M) => {
+        g.getWorldPosition(j), j.subVectors(M.position, j), ae.set(0, 0, 1).transformDirection(g.matrixWorld);
+        const S = j.dot(ae) > 0;
         g.children.forEach((f) => {
           f.visible = S;
         });
@@ -475,39 +475,39 @@ let __tla = (async () => {
       this.walls.forEach((e) => this.gameContext.scene.add(e));
     }
     createFloorAndCeiling() {
-      const { widthWallFront: e, widthWallSide: t, heightWall: i } = this.config, n = new $(e, t), s = e / 2, a = t / 2, r = this.floorTexture.clone(), l = this.floorNormal.clone(), o = this.floorRoughness.clone();
+      const { widthWallFront: e, widthWallSide: t, heightWall: i } = this.config, n = new $(e, t), s = e / 2, a = t / 2, o = this.floorTexture.clone(), l = this.floorNormal.clone(), r = this.floorRoughness.clone();
       [
-        r,
+        o,
         l,
-        o
+        r
       ].forEach((p) => {
         p.repeat.set(s, a), p.needsUpdate = true;
       });
-      const d = new B({
+      const u = new F({
         color: 16777215,
-        map: r,
+        map: o,
         normalMap: l,
-        roughnessMap: o,
+        roughnessMap: r,
         roughness: 1,
         metalness: 0.1,
-        side: j
+        side: V
       });
-      this.floor = new E(n, d), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -i / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
+      this.floor = new D(n, u), this.floor.rotation.x = -Math.PI / 2, this.floor.position.y = -i / 2, this.floor.receiveShadow = true, this.gameContext.scene.add(this.floor);
       const g = this.ceilingTexture.clone();
       g.repeat.set(s, a), g.needsUpdate = true;
-      const m = new B({
+      const m = new F({
         color: 16777215,
         map: g,
         roughness: 0.9,
-        side: j
+        side: V
       });
-      this.ceiling = new E(n, m), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = i / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
+      this.ceiling = new D(n, m), this.ceiling.rotation.x = Math.PI / 2, this.ceiling.position.y = i / 2, this.ceiling.receiveShadow = true, this.gameContext.scene.add(this.ceiling);
     }
     setRoomColor(e, t) {
       e === "floor" && this.floor ? this.floor.material.color.setHex(t) : e === "ceiling" && this.ceiling && this.ceiling.material.color.setHex(t);
     }
     handleWallSelection(e) {
-      const t = this.getPointer(e), i = new k();
+      const t = this.getPointer(e), i = new X();
       i.setFromCamera(t, this.gameContext.camera);
       const n = i.intersectObjects(this.walls, false);
       n.length > 0 && this.setActiveWall(n[0].object);
@@ -551,25 +551,25 @@ let __tla = (async () => {
     }
     getPointer(e) {
       const i = this.gameContext.renderer.domElement.getBoundingClientRect();
-      return new F((e.clientX - i.left) / i.width * 2 - 1, -((e.clientY - i.top) / i.height * 2 - 1));
+      return new R((e.clientX - i.left) / i.width * 2 - 1, -((e.clientY - i.top) / i.height * 2 - 1));
     }
   }
-  class De {
+  class We {
     constructor(e, t) {
-      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.rug = null, this.selectedRug = null, this.raycaster = new k(), this.pointer = new F();
+      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.rug = null, this.selectedRug = null, this.raycaster = new X(), this.pointer = new R();
     }
     createScene() {
-      const { heightWall: e } = this.config, t = 4 * this.worldScale, i = 3 * this.worldScale, n = new R(t, 5e-3 * this.worldScale, i), s = new le(), a = s.load("textures/1/carpet-color.jpg"), r = s.load("textures/1/carpet-normal.jpg");
-      a.wrapS = M, a.wrapT = M, a.repeat.set(t, i), r.wrapS = M, r.wrapT = M, r.repeat.set(t, i), a.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), a.colorSpace = A, a.generateMipmaps = true, a.minFilter = J;
-      const l = new B({
+      const { heightWall: e } = this.config, t = 4 * this.worldScale, i = 3 * this.worldScale, n = new O(t, 5e-3 * this.worldScale, i), s = new le(), a = s.load("textures/1/carpet-color.jpg"), o = s.load("textures/1/carpet-normal.jpg");
+      a.wrapS = w, a.wrapT = w, a.repeat.set(t, i), o.wrapS = w, o.wrapT = w, o.repeat.set(t, i), a.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), a.colorSpace = A, a.generateMipmaps = true, a.minFilter = J;
+      const l = new F({
         map: a,
-        bumpMap: r,
+        bumpMap: o,
         bumpScale: 0.08,
         color: 16777215,
         roughness: 0.98,
         metalness: 0
       });
-      this.rug = new E(n, l), this.rug.position.y = -e / 2 + 5e-3 * this.worldScale, this.rug.receiveShadow = true, this.rug.castShadow = false, this.rug.userData.isRug = true, this.rug.userData.baseWidth = t, this.rug.userData.baseDepth = i, this.gameContext.scene.add(this.rug);
+      this.rug = new D(n, l), this.rug.position.y = -e / 2 + 5e-3 * this.worldScale, this.rug.receiveShadow = true, this.rug.castShadow = false, this.rug.userData.isRug = true, this.rug.userData.baseWidth = t, this.rug.userData.baseDepth = i, this.gameContext.scene.add(this.rug);
     }
     hitTest(e) {
       return this.rug ? (this.updatePointer(e), this.raycaster.setFromCamera(this.pointer, this.gameContext.camera), this.raycaster.intersectObject(this.rug, false).length > 0) : false;
@@ -589,13 +589,13 @@ let __tla = (async () => {
     }
     updateRugTransform(e, t, i, n) {
       if (!this.rug) return;
-      const s = this.rug.userData.baseWidth, a = this.rug.userData.baseDepth, r = Math.max((this.config.widthWallFront - e) / 2, 0), l = Math.max((this.config.widthWallSide - t) / 2, 0);
-      this.rug.scale.set(e / s, 1, t / a), this.rug.position.x = W.clamp(i, -r, r), this.rug.position.z = W.clamp(n, -l, l), this.rug.material.map && this.rug.material.map.repeat.set(e, t), this.rug.material.bumpMap && this.rug.material.bumpMap.repeat.set(e, t), this.refreshRugUI();
+      const s = this.rug.userData.baseWidth, a = this.rug.userData.baseDepth, o = Math.max((this.config.widthWallFront - e) / 2, 0), l = Math.max((this.config.widthWallSide - t) / 2, 0);
+      this.rug.scale.set(e / s, 1, t / a), this.rug.position.x = T.clamp(i, -o, o), this.rug.position.z = T.clamp(n, -l, l), this.rug.material.map && this.rug.material.map.repeat.set(e, t), this.rug.material.bumpMap && this.rug.material.bumpMap.repeat.set(e, t), this.refreshRugUI();
     }
     refreshRugUI() {
       if (!this.rug) return;
-      const e = document.getElementById("rug-width"), t = document.getElementById("rug-depth"), i = document.getElementById("rug-pos-x"), n = document.getElementById("rug-pos-z"), s = this.rug.userData.baseWidth * this.rug.scale.x, a = this.rug.userData.baseDepth * this.rug.scale.z, r = Math.max(this.config.widthWallFront * 0.95, s), l = Math.max(this.config.widthWallSide * 0.95, a), o = Math.max(this.worldScale, 0.1), d = Math.max(this.worldScale, 0.1), g = Math.max((this.config.widthWallFront - s) / 2, 0), m = Math.max((this.config.widthWallSide - a) / 2, 0);
-      e && (e.min = String(o), e.max = String(r), e.value = String(s)), t && (t.min = String(d), t.max = String(l), t.value = String(a)), i && (i.min = String(-g), i.max = String(g), i.value = String(this.rug.position.x)), n && (n.min = String(-m), n.max = String(m), n.value = String(this.rug.position.z));
+      const e = document.getElementById("rug-width"), t = document.getElementById("rug-depth"), i = document.getElementById("rug-pos-x"), n = document.getElementById("rug-pos-z"), s = this.rug.userData.baseWidth * this.rug.scale.x, a = this.rug.userData.baseDepth * this.rug.scale.z, o = Math.max(this.config.widthWallFront * 0.95, s), l = Math.max(this.config.widthWallSide * 0.95, a), r = Math.max(this.worldScale, 0.1), u = Math.max(this.worldScale, 0.1), g = Math.max((this.config.widthWallFront - s) / 2, 0), m = Math.max((this.config.widthWallSide - a) / 2, 0);
+      e && (e.min = String(r), e.max = String(o), e.value = String(s)), t && (t.min = String(u), t.max = String(l), t.value = String(a)), i && (i.min = String(-g), i.max = String(g), i.value = String(this.rug.position.x)), n && (n.min = String(-m), n.max = String(m), n.value = String(this.rug.position.z));
     }
     changeRugColor(e) {
       var _a;
@@ -636,25 +636,25 @@ let __tla = (async () => {
     y: -0.2,
     z: 0
   };
-  class We {
+  class Te {
     constructor(e, t) {
-      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.furnitureItems = [], this.tableLamps = [], this.selectedFurniture = null, this.selectedLamp = null, this.raycaster = new k(), this.pointer = new F(), this._tempQuaternion = new K();
+      this.gameContext = e, this.config = t, this.worldScale = t.worldScale || 1, this.furnitureItems = [], this.tableLamps = [], this.selectedFurniture = null, this.selectedLamp = null, this.raycaster = new X(), this.pointer = new R(), this._tempQuaternion = new K();
     }
     addTable() {
       if (this.furnitureItems.length > 0) {
-        const o = this.furnitureItems[0];
-        return this.selectFurniture(o), o;
+        const r = this.furnitureItems[0];
+        return this.selectFurniture(r), r;
       }
       const e = this.gameContext.assetManager.furniture.table;
       if (!e) return console.warn("\u0421\u0442\u043E\u043B \u0435\u0449\u0435 \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D"), null;
       const t = new ne(), i = e.clone(true);
-      t.name = "table_".concat(this.furnitureItems.length + 1), t.userData.type = "table", t.userData.isFurniture = true, t.add(i), i.traverse((o) => {
-        o.isMesh && (o.castShadow = true, o.receiveShadow = false, Array.isArray(o.material) ? o.material = o.material.map((d) => d.clone()) : o.material && (o.material = o.material.clone()), this.tuneFurnitureMaterial(o));
+      t.name = "table_".concat(this.furnitureItems.length + 1), t.userData.type = "table", t.userData.isFurniture = true, t.add(i), i.traverse((r) => {
+        r.isMesh && (r.castShadow = true, r.receiveShadow = false, Array.isArray(r.material) ? r.material = r.material.map((u) => u.clone()) : r.material && (r.material = r.material.clone()), this.tuneFurnitureMaterial(r));
       });
-      const n = new V().setFromObject(i), s = n.getCenter(new b()), a = n.getSize(new b());
+      const n = new G().setFromObject(i), s = n.getCenter(new b()), a = n.getSize(new b());
       i.position.x -= s.x, i.position.y -= n.min.y, i.position.z -= s.z, t.userData.baseWidth = a.x, t.userData.baseDepth = a.z, t.userData.baseHeight = a.y, t.userData.rotationStep = 0;
-      const r = -this.config.heightWall / 2, l = re[this.furnitureItems.length % re.length];
-      return t.position.set(l.x * this.worldScale, r, l.z * this.worldScale), this.gameContext.scene.add(t), this.furnitureItems.push(t), this.selectFurniture(t), t;
+      const o = -this.config.heightWall / 2, l = re[this.furnitureItems.length % re.length];
+      return t.position.set(l.x * this.worldScale, o, l.z * this.worldScale), this.gameContext.scene.add(t), this.furnitureItems.push(t), this.selectFurniture(t), t;
     }
     deleteTable() {
       const e = this.furnitureItems[0];
@@ -662,16 +662,16 @@ let __tla = (async () => {
     }
     addTableLamp() {
       if (this.tableLamps.length > 0) {
-        const r = this.tableLamps[0];
-        return this.selectLamp(r), r;
+        const o = this.tableLamps[0];
+        return this.selectLamp(o), o;
       }
       const e = this.gameContext.assetManager.furniture.tableLamp;
       if (!e) return console.warn("\u041B\u0430\u043C\u043F\u0430 \u0435\u0449\u0435 \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u0430"), null;
       const t = new ne(), i = e.clone(true);
-      t.name = "table_lamp_".concat(this.tableLamps.length + 1), t.userData.isTableLamp = true, t.userData.type = "tableLamp", t.add(i), i.traverse((r) => {
-        r.isMesh && (r.castShadow = true, r.receiveShadow = false, Array.isArray(r.material) ? r.material = r.material.map((l) => l.clone()) : r.material && (r.material = r.material.clone()), this.tuneLampMaterial(r));
+      t.name = "table_lamp_".concat(this.tableLamps.length + 1), t.userData.isTableLamp = true, t.userData.type = "tableLamp", t.add(i), i.traverse((o) => {
+        o.isMesh && (o.castShadow = true, o.receiveShadow = false, Array.isArray(o.material) ? o.material = o.material.map((l) => l.clone()) : o.material && (o.material = o.material.clone()), this.tuneLampMaterial(o));
       });
-      const n = new V().setFromObject(i), s = n.getCenter(new b()), a = n.getSize(new b());
+      const n = new G().setFromObject(i), s = n.getCenter(new b()), a = n.getSize(new b());
       return i.position.x -= s.x, i.position.y -= n.min.y, i.position.z -= s.z, t.userData.baseWidth = a.x, t.userData.baseDepth = a.z, t.userData.baseHeight = a.y, t.position.set(Z.x * this.worldScale, Z.y * this.worldScale, Z.z * this.worldScale), this.gameContext.scene.add(t), this.tableLamps.push(t), this.selectLamp(t), t;
     }
     deleteTableLamp() {
@@ -732,16 +732,16 @@ let __tla = (async () => {
     refreshFurnitureUI() {
       const e = this.selectedFurniture;
       if (!e) return;
-      const t = document.getElementById("furniture-width"), i = document.getElementById("furniture-depth"), n = document.getElementById("furniture-pos-x"), s = document.getElementById("furniture-pos-z"), a = document.getElementById("furniture-rotation"), r = document.getElementById("furniture-rotation-value"), l = e.userData.baseWidth * e.scale.x, o = e.userData.baseDepth * e.scale.z, d = e.userData.rotationStep || 0, g = Math.max(this.config.widthWallFront * 0.9, l), m = Math.max(this.config.widthWallSide * 0.9, o), p = Math.max(e.userData.baseWidth * 0.5, 0.1), w = Math.max(e.userData.baseDepth * 0.5, 0.1), S = Math.max((this.config.widthWallFront - l) / 2, 0), f = Math.max((this.config.widthWallSide - o) / 2, 0);
-      t && (t.min = String(p), t.max = String(g), t.value = String(l)), i && (i.min = String(w), i.max = String(m), i.value = String(o)), n && (n.min = String(-S), n.max = String(S), n.value = String(e.position.x)), s && (s.min = String(-f), s.max = String(f), s.value = String(e.position.z)), a && (a.value = String(d)), r && (r.textContent = "".concat(d * 90, "\xB0"));
+      const t = document.getElementById("furniture-width"), i = document.getElementById("furniture-depth"), n = document.getElementById("furniture-pos-x"), s = document.getElementById("furniture-pos-z"), a = document.getElementById("furniture-rotation"), o = document.getElementById("furniture-rotation-value"), l = e.userData.baseWidth * e.scale.x, r = e.userData.baseDepth * e.scale.z, u = e.userData.rotationStep || 0, g = Math.max(this.config.widthWallFront * 0.9, l), m = Math.max(this.config.widthWallSide * 0.9, r), p = Math.max(e.userData.baseWidth * 0.5, 0.1), M = Math.max(e.userData.baseDepth * 0.5, 0.1), S = Math.max((this.config.widthWallFront - l) / 2, 0), f = Math.max((this.config.widthWallSide - r) / 2, 0);
+      t && (t.min = String(p), t.max = String(g), t.value = String(l)), i && (i.min = String(M), i.max = String(m), i.value = String(r)), n && (n.min = String(-S), n.max = String(S), n.value = String(e.position.x)), s && (s.min = String(-f), s.max = String(f), s.value = String(e.position.z)), a && (a.value = String(u)), o && (o.textContent = "".concat(u * 90, "\xB0"));
     }
     updateFurnitureTransform(e, t, i, n) {
       const s = this.selectedFurniture;
       if (!s) return;
-      const a = s.userData.baseWidth || 1, r = s.userData.baseDepth || 1;
-      s.scale.set(e / a, 1, t / r);
-      const l = Math.max((this.config.widthWallFront - e) / 2, 0), o = Math.max((this.config.widthWallSide - t) / 2, 0);
-      s.position.x = W.clamp(i, -l, l), s.position.z = W.clamp(n, -o, o), s.position.y = -this.config.heightWall / 2, this.refreshFurnitureUI();
+      const a = s.userData.baseWidth || 1, o = s.userData.baseDepth || 1;
+      s.scale.set(e / a, 1, t / o);
+      const l = Math.max((this.config.widthWallFront - e) / 2, 0), r = Math.max((this.config.widthWallSide - t) / 2, 0);
+      s.position.x = T.clamp(i, -l, l), s.position.z = T.clamp(n, -r, r), s.position.y = -this.config.heightWall / 2, this.refreshFurnitureUI();
     }
     updateFurnitureRotation(e) {
       const t = this.selectedFurniture;
@@ -764,21 +764,21 @@ let __tla = (async () => {
     refreshLampUI() {
       const e = this.selectedLamp;
       if (!e) return;
-      const t = document.getElementById("table-lamp-width"), i = document.getElementById("table-lamp-height"), n = document.getElementById("table-lamp-pos-x"), s = document.getElementById("table-lamp-pos-y"), a = document.getElementById("table-lamp-pos-z"), r = e.userData.baseWidth * e.scale.x, l = e.userData.baseHeight * e.scale.y, o = this.config.widthWallFront / 2, d = this.config.heightWall / 2, g = this.config.widthWallSide / 2;
-      t && (t.min = String(Math.max(e.userData.baseWidth * 0.5, 0.1)), t.max = String(Math.max(e.userData.baseWidth * 3, r)), t.value = String(r)), i && (i.min = String(Math.max(e.userData.baseHeight * 0.5, 0.1)), i.max = String(Math.max(e.userData.baseHeight * 3, l)), i.value = String(l)), n && (n.min = String(-o), n.max = String(o), n.value = String(e.position.x)), s && (s.min = String(-d), s.max = String(d), s.value = String(e.position.y)), a && (a.min = String(-g), a.max = String(g), a.value = String(e.position.z));
+      const t = document.getElementById("table-lamp-width"), i = document.getElementById("table-lamp-height"), n = document.getElementById("table-lamp-pos-x"), s = document.getElementById("table-lamp-pos-y"), a = document.getElementById("table-lamp-pos-z"), o = e.userData.baseWidth * e.scale.x, l = e.userData.baseHeight * e.scale.y, r = this.config.widthWallFront / 2, u = this.config.heightWall / 2, g = this.config.widthWallSide / 2;
+      t && (t.min = String(Math.max(e.userData.baseWidth * 0.5, 0.1)), t.max = String(Math.max(e.userData.baseWidth * 3, o)), t.value = String(o)), i && (i.min = String(Math.max(e.userData.baseHeight * 0.5, 0.1)), i.max = String(Math.max(e.userData.baseHeight * 3, l)), i.value = String(l)), n && (n.min = String(-r), n.max = String(r), n.value = String(e.position.x)), s && (s.min = String(-u), s.max = String(u), s.value = String(e.position.y)), a && (a.min = String(-g), a.max = String(g), a.value = String(e.position.z));
     }
     updateLampTransform(e, t, i, n, s) {
       const a = this.selectedLamp;
       if (!a) return;
-      const r = a.userData.baseWidth || 1, l = a.userData.baseHeight || 1, o = e / r;
-      a.scale.set(o, t / l, o), a.position.x = W.clamp(i, -this.config.widthWallFront / 2, this.config.widthWallFront / 2), a.position.y = W.clamp(n, -this.config.heightWall / 2, this.config.heightWall / 2), a.position.z = W.clamp(s, -this.config.widthWallSide / 2, this.config.widthWallSide / 2), this.refreshLampUI();
+      const o = a.userData.baseWidth || 1, l = a.userData.baseHeight || 1, r = e / o;
+      a.scale.set(r, t / l, r), a.position.x = T.clamp(i, -this.config.widthWallFront / 2, this.config.widthWallFront / 2), a.position.y = T.clamp(n, -this.config.heightWall / 2, this.config.heightWall / 2), a.position.z = T.clamp(s, -this.config.widthWallSide / 2, this.config.widthWallSide / 2), this.refreshLampUI();
     }
     updatePointer(e) {
       const i = this.gameContext.renderer.domElement.getBoundingClientRect();
       this.pointer.x = (e.clientX - i.left) / i.width * 2 - 1, this.pointer.y = -((e.clientY - i.top) / i.height * 2 - 1);
     }
   }
-  class Te {
+  class Ae {
     constructor(e, t) {
       this.sceneClass = e, this.dragHandler = t;
     }
@@ -823,7 +823,7 @@ let __tla = (async () => {
       this.dragHandler.onPointerUp(e);
     }
   }
-  class Ae {
+  class Fe {
     constructor(e) {
       var _a;
       this.gameContext = e, this.onWallChanged = null;
@@ -835,44 +835,44 @@ let __tla = (async () => {
         widthWallFront: 5 * t,
         heightWall: 2.7 * t,
         widthWallSide: 4 * t
-      }, this.roomManager = new Ee(e, this.config, () => {
+      }, this.roomManager = new De(e, this.config, () => {
         this.onWallChanged && this.onWallChanged();
-      }), this.panelManager = new Be(this.roomManager), this.lightManager = new ve(e, this.config), this.rugManager = new De(e, this.config), this.furnitureManager = new We(e, this.config), this.dragHandler = new Pe(e, this.roomManager.walls, this.config), this.interactionController = new Te(this, this.dragHandler);
+      }), this.panelManager = new Ee(this.roomManager), this.lightManager = new Be(e, this.config), this.rugManager = new We(e, this.config), this.furnitureManager = new Te(e, this.config), this.dragHandler = new ve(e, this.roomManager.walls, this.config), this.interactionController = new Ae(this, this.dragHandler);
     }
     createScene() {
       this.roomManager.createScene(), this.rugManager.createScene(), this.lightManager.createScene(), this.interactionController.bindEvents();
     }
     getSceneState() {
-      const e = this.panelManager.getAllPanels().map((r) => {
+      const e = this.panelManager.getAllPanels().map((o) => {
         let l = "#ffffff";
-        return r.traverse((o) => {
-          o.isMesh && o.material && l === "#ffffff" && (l = "#" + (Array.isArray(o.material) ? o.material[0] : o.material).color.getHexString());
+        return o.traverse((r) => {
+          r.isMesh && r.material && l === "#ffffff" && (l = "#" + (Array.isArray(r.material) ? r.material[0] : r.material).color.getHexString());
         }), {
-          wallIndex: this.roomManager.walls.indexOf(r.parent),
-          panelIndex: r.userData.panelIndex,
-          gridX: r.userData.gridX,
-          gridY: r.userData.gridY,
-          position: r.position.toArray(),
-          quaternion: r.quaternion.toArray(),
+          wallIndex: this.roomManager.walls.indexOf(o.parent),
+          panelIndex: o.userData.panelIndex,
+          gridX: o.userData.gridX,
+          gridY: o.userData.gridY,
+          position: o.position.toArray(),
+          quaternion: o.quaternion.toArray(),
           color: l
         };
-      }), t = this.roomManager.walls.map((r) => {
+      }), t = this.roomManager.walls.map((o) => {
         var _a, _b, _c;
         return {
-          color: ((_a = r.material) == null ? void 0 : _a.color) ? "#" + r.material.color.getHexString() : "#ffffff",
-          offsetX: ((_b = r.userData.gridTexture) == null ? void 0 : _b.offset.x) || 0,
-          offsetY: ((_c = r.userData.gridTexture) == null ? void 0 : _c.offset.y) || 0
+          color: ((_a = o.material) == null ? void 0 : _a.color) ? "#" + o.material.color.getHexString() : "#ffffff",
+          offsetX: ((_b = o.userData.gridTexture) == null ? void 0 : _b.offset.x) || 0,
+          offsetY: ((_c = o.userData.gridTexture) == null ? void 0 : _c.offset.y) || 0
         };
-      }), i = this.lightManager.lightBulbs.map(({ mesh: r, light: l }) => {
+      }), i = this.lightManager.lightBulbs.map(({ mesh: o, light: l }) => {
         var _a, _b;
         return {
-          position: r.position.toArray(),
+          position: o.position.toArray(),
           color: "#" + l.color.getHexString(),
           intensity: l.intensity,
           distance: l.distance,
           decay: l.decay,
-          visible: r.visible,
-          emissiveIntensity: (_b = (_a = r.material) == null ? void 0 : _a.emissiveIntensity) != null ? _b : 2
+          visible: o.visible,
+          emissiveIntensity: (_b = (_a = o.material) == null ? void 0 : _a.emissiveIntensity) != null ? _b : 2
         };
       }), n = this.rugManager.rug ? {
         width: this.rugManager.rug.userData.baseWidth * this.rugManager.rug.scale.x,
@@ -1139,7 +1139,7 @@ let __tla = (async () => {
       return this.furnitureManager.furnitureItems;
     }
   }
-  class Fe {
+  class ze {
     constructor(e) {
       this.gameContext = e, this.sceneClass = e.sceneClass, this.controllers = [], this.folder = null, this.init();
     }
@@ -1152,7 +1152,7 @@ let __tla = (async () => {
       this.lightControllers || (this.lightControllers = []), this.lightControllers.forEach((f) => f.destroy()), this.lightControllers = [];
       const e = this.sceneClass, t = e.centerLight, i = e.lightBulbMesh, n = ((_a = e.config) == null ? void 0 : _a.worldScale) || 1, s = 10 * n;
       if (!t || !i) return;
-      const a = Math.max(50, t.intensity * 2), r = Math.max(50 * n, t.distance * 2), l = {
+      const a = Math.max(50, t.intensity * 2), o = Math.max(50 * n, t.distance * 2), l = {
         lightColor: "#" + t.color.getHexString(),
         bulbColor: "#" + i.material.color.getHexString(),
         bulbVisible: i.visible,
@@ -1160,17 +1160,17 @@ let __tla = (async () => {
         shadowMapSize: t.shadow.mapSize.width,
         shadowBias: t.shadow.bias,
         kelvin: 2800
-      }, o = this.lightFolder.addFolder("\u041F\u043E\u0437\u0438\u0446\u0438\u044F"), d = () => i.position.copy(t.position), g = o.add(t.position, "x", -s, s, 0.01).name("X").listen().onChange(d), m = o.add(t.position, "y", -s, s, 0.01).name("Y").listen().onChange(d), p = o.add(t.position, "z", -s, s, 0.01).name("Z").listen().onChange(d);
-      this.lightControllers.push(g, m, p), this.lightControllers.push(this.lightFolder.add(t, "intensity", 0, a, 0.1).name("\u042F\u0440\u043A\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(t, "distance", 0, r, 0.1).name("\u0414\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(t, "decay", 0, 5, 0.01).name("\u0417\u0430\u0442\u0443\u0445\u0430\u043D\u0438\u0435").listen()), this.lightControllers.push(this.lightFolder.addColor(l, "lightColor").name("\u0426\u0432\u0435\u0442 \u0441\u0432\u0435\u0442\u0430").onChange((f) => {
+      }, r = this.lightFolder.addFolder("\u041F\u043E\u0437\u0438\u0446\u0438\u044F"), u = () => i.position.copy(t.position), g = r.add(t.position, "x", -s, s, 0.01).name("X").listen().onChange(u), m = r.add(t.position, "y", -s, s, 0.01).name("Y").listen().onChange(u), p = r.add(t.position, "z", -s, s, 0.01).name("Z").listen().onChange(u);
+      this.lightControllers.push(g, m, p), this.lightControllers.push(this.lightFolder.add(t, "intensity", 0, a, 0.1).name("\u042F\u0440\u043A\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(t, "distance", 0, o, 0.1).name("\u0414\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C").listen(), this.lightFolder.add(t, "decay", 0, 5, 0.01).name("\u0417\u0430\u0442\u0443\u0445\u0430\u043D\u0438\u0435").listen()), this.lightControllers.push(this.lightFolder.addColor(l, "lightColor").name("\u0426\u0432\u0435\u0442 \u0441\u0432\u0435\u0442\u0430").onChange((f) => {
         t.color.set(f);
       })), this.lightControllers.push(this.lightFolder.add(l, "kelvin", 1e3, 12e3, 50).name("\u0422\u0435\u043C\u043F\u0435\u0440\u0430\u0442\u0443\u0440\u0430 (K)").onChange((f) => {
         const x = this.kelvinToHex(f);
         t.color.set(x), l.lightColor = "#" + t.color.getHexString();
       }));
-      const w = this.lightFolder.addFolder("\u041A\u043E\u0440\u043F\u0443\u0441");
-      this.lightControllers.push(w.add(l, "bulbVisible").name("\u0412\u0438\u0434\u0435\u043D").onChange((f) => {
+      const M = this.lightFolder.addFolder("\u041A\u043E\u0440\u043F\u0443\u0441");
+      this.lightControllers.push(M.add(l, "bulbVisible").name("\u0412\u0438\u0434\u0435\u043D").onChange((f) => {
         i.visible = f;
-      }), w.addColor(l, "bulbColor").name("\u0426\u0432\u0435\u0442").onChange((f) => {
+      }), M.addColor(l, "bulbColor").name("\u0426\u0432\u0435\u0442").onChange((f) => {
         i.material.color.set(f);
       }));
       const S = this.lightFolder.addFolder("\u0422\u0435\u043D\u0438");
@@ -1186,7 +1186,7 @@ let __tla = (async () => {
         t.shadow.mapSize.set(x, x), t.shadow.needsUpdate = true;
       }), S.add(l, "shadowBias", -0.01, 0.01, 1e-5).name("bias").onChange((f) => {
         t.shadow.bias = f;
-      })), d();
+      })), u();
     }
     refreshAmbient() {
       if (!this.ambientFolder) return;
@@ -1218,10 +1218,10 @@ let __tla = (async () => {
       this.controllers.push(i, n);
     }
   }
-  class ze {
+  class Re {
     constructor(e) {
       var _a;
-      this.gameContext = e, this.loader = new Se(), this.worldScale = ((_a = e.sceneConfig) == null ? void 0 : _a.worldScale) || 1, this.basePanelCellSize = 0.5, this.basePanelGap = 0.01, this.panelTargetSize = this.basePanelCellSize * this.worldScale - this.basePanelGap, this.panels = [], this.furniture = {
+      this.gameContext = e, this.loader = new Se(), this.worldScale = ((_a = e.sceneConfig) == null ? void 0 : _a.worldScale) || 1, this.basePanelCellSize = 0.5, this.basePanelGap = -2e-3, this.panelTargetSize = this.basePanelCellSize * this.worldScale - this.basePanelGap, this.panels = [], this.furniture = {
         table: null,
         tableLamp: null
       }, this.panelUrls = [
@@ -1241,26 +1241,53 @@ let __tla = (async () => {
       const e = new $(0.49, 0.49), t = this.panelUrls.map((i, n) => this.loader.loadAsync(i).then((s) => {
         const a = s.scene.children[0];
         a.name = "panelTemplate_".concat(n);
-        const r = [];
+        const o = [];
         a.traverse((p) => {
-          p.isMesh && (p.scale.set(1, 2, 1), r.push(p));
+          p.isMesh && (p.scale.set(1, 2, 1), o.push(p));
         }), a.updateMatrixWorld(true);
-        const o = new V().setFromObject(a).getSize(new b()), d = [
-          o.x,
-          o.y,
-          o.z
-        ].filter((p) => p > 0).sort((p, w) => w - p), g = d[1] || d[0] || 1, m = this.panelTargetSize / g;
-        return a.scale.multiplyScalar(m), r.forEach((p) => {
-          const w = p.material, S = Array.isArray(w) ? w[0] : w, f = new B({
-            color: 16777215,
-            normalMap: (S == null ? void 0 : S.normalMap) || null,
-            emissive: 0,
-            metalness: 0.4,
-            roughness: 0.8,
-            side: j
-          });
-          p.castShadow = true, p.receiveShadow = true;
-          const x = new E(e, f);
+        const r = new G().setFromObject(a).getSize(new b()), u = [
+          r.x,
+          r.y,
+          r.z
+        ].filter((p) => p > 0).sort((p, M) => M - p), g = u[1] || u[0] || 1, m = this.panelTargetSize / g;
+        return a.scale.multiplyScalar(m), o.forEach((p) => {
+          const M = p.material, S = Array.isArray(M) ? M : [
+            M
+          ];
+          p.material = S.map((L) => {
+            var _a;
+            const C = new Ce({
+              color: 16777215,
+              map: (L == null ? void 0 : L.map) || null,
+              normalMap: (L == null ? void 0 : L.normalMap) || null,
+              roughnessMap: (L == null ? void 0 : L.roughnessMap) || null,
+              metalnessMap: (L == null ? void 0 : L.metalnessMap) || null,
+              aoMap: (L == null ? void 0 : L.aoMap) || null,
+              displacementMap: (L == null ? void 0 : L.displacementMap) || null,
+              alphaMap: (L == null ? void 0 : L.alphaMap) || null,
+              transparent: (L == null ? void 0 : L.transparent) || false,
+              opacity: (_a = L == null ? void 0 : L.opacity) != null ? _a : 1,
+              emissive: 0,
+              metalness: 0.02,
+              roughness: 0.94,
+              clearcoat: 0.02,
+              clearcoatRoughness: 0.9,
+              sheen: 0.08,
+              sheenRoughness: 0.95,
+              side: V
+            });
+            return C.map && (C.map.colorSpace = A, C.map.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy()), [
+              C.normalMap,
+              C.roughnessMap,
+              C.metalnessMap,
+              C.aoMap,
+              C.displacementMap,
+              C.alphaMap
+            ].forEach((I) => {
+              I && (I.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy());
+            }), C;
+          }), Array.isArray(M) || (p.material = p.material[0]), p.castShadow = true, p.receiveShadow = true;
+          const f = Array.isArray(p.material) ? p.material[0].clone() : p.material.clone(), x = new D(e, f);
           x.position.y = 5e-4, x.rotation.x = -Math.PI / 2;
         }), a;
       }));
@@ -1299,25 +1326,28 @@ let __tla = (async () => {
       }
     }
   }
-  class Re {
+  class ke {
     constructor(e) {
       this.gameContext = e, this.mode = "2d", this.board = null, this.emptyState = null, this.root = null, this.items = [], this.selectedItem = null, this.draggingItem = null, this.dragOffsetX = 0, this.dragOffsetY = 0, this.gridVisible = true, this.nextItemId = 1, this.tileSize = 140, this.snapThreshold = 24, this.panelImages = [
         "images/panels/panel_1.png",
         "images/panels/panel_2.png",
         "images/panels/panel_3.png",
         "images/panels/panel_4.png"
-      ], this.handlePointerMove = this.handlePointerMove.bind(this), this.handlePointerUp = this.handlePointerUp.bind(this), this.handleKeyDown = this.handleKeyDown.bind(this);
+      ], this.handlePointerMove = this.handlePointerMove.bind(this), this.handlePointerUp = this.handlePointerUp.bind(this), this.handleKeyDown = this.handleKeyDown.bind(this), this.handleResize = this.handleResize.bind(this);
     }
     init() {
-      this.root = document.getElementById("panel-2d-app"), this.board = document.getElementById("panel-2d-board"), this.emptyState = document.getElementById("panel-2d-empty"), !(!this.root || !this.board) && (this.board.addEventListener("pointerdown", (e) => {
+      this.root = document.getElementById("panel-2d-app"), this.board = document.getElementById("panel-2d-board"), this.emptyState = document.getElementById("panel-2d-empty"), !(!this.root || !this.board) && (this.updateBoardMetrics(), this.board.addEventListener("pointerdown", (e) => {
         (e.target === this.board || e.target === this.emptyState) && this.deselectPanel();
-      }), window.addEventListener("keydown", this.handleKeyDown));
+      }), window.addEventListener("keydown", this.handleKeyDown), window.addEventListener("resize", this.handleResize));
     }
     show() {
       this.root || this.init(), this.root && (this.root.style.display = "block"), this.refreshEmptyState();
     }
     hide() {
       this.root && (this.root.style.display = "none"), this.deselectPanel();
+    }
+    handleResize() {
+      this.updateBoardMetrics();
     }
     startPaletteDrag(e, t) {
       if (!this.board) return;
@@ -1333,10 +1363,10 @@ let __tla = (async () => {
         x: 0,
         y: 0,
         rotation: n
-      }, s.addEventListener("pointerdown", (r) => {
-        r.stopPropagation(), this.selectPanel(s);
+      }, s.addEventListener("pointerdown", (o) => {
+        o.stopPropagation(), this.selectPanel(s);
         const l = s.getBoundingClientRect();
-        this.startDraggingItem(s, r, r.clientX - l.left, r.clientY - l.top);
+        this.startDraggingItem(s, o, o.clientX - l.left, o.clientY - l.top);
       }), this.board.appendChild(s), this.items.push(s), this.setItemPosition(s, t, i), this.setItemRotation(s, n), this.refreshEmptyState(), s;
     }
     startDraggingItem(e, t, i, n) {
@@ -1368,6 +1398,14 @@ let __tla = (async () => {
         y: Math.min(Math.max(0, t), n)
       };
     }
+    updateBoardMetrics() {
+      if (!this.board) return;
+      const e = this.tileSize, t = this.board.clientWidth || window.innerWidth, i = this.board.clientHeight || window.innerHeight, n = Math.min(t, i), s = window.innerWidth <= 600, a = Math.floor(t / (s ? 6.2 : 3)), r = Math.max(s ? 48 : 82, Math.min(s ? 64 : 140, a, Math.round(n * (s ? 0.135 : 0.26))));
+      this.tileSize = r, this.snapThreshold = Math.max(12, Math.round(this.tileSize * 0.18)), this.board.style.setProperty("--panel-tile-size", "".concat(this.tileSize, "px")), !(!this.items.length || e === this.tileSize) && this.items.forEach((u) => {
+        const g = Math.round(u.userData.x / e) * this.tileSize, m = Math.round(u.userData.y / e) * this.tileSize;
+        this.setItemPosition(u, g, m);
+      });
+    }
     getSnapCandidates(e, t) {
       const n = [
         0,
@@ -1384,10 +1422,10 @@ let __tla = (async () => {
         ...this.getSnapCandidates(e, t),
         n
       ];
-      let a = i, r = this.snapThreshold;
+      let a = i, o = this.snapThreshold;
       return s.forEach((l) => {
-        const o = Math.abs(l - i);
-        o <= r && (r = o, a = l);
+        const r = Math.abs(l - i);
+        r <= o && (o = r, a = l);
       }), a;
     }
     setItemPosition(e, t, i) {
@@ -1430,25 +1468,18 @@ let __tla = (async () => {
       });
     }
     shufflePanelsOnWalls() {
-      if (!this.items.length) return;
-      const e = 12, t = this.tileSize + e, i = Math.max(1, Math.floor((this.board.clientWidth + e) / t)), n = [];
-      for (let s = 0; s < 100; s++) {
-        for (let a = 0; a < i; a++) n.push({
-          x: a * t,
-          y: s * t
-        });
-        if ((s + 1) * t > this.board.clientHeight - this.tileSize) break;
+      if (this.items.length < 2) return;
+      const e = this.items.map((t) => ({
+        x: t.userData.x,
+        y: t.userData.y
+      }));
+      for (let t = e.length - 1; t > 0; t--) {
+        const i = Math.floor(Math.random() * (t + 1)), n = e[t];
+        e[t] = e[i], e[i] = n;
       }
-      for (let s = n.length - 1; s > 0; s--) {
-        const a = Math.floor(Math.random() * (s + 1)), r = n[s];
-        n[s] = n[a], n[a] = r;
-      }
-      this.items.forEach((s, a) => {
-        const r = n[a] || {
-          x: a % i * t,
-          y: Math.floor(a / i) * t
-        };
-        this.setItemPosition(s, r.x, r.y);
+      this.items.forEach((t, i) => {
+        const n = e[i];
+        this.setItemPosition(t, n.x, n.y);
       });
     }
     toggleNet() {
@@ -1485,380 +1516,380 @@ let __tla = (async () => {
     }
   }
   console.clear();
-  const c = {};
-  c.clock = new Le();
-  c.sceneConfig = {
+  const h = {};
+  h.clock = new Ie();
+  h.sceneConfig = {
     worldScale: 10
   };
-  c.appMode = null;
-  const I = "room-configurator-scene-state", oe = "room-configurator-scene-library";
+  h.appMode = null;
+  const B = "room-configurator-scene-state", oe = "room-configurator-scene-library";
   Ue();
-  He();
-  async function ke() {
+  Ye();
+  async function Oe() {
     try {
-      await Oe(), await Xe(), Je();
-    } catch (u) {
-      console.error("Init error", u);
+      await Xe(), await He(), et();
+    } catch (d) {
+      console.error("Init error", d);
     }
   }
-  async function Oe() {
-    c.gui = new Ce(), c.initClass = new Ie(c), c.scene = c.initClass.scene, c.camera = c.initClass.camera, c.renderer = c.initClass.renderer, c.assetManager = new ze(c), c.sceneClass = new Ae(c), c.keyboardOrbitMove = new Ne(c), c.renderer.localClippingEnabled = true, c.guiClass = new Fe(c);
-  }
   async function Xe() {
-    await c.assetManager.loadModels(), Ve(), Ge(), _e(), Qe(), c.sceneClass.createScene(), c.guiClass && (c.guiClass.refresh(), c.guiClass.refreshLight());
+    h.gui = new Le(), h.initClass = new Pe(h), h.scene = h.initClass.scene, h.camera = h.initClass.camera, h.renderer = h.initClass.renderer, h.assetManager = new Re(h), h.sceneClass = new Fe(h), h.keyboardOrbitMove = new Ne(h), h.renderer.localClippingEnabled = true, h.guiClass = new ze(h);
+  }
+  async function He() {
+    await h.assetManager.loadModels(), Ge(), _e(), Qe(), Ze(), h.sceneClass.createScene(), h.guiClass && (h.guiClass.refresh(), h.guiClass.refreshLight());
   }
   function Ue() {
-    je(), qe(), Ye(), Ze();
-  }
-  function He() {
-    const u = document.getElementById("app-mode-modal"), e = document.getElementById("btn-start-3d"), t = document.getElementById("btn-start-2d");
-    if (!u || !e || !t) return;
-    const i = () => {
-      u.style.display = "none";
-    };
-    e.onclick = async () => {
-      i(), document.body.classList.remove("mode-2d"), c.appMode = "3d", await ke();
-    }, t.onclick = () => {
-      i(), document.body.classList.add("mode-2d"), c.appMode = "2d", c.panel2dApp = new Re(c), c.panel2dApp.init(), c.panel2dApp.show();
-    };
-  }
-  function P() {
-    return c.appMode === "2d" ? c.panel2dApp || null : c.sceneClass || null;
+    Ve(), je(), qe(), Ke();
   }
   function Ye() {
-    for (let u = 1; u <= 4; u++) {
-      const e = document.querySelector(".panel".concat(u));
+    const d = document.getElementById("app-mode-modal"), e = document.getElementById("btn-start-3d"), t = document.getElementById("btn-start-2d");
+    if (!d || !e || !t) return;
+    const i = () => {
+      d.style.display = "none";
+    };
+    e.onclick = async () => {
+      i(), document.body.classList.remove("mode-2d"), h.appMode = "3d", await Oe();
+    }, t.onclick = () => {
+      i(), document.body.classList.add("mode-2d"), h.appMode = "2d", h.panel2dApp = new ke(h), h.panel2dApp.init(), h.panel2dApp.show();
+    };
+  }
+  function E() {
+    return h.appMode === "2d" ? h.panel2dApp || null : h.sceneClass || null;
+  }
+  function qe() {
+    for (let d = 1; d <= 4; d++) {
+      const e = document.querySelector(".panel".concat(d));
       e && e.addEventListener("pointerdown", (t) => {
         var _a, _b;
-        if (t.preventDefault(), c.appMode === "2d") {
-          (_a = c.panel2dApp) == null ? void 0 : _a.startPaletteDrag(u - 1, t);
+        if (t.preventDefault(), h.appMode === "2d") {
+          (_a = h.panel2dApp) == null ? void 0 : _a.startPaletteDrag(d - 1, t);
           return;
         }
-        (_b = c.sceneClass) == null ? void 0 : _b.startDrag(u - 1, t);
+        (_b = h.sceneClass) == null ? void 0 : _b.startDrag(d - 1, t);
       });
     }
   }
-  function qe() {
+  function je() {
     document.getElementById("random_rotate").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.randomRotate) == null ? void 0 : _b.call(_a);
+      (_b = (_a = E()) == null ? void 0 : _a.randomRotate) == null ? void 0 : _b.call(_a);
     }, document.getElementById("random_shuffle").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.shufflePanelsOnWalls) == null ? void 0 : _b.call(_a);
+      (_b = (_a = E()) == null ? void 0 : _a.shufflePanelsOnWalls) == null ? void 0 : _b.call(_a);
     }, document.getElementById("toglle_net").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.toggleNet) == null ? void 0 : _b.call(_a);
+      (_b = (_a = E()) == null ? void 0 : _a.toggleNet) == null ? void 0 : _b.call(_a);
     };
-    const u = document.getElementById("add-light-bulb");
-    u && (u.onclick = () => {
+    const d = document.getElementById("add-light-bulb");
+    d && (d.onclick = () => {
       var _a;
-      (_a = c.sceneClass) == null ? void 0 : _a.addSideLightBulb();
+      (_a = h.sceneClass) == null ? void 0 : _a.addSideLightBulb();
     });
     const e = document.getElementById("add-table");
     e && (e.onclick = () => {
       var _a;
-      (_a = c.sceneClass) == null ? void 0 : _a.addTable();
+      (_a = h.sceneClass) == null ? void 0 : _a.addTable();
     });
     const t = document.getElementById("add-table-lamp");
     t && (t.onclick = () => {
       var _a;
-      (_a = c.sceneClass) == null ? void 0 : _a.addTableLamp();
+      (_a = h.sceneClass) == null ? void 0 : _a.addTableLamp();
     });
   }
-  function je() {
+  function Ve() {
     document.getElementById("btn-rot-left").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.rotateSelectedPanel) == null ? void 0 : _b.call(_a, Math.PI / 2);
+      (_b = (_a = E()) == null ? void 0 : _a.rotateSelectedPanel) == null ? void 0 : _b.call(_a, Math.PI / 2);
     }, document.getElementById("btn-rot-right").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.rotateSelectedPanel) == null ? void 0 : _b.call(_a, -Math.PI / 2);
+      (_b = (_a = E()) == null ? void 0 : _a.rotateSelectedPanel) == null ? void 0 : _b.call(_a, -Math.PI / 2);
     };
-    const u = document.getElementById("panel-color-picker");
-    u && u.addEventListener("input", (i) => {
+    const d = document.getElementById("panel-color-picker");
+    d && d.addEventListener("input", (i) => {
       var _a;
-      c.appMode === "3d" && ((_a = c.sceneClass) == null ? void 0 : _a.changeSelectedPanelColor(i.target.value));
+      h.appMode === "3d" && ((_a = h.sceneClass) == null ? void 0 : _a.changeSelectedPanelColor(i.target.value));
     }), document.getElementById("btn-close-sel").onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.deselectPanel) == null ? void 0 : _b.call(_a);
+      (_b = (_a = E()) == null ? void 0 : _a.deselectPanel) == null ? void 0 : _b.call(_a);
     };
     const e = document.getElementById("btn-delete-2d-panel");
     e && (e.onclick = () => {
       var _a, _b;
-      (_b = (_a = P()) == null ? void 0 : _a.deleteSelectedPanel) == null ? void 0 : _b.call(_a);
+      (_b = (_a = E()) == null ? void 0 : _a.deleteSelectedPanel) == null ? void 0 : _b.call(_a);
     }), document.getElementById("btn-all-color").onclick = () => {
       var _a;
       const i = document.getElementById("panel-color-picker");
-      i && c.appMode === "3d" && ((_a = c.sceneClass) == null ? void 0 : _a.setAllPanelsColor(i.value));
+      i && h.appMode === "3d" && ((_a = h.sceneClass) == null ? void 0 : _a.setAllPanelsColor(i.value));
     };
     const t = document.getElementById("wall-color-picker");
     t && t.addEventListener("input", (i) => {
       var _a;
-      (_a = c.sceneClass) == null ? void 0 : _a.setAllWallsColor(i.target.value);
+      (_a = h.sceneClass) == null ? void 0 : _a.setAllWallsColor(i.target.value);
     });
   }
-  function Ve() {
+  function Ge() {
     var _a;
     if (!document.getElementById("light-selection-ui")) return;
-    const e = ((_a = c.sceneConfig) == null ? void 0 : _a.worldScale) || 1, i = 18 * (e * e), n = 6 * e, s = document.getElementById("light-intensity");
+    const e = ((_a = h.sceneConfig) == null ? void 0 : _a.worldScale) || 1, i = 18 * (e * e), n = 6 * e, s = document.getElementById("light-intensity");
     s && (s.max = String(Math.max(i * 4, 50)), s.value = String(i));
     const a = document.getElementById("light-distance");
     a && (a.max = String(Math.max(n * 3, 20)), a.value = String(n));
-    const r = () => {
-      const l = c.sceneClass.selectedLightBulb;
+    const o = () => {
+      const l = h.sceneClass.selectedLightBulb;
       if (!l) return null;
-      const o = l.userData.light;
-      return o ? {
+      const r = l.userData.light;
+      return r ? {
         bulbMesh: l,
-        pointLight: o
+        pointLight: r
       } : null;
     };
     document.getElementById("btn-close-light").onclick = () => {
-      c.sceneClass.deselectLightBulb();
+      h.sceneClass.deselectLightBulb();
     }, document.getElementById("light-color-picker").addEventListener("input", (l) => {
-      const o = r();
-      o && o.pointLight.color.set(l.target.value);
+      const r = o();
+      r && r.pointLight.color.set(l.target.value);
     }), document.getElementById("light-kelvin").addEventListener("input", (l) => {
-      const o = r();
-      if (!o) return;
-      const d = Number(l.target.value), g = c.guiClass.kelvinToHex(d);
-      o.pointLight.color.set(g);
+      const r = o();
+      if (!r) return;
+      const u = Number(l.target.value), g = h.guiClass.kelvinToHex(u);
+      r.pointLight.color.set(g);
       const m = document.getElementById("light-color-picker");
-      m && (m.value = "#" + o.pointLight.color.getHexString());
+      m && (m.value = "#" + r.pointLight.color.getHexString());
     }), document.getElementById("light-intensity").addEventListener("input", (l) => {
-      const o = r();
-      o && (o.pointLight.intensity = Number(l.target.value));
+      const r = o();
+      r && (r.pointLight.intensity = Number(l.target.value));
     }), document.getElementById("light-distance").addEventListener("input", (l) => {
-      const o = r();
-      o && (o.pointLight.distance = Number(l.target.value));
+      const r = o();
+      r && (r.pointLight.distance = Number(l.target.value));
     }), document.getElementById("light-decay").addEventListener("input", (l) => {
-      const o = r();
-      o && (o.pointLight.decay = Number(l.target.value));
+      const r = o();
+      r && (r.pointLight.decay = Number(l.target.value));
     }), document.getElementById("bulb-visible").addEventListener("change", (l) => {
-      const o = r();
-      o && (o.bulbMesh.visible = l.target.checked);
+      const r = o();
+      r && (r.bulbMesh.visible = l.target.checked);
     }), document.getElementById("bulb-emissive").addEventListener("input", (l) => {
-      const o = r();
-      o && o.bulbMesh.material && (o.bulbMesh.material.emissiveIntensity = Number(l.target.value), o.bulbMesh.material.needsUpdate = true);
+      const r = o();
+      r && r.bulbMesh.material && (r.bulbMesh.material.emissiveIntensity = Number(l.target.value), r.bulbMesh.material.needsUpdate = true);
     }), document.getElementById("btn-delete-light").onclick = () => {
-      const l = r();
+      const l = o();
       if (!l) return;
-      c.scene.remove(l.bulbMesh), c.scene.remove(l.pointLight);
-      const o = c.sceneClass.lightBulbs.findIndex((d) => d.mesh === l.bulbMesh);
-      o !== -1 && c.sceneClass.lightBulbs.splice(o, 1), l.bulbMesh.geometry && l.bulbMesh.geometry.dispose(), l.bulbMesh.material && l.bulbMesh.material.dispose(), c.sceneClass.deselectLightBulb();
+      h.scene.remove(l.bulbMesh), h.scene.remove(l.pointLight);
+      const r = h.sceneClass.lightBulbs.findIndex((u) => u.mesh === l.bulbMesh);
+      r !== -1 && h.sceneClass.lightBulbs.splice(r, 1), l.bulbMesh.geometry && l.bulbMesh.geometry.dispose(), l.bulbMesh.material && l.bulbMesh.material.dispose(), h.sceneClass.deselectLightBulb();
     };
-  }
-  function Ge() {
-    const u = document.getElementById("btn-close-rug");
-    if (!u) return;
-    const { widthWallFront: e, widthWallSide: t } = c.sceneClass.config, i = document.getElementById("rug-width"), n = document.getElementById("rug-depth"), s = document.getElementById("rug-pos-x"), a = document.getElementById("rug-pos-z");
-    i && (i.min = String(c.sceneConfig.worldScale), i.max = String(e * 0.95)), n && (n.min = String(c.sceneConfig.worldScale), n.max = String(t * 0.95)), s && (s.min = String(-e / 2), s.max = String(e / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), u.onclick = () => {
-      c.sceneClass.deselectRug();
-    };
-    const r = () => {
-      const o = Number(document.getElementById("rug-width").value), d = Number(document.getElementById("rug-depth").value), g = Number(document.getElementById("rug-pos-x").value), m = Number(document.getElementById("rug-pos-z").value);
-      c.sceneClass.updateRugTransform(o, d, g, m);
-    }, l = document.getElementById("rug-color-picker");
-    l && l.addEventListener("input", (o) => {
-      c.sceneClass.changeRugColor(o.target.value);
-    }), document.getElementById("rug-width").addEventListener("input", r), document.getElementById("rug-depth").addEventListener("input", r), document.getElementById("rug-pos-x").addEventListener("input", r), document.getElementById("rug-pos-z").addEventListener("input", r);
   }
   function _e() {
-    const u = document.getElementById("btn-close-furniture");
-    if (!u) return;
-    const { widthWallFront: e, widthWallSide: t } = c.sceneClass.config, i = document.getElementById("furniture-width"), n = document.getElementById("furniture-depth"), s = document.getElementById("furniture-pos-x"), a = document.getElementById("furniture-pos-z");
-    i && (i.max = String(e * 0.9)), n && (n.max = String(t * 0.9)), s && (s.min = String(-e / 2), s.max = String(e / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), u.onclick = () => {
-      c.sceneClass.deselectFurniture();
+    const d = document.getElementById("btn-close-rug");
+    if (!d) return;
+    const { widthWallFront: e, widthWallSide: t } = h.sceneClass.config, i = document.getElementById("rug-width"), n = document.getElementById("rug-depth"), s = document.getElementById("rug-pos-x"), a = document.getElementById("rug-pos-z");
+    i && (i.min = String(h.sceneConfig.worldScale), i.max = String(e * 0.95)), n && (n.min = String(h.sceneConfig.worldScale), n.max = String(t * 0.95)), s && (s.min = String(-e / 2), s.max = String(e / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), d.onclick = () => {
+      h.sceneClass.deselectRug();
     };
-    const r = () => {
-      const o = Number(document.getElementById("furniture-width").value), d = Number(document.getElementById("furniture-depth").value), g = Number(document.getElementById("furniture-pos-x").value), m = Number(document.getElementById("furniture-pos-z").value);
-      c.sceneClass.updateFurnitureTransform(o, d, g, m);
+    const o = () => {
+      const r = Number(document.getElementById("rug-width").value), u = Number(document.getElementById("rug-depth").value), g = Number(document.getElementById("rug-pos-x").value), m = Number(document.getElementById("rug-pos-z").value);
+      h.sceneClass.updateRugTransform(r, u, g, m);
+    }, l = document.getElementById("rug-color-picker");
+    l && l.addEventListener("input", (r) => {
+      h.sceneClass.changeRugColor(r.target.value);
+    }), document.getElementById("rug-width").addEventListener("input", o), document.getElementById("rug-depth").addEventListener("input", o), document.getElementById("rug-pos-x").addEventListener("input", o), document.getElementById("rug-pos-z").addEventListener("input", o);
+  }
+  function Qe() {
+    const d = document.getElementById("btn-close-furniture");
+    if (!d) return;
+    const { widthWallFront: e, widthWallSide: t } = h.sceneClass.config, i = document.getElementById("furniture-width"), n = document.getElementById("furniture-depth"), s = document.getElementById("furniture-pos-x"), a = document.getElementById("furniture-pos-z");
+    i && (i.max = String(e * 0.9)), n && (n.max = String(t * 0.9)), s && (s.min = String(-e / 2), s.max = String(e / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), d.onclick = () => {
+      h.sceneClass.deselectFurniture();
     };
-    document.getElementById("furniture-width").addEventListener("input", r), document.getElementById("furniture-depth").addEventListener("input", r), document.getElementById("furniture-pos-x").addEventListener("input", r), document.getElementById("furniture-pos-z").addEventListener("input", r), document.getElementById("furniture-rotation").addEventListener("input", (o) => {
-      c.sceneClass.updateFurnitureRotation(Number(o.target.value));
+    const o = () => {
+      const r = Number(document.getElementById("furniture-width").value), u = Number(document.getElementById("furniture-depth").value), g = Number(document.getElementById("furniture-pos-x").value), m = Number(document.getElementById("furniture-pos-z").value);
+      h.sceneClass.updateFurnitureTransform(r, u, g, m);
+    };
+    document.getElementById("furniture-width").addEventListener("input", o), document.getElementById("furniture-depth").addEventListener("input", o), document.getElementById("furniture-pos-x").addEventListener("input", o), document.getElementById("furniture-pos-z").addEventListener("input", o), document.getElementById("furniture-rotation").addEventListener("input", (r) => {
+      h.sceneClass.updateFurnitureRotation(Number(r.target.value));
     });
     const l = document.getElementById("btn-delete-furniture");
     l && (l.onclick = () => {
-      c.sceneClass.deleteTable();
-    });
-  }
-  function Qe() {
-    const u = document.getElementById("btn-close-table-lamp");
-    if (!u) return;
-    const { widthWallFront: e, widthWallSide: t, heightWall: i } = c.sceneClass.config, n = document.getElementById("table-lamp-pos-x"), s = document.getElementById("table-lamp-pos-y"), a = document.getElementById("table-lamp-pos-z");
-    n && (n.min = String(-e / 2), n.max = String(e / 2)), s && (s.min = String(-i / 2), s.max = String(i / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), u.onclick = () => {
-      c.sceneClass.deselectTableLamp();
-    };
-    const r = () => {
-      const o = Number(document.getElementById("table-lamp-width").value), d = Number(document.getElementById("table-lamp-height").value), g = Number(document.getElementById("table-lamp-pos-x").value), m = Number(document.getElementById("table-lamp-pos-y").value), p = Number(document.getElementById("table-lamp-pos-z").value);
-      c.sceneClass.updateTableLampTransform(o, d, g, m, p);
-    };
-    document.getElementById("table-lamp-width").addEventListener("input", r), document.getElementById("table-lamp-height").addEventListener("input", r), document.getElementById("table-lamp-pos-x").addEventListener("input", r), document.getElementById("table-lamp-pos-y").addEventListener("input", r), document.getElementById("table-lamp-pos-z").addEventListener("input", r);
-    const l = document.getElementById("btn-delete-table-lamp-ui");
-    l && (l.onclick = () => {
-      c.sceneClass.deleteTableLamp();
+      h.sceneClass.deleteTable();
     });
   }
   function Ze() {
-    const u = document.getElementById("save-load-modal"), e = document.getElementById("btn-presets"), t = document.getElementById("btn-close-save-load"), i = document.getElementById("save-load-backdrop"), n = document.getElementById("btn-save-scene-state"), s = document.getElementById("btn-load-scene-storage"), a = document.getElementById("btn-copy-scene-state"), r = document.getElementById("btn-paste-scene-state"), l = document.getElementById("btn-load-scene-text"), o = document.getElementById("scene-state-text"), d = document.getElementById("scene-state-status"), g = document.getElementById("scene-state-saved-list");
-    if (!u || !e || !o || !d || !g) return;
-    const m = (h) => {
-      d.textContent = h;
-    }, p = (h) => "roomcfg:" + btoa(unescape(encodeURIComponent(JSON.stringify(h)))), w = (h) => {
-      const y = h.trim().replace(/^roomcfg:/, "");
+    const d = document.getElementById("btn-close-table-lamp");
+    if (!d) return;
+    const { widthWallFront: e, widthWallSide: t, heightWall: i } = h.sceneClass.config, n = document.getElementById("table-lamp-pos-x"), s = document.getElementById("table-lamp-pos-y"), a = document.getElementById("table-lamp-pos-z");
+    n && (n.min = String(-e / 2), n.max = String(e / 2)), s && (s.min = String(-i / 2), s.max = String(i / 2)), a && (a.min = String(-t / 2), a.max = String(t / 2)), d.onclick = () => {
+      h.sceneClass.deselectTableLamp();
+    };
+    const o = () => {
+      const r = Number(document.getElementById("table-lamp-width").value), u = Number(document.getElementById("table-lamp-height").value), g = Number(document.getElementById("table-lamp-pos-x").value), m = Number(document.getElementById("table-lamp-pos-y").value), p = Number(document.getElementById("table-lamp-pos-z").value);
+      h.sceneClass.updateTableLampTransform(r, u, g, m, p);
+    };
+    document.getElementById("table-lamp-width").addEventListener("input", o), document.getElementById("table-lamp-height").addEventListener("input", o), document.getElementById("table-lamp-pos-x").addEventListener("input", o), document.getElementById("table-lamp-pos-y").addEventListener("input", o), document.getElementById("table-lamp-pos-z").addEventListener("input", o);
+    const l = document.getElementById("btn-delete-table-lamp-ui");
+    l && (l.onclick = () => {
+      h.sceneClass.deleteTableLamp();
+    });
+  }
+  function Ke() {
+    const d = document.getElementById("save-load-modal"), e = document.getElementById("btn-presets"), t = document.getElementById("btn-close-save-load"), i = document.getElementById("save-load-backdrop"), n = document.getElementById("btn-save-scene-state"), s = document.getElementById("btn-load-scene-storage"), a = document.getElementById("btn-copy-scene-state"), o = document.getElementById("btn-paste-scene-state"), l = document.getElementById("btn-load-scene-text"), r = document.getElementById("scene-state-text"), u = document.getElementById("scene-state-status"), g = document.getElementById("scene-state-saved-list");
+    if (!d || !e || !r || !u || !g) return;
+    const m = (c) => {
+      u.textContent = c;
+    }, p = (c) => "roomcfg:" + btoa(unescape(encodeURIComponent(JSON.stringify(c)))), M = (c) => {
+      const y = c.trim().replace(/^roomcfg:/, "");
       return JSON.parse(decodeURIComponent(escape(atob(y))));
     }, S = () => {
-      const h = P();
-      if (!(h == null ? void 0 : h.getSceneState)) throw new Error("\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C \u0435\u0449\u0435 \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D");
+      const c = E();
+      if (!(c == null ? void 0 : c.getSceneState)) throw new Error("\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C \u0435\u0449\u0435 \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D");
       return {
-        mode: c.appMode || "3d",
-        state: h.getSceneState()
+        mode: h.appMode || "3d",
+        state: c.getSceneState()
       };
-    }, f = (h) => {
-      const y = h && typeof h == "object" && h.mode && Object.prototype.hasOwnProperty.call(h, "state"), D = y ? h.mode : "3d", C = y ? h.state : h;
-      if (D !== c.appMode) throw new Error("\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0441\u0434\u0435\u043B\u0430\u043D\u043E \u0434\u043B\u044F \u0434\u0440\u0443\u0433\u043E\u0433\u043E \u0440\u0435\u0436\u0438\u043C\u0430");
-      const L = P();
-      if (!(L == null ? void 0 : L.applySceneState)) throw new Error("\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C \u0435\u0449\u0435 \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D");
-      L.applySceneState(C);
+    }, f = (c) => {
+      const y = c && typeof c == "object" && c.mode && Object.prototype.hasOwnProperty.call(c, "state"), W = y ? c.mode : "3d", P = y ? c.state : c;
+      if (W !== h.appMode) throw new Error("\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0441\u0434\u0435\u043B\u0430\u043D\u043E \u0434\u043B\u044F \u0434\u0440\u0443\u0433\u043E\u0433\u043E \u0440\u0435\u0436\u0438\u043C\u0430");
+      const v = E();
+      if (!(v == null ? void 0 : v.applySceneState)) throw new Error("\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C \u0435\u0449\u0435 \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D");
+      v.applySceneState(P);
     }, x = () => {
       try {
-        const h = JSON.parse(localStorage.getItem(oe) || "[]");
-        return Array.isArray(h) ? h.filter((y) => typeof y == "string" && y.trim().length > 0) : [];
-      } catch (h) {
-        return console.error(h), [];
+        const c = JSON.parse(localStorage.getItem(oe) || "[]");
+        return Array.isArray(c) ? c.filter((y) => typeof y == "string" && y.trim().length > 0) : [];
+      } catch (c) {
+        return console.error(c), [];
       }
-    }, G = (h) => {
-      localStorage.setItem(oe, JSON.stringify(h));
-    }, O = (h) => {
-      const y = h.trim(), D = x(), C = D.includes(y), L = C ? D : [
+    }, L = (c) => {
+      localStorage.setItem(oe, JSON.stringify(c));
+    }, C = (c) => {
+      const y = c.trim(), W = x(), P = W.includes(y), v = P ? W : [
         y,
-        ...D
+        ...W
       ];
-      return localStorage.setItem(I, y), G(L), {
-        alreadyExists: C,
-        library: L
+      return localStorage.setItem(B, y), L(v), {
+        alreadyExists: P,
+        library: v
       };
-    }, v = () => {
-      const h = x();
-      if (g.innerHTML = "", !h.length) {
+    }, I = () => {
+      const c = x();
+      if (g.innerHTML = "", !c.length) {
         const y = document.createElement("div");
         y.className = "scene-state-saved-empty", y.textContent = "\u041F\u043E\u043A\u0430 \u043D\u0435\u0442 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043D\u044B\u0445 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0439.", g.appendChild(y);
         return;
       }
-      h.forEach((y, D) => {
-        const C = document.createElement("div");
-        C.className = "scene-state-saved-item";
-        const L = document.createElement("div");
-        L.className = "scene-state-saved-preview", L.textContent = "".concat(D + 1, ". ").concat(y);
-        const z = document.createElement("div");
-        z.className = "scene-state-saved-actions";
-        const X = document.createElement("button");
-        X.className = "action-btn", X.textContent = "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C", X.onclick = () => {
+      c.forEach((y, W) => {
+        const P = document.createElement("div");
+        P.className = "scene-state-saved-item";
+        const v = document.createElement("div");
+        v.className = "scene-state-saved-preview", v.textContent = "".concat(W + 1, ". ").concat(y);
+        const N = document.createElement("div");
+        N.className = "scene-state-saved-actions";
+        const H = document.createElement("button");
+        H.className = "action-btn", H.textContent = "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C", H.onclick = () => {
           try {
-            o.value = y, f(w(y)), localStorage.setItem(I, y), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0441\u043F\u0438\u0441\u043A\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0439.");
-          } catch (T) {
-            m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0435 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435."), console.error(T);
+            r.value = y, f(M(y)), localStorage.setItem(B, y), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0441\u043F\u0438\u0441\u043A\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0439.");
+          } catch (z) {
+            m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0435 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435."), console.error(z);
           }
         };
         const U = document.createElement("button");
         U.className = "action-btn", U.textContent = "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C", U.onclick = async () => {
           try {
-            await navigator.clipboard.writeText(y), o.value = y, localStorage.setItem(I, y), m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \u0438\u0437 \u0441\u043F\u0438\u0441\u043A\u0430.");
-          } catch (T) {
-            m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u0443\u044E \u0441\u0442\u0440\u043E\u043A\u0443."), console.error(T);
+            await navigator.clipboard.writeText(y), r.value = y, localStorage.setItem(B, y), m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \u0438\u0437 \u0441\u043F\u0438\u0441\u043A\u0430.");
+          } catch (z) {
+            m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u0443\u044E \u0441\u0442\u0440\u043E\u043A\u0443."), console.error(z);
           }
         };
-        const H = document.createElement("button");
-        H.className = "action-btn", H.textContent = "\u0423\u0434\u0430\u043B\u0438\u0442\u044C", H.onclick = () => {
-          const T = x().filter((Y) => Y !== y);
-          if (G(T), (o.value || "").trim() === y && (o.value = ""), (localStorage.getItem(I) || "").trim() === y) {
-            const Y = T[0] || "";
-            Y ? localStorage.setItem(I, Y) : localStorage.removeItem(I);
+        const Y = document.createElement("button");
+        Y.className = "action-btn", Y.textContent = "\u0423\u0434\u0430\u043B\u0438\u0442\u044C", Y.onclick = () => {
+          const z = x().filter((q) => q !== y);
+          if (L(z), (r.value || "").trim() === y && (r.value = ""), (localStorage.getItem(B) || "").trim() === y) {
+            const q = z[0] || "";
+            q ? localStorage.setItem(B, q) : localStorage.removeItem(B);
           }
-          v(), m("\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0443\u0434\u0430\u043B\u0435\u043D\u043E \u0438\u0437 \u043F\u0430\u043C\u044F\u0442\u0438 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.");
-        }, z.appendChild(X), z.appendChild(U), z.appendChild(H), C.appendChild(L), C.appendChild(z), g.appendChild(C);
+          I(), m("\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0443\u0434\u0430\u043B\u0435\u043D\u043E \u0438\u0437 \u043F\u0430\u043C\u044F\u0442\u0438 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.");
+        }, N.appendChild(H), N.appendChild(U), N.appendChild(Y), P.appendChild(v), P.appendChild(N), g.appendChild(P);
       });
     }, ee = () => {
-      const h = localStorage.getItem(I);
-      !h || x().includes(h) || G([
-        h,
+      const c = localStorage.getItem(B);
+      !c || x().includes(c) || L([
+        c,
         ...x()
       ]);
-    }, ce = () => {
-      u.style.display = "block", o.value = localStorage.getItem(I) || "", ee(), v(), m("");
+    }, he = () => {
+      d.style.display = "block", r.value = localStorage.getItem(B) || "", ee(), I(), m("");
     }, te = () => {
-      u.style.display = "none";
+      d.style.display = "none";
     };
-    e.onclick = ce, t && (t.onclick = te), i && (i.onclick = te), n && (n.onclick = async () => {
+    e.onclick = he, t && (t.onclick = te), i && (i.onclick = te), n && (n.onclick = async () => {
       try {
-        const h = p(S()), { alreadyExists: y } = O(h);
-        o.value = h, v(), m(y ? "\u0422\u0430\u043A\u043E\u0435 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0443\u0436\u0435 \u0435\u0441\u0442\u044C \u0432 \u043F\u0430\u043C\u044F\u0442\u0438. \u0421\u0442\u0440\u043E\u043A\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0430 \u043D\u0438\u0436\u0435." : "\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E \u0432 \u043F\u0430\u043C\u044F\u0442\u044C \u0438 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0432 \u0441\u043F\u0438\u0441\u043E\u043A.");
-      } catch (h) {
-        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435."), console.error(h);
+        const c = p(S()), { alreadyExists: y } = C(c);
+        r.value = c, I(), m(y ? "\u0422\u0430\u043A\u043E\u0435 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0443\u0436\u0435 \u0435\u0441\u0442\u044C \u0432 \u043F\u0430\u043C\u044F\u0442\u0438. \u0421\u0442\u0440\u043E\u043A\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0430 \u043D\u0438\u0436\u0435." : "\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E \u0432 \u043F\u0430\u043C\u044F\u0442\u044C \u0438 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0432 \u0441\u043F\u0438\u0441\u043E\u043A.");
+      } catch (c) {
+        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435."), console.error(c);
       }
     }), s && (s.onclick = () => {
       try {
-        const h = localStorage.getItem(I);
-        if (!h) {
+        const c = localStorage.getItem(B);
+        if (!c) {
           m("\u0412 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u043C \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0435 \u043F\u043E\u043A\u0430 \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435\u0442.");
           return;
         }
-        o.value = h, f(w(h)), v(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430.");
-      } catch (h) {
-        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0438\u0437 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430."), console.error(h);
+        r.value = c, f(M(c)), I(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430.");
+      } catch (c) {
+        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0438\u0437 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430."), console.error(c);
       }
     }), a && (a.onclick = async () => {
       try {
-        if (!o.value.trim()) {
-          const h = p(S());
-          O(h), o.value = h, v();
+        if (!r.value.trim()) {
+          const c = p(S());
+          C(c), r.value = c, I();
         }
-        await navigator.clipboard.writeText(o.value), m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430.");
-      } catch (h) {
-        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0442\u0440\u043E\u043A\u0443."), console.error(h);
+        await navigator.clipboard.writeText(r.value), m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430.");
+      } catch (c) {
+        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0442\u0440\u043E\u043A\u0443."), console.error(c);
       }
-    }), r && (r.onclick = async () => {
+    }), o && (o.onclick = async () => {
       try {
-        const h = await navigator.clipboard.readText();
-        if (!h.trim()) {
+        const c = await navigator.clipboard.readText();
+        if (!c.trim()) {
           m("\u0411\u0443\u0444\u0435\u0440 \u043E\u0431\u043C\u0435\u043D\u0430 \u043F\u0443\u0441\u0442.");
           return;
         }
-        o.value = h, f(w(h)), O(h), v(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0431\u0443\u0444\u0435\u0440\u0430 \u043E\u0431\u043C\u0435\u043D\u0430.");
-      } catch (h) {
-        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0431\u0443\u0444\u0435\u0440 \u043E\u0431\u043C\u0435\u043D\u0430."), console.error(h);
+        r.value = c, f(M(c)), C(c), I(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0431\u0443\u0444\u0435\u0440\u0430 \u043E\u0431\u043C\u0435\u043D\u0430.");
+      } catch (c) {
+        m("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0431\u0443\u0444\u0435\u0440 \u043E\u0431\u043C\u0435\u043D\u0430."), console.error(c);
       }
     }), l && (l.onclick = () => {
       try {
-        if (!o.value.trim()) {
+        if (!r.value.trim()) {
           m("\u041F\u043E\u043B\u0435 \u0441\u043E \u0441\u0442\u0440\u043E\u043A\u043E\u0439 \u043F\u0443\u0441\u0442\u043E\u0435.");
           return;
         }
-        const h = o.value.trim();
-        f(w(h)), O(h), v(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u043E\u0433\u043E \u043F\u043E\u043B\u044F.");
-      } catch (h) {
-        m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u043F\u043E\u0432\u0440\u0435\u0436\u0434\u0435\u043D\u0430 \u0438\u043B\u0438 \u043D\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u0438\u0442."), console.error(h);
+        const c = r.value.trim();
+        f(M(c)), C(c), I(), m("\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E \u0438\u0437 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u043E\u0433\u043E \u043F\u043E\u043B\u044F.");
+      } catch (c) {
+        m("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u043F\u043E\u0432\u0440\u0435\u0436\u0434\u0435\u043D\u0430 \u0438\u043B\u0438 \u043D\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u0438\u0442."), console.error(c);
       }
-    }), ee(), v();
+    }), ee(), I();
   }
-  function Ke(u) {
-    c.testMesh && (c.testMesh.rotation.y += u * 0.5), c.keyboardOrbitMove && c.keyboardOrbitMove.update(u), c.sceneClass && c.sceneClass.updateAnimations(u);
-  }
-  function $e() {
-    c.renderer && c.scene && c.camera && c.renderer.render(c.scene, c.camera), c.initClass && c.initClass.stats && c.initClass.stats.update();
+  function $e(d) {
+    h.testMesh && (h.testMesh.rotation.y += d * 0.5), h.keyboardOrbitMove && h.keyboardOrbitMove.update(d), h.sceneClass && h.sceneClass.updateAnimations(d);
   }
   function Je() {
-    let u = 0;
+    h.renderer && h.scene && h.camera && h.renderer.render(h.scene, h.camera), h.initClass && h.initClass.stats && h.initClass.stats.update();
+  }
+  function et() {
+    let d = 0;
     const e = 1 / 60, t = 0.1;
-    c.renderer.setAnimationLoop(() => {
-      let i = c.clock.getDelta();
-      i > t && (i = t), u += i;
+    h.renderer.setAnimationLoop(() => {
+      let i = h.clock.getDelta();
+      i > t && (i = t), d += i;
       let n = 5;
-      for (; u >= e && n > 0; ) Ke(e), u -= e, n--;
-      u > e && (u = 0), $e();
+      for (; d >= e && n > 0; ) $e(e), d -= e, n--;
+      d > e && (d = 0), Je();
     });
   }
 })();
 export {
   __tla,
-  et as __vite_legacy_guard
+  tt as __vite_legacy_guard
 };
