@@ -24,6 +24,7 @@ export class Panel2DApp {
     this.handlePointerMove = this.handlePointerMove.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   init() {
@@ -32,6 +33,7 @@ export class Panel2DApp {
     this.emptyState = document.getElementById("panel-2d-empty");
 
     if (!this.root || !this.board) return;
+    this.updateBoardMetrics();
 
     this.board.addEventListener("pointerdown", (event) => {
       if (event.target === this.board || event.target === this.emptyState) {
@@ -40,6 +42,7 @@ export class Panel2DApp {
     });
 
     window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("resize", this.handleResize);
   }
 
   show() {
@@ -51,6 +54,10 @@ export class Panel2DApp {
   hide() {
     if (this.root) this.root.style.display = "none";
     this.deselectPanel();
+  }
+
+  handleResize() {
+    this.updateBoardMetrics();
   }
 
   startPaletteDrag(panelIndex, event) {
@@ -159,6 +166,35 @@ export class Panel2DApp {
     };
   }
 
+  updateBoardMetrics() {
+    if (!this.board) return;
+
+    const previousTileSize = this.tileSize;
+    const boardWidth = this.board.clientWidth || window.innerWidth;
+    const boardHeight = this.board.clientHeight || window.innerHeight;
+    const minSide = Math.min(boardWidth, boardHeight);
+    const isMobile = window.innerWidth <= 600;
+    const maxTileByBoard = Math.floor(boardWidth / (isMobile ? 6.2 : 3));
+    const minTileSize = isMobile ? 48 : 82;
+    const preferredRatio = isMobile ? 0.135 : 0.26;
+    const nextTileSize = Math.max(
+      minTileSize,
+      Math.min(isMobile ? 64 : 140, maxTileByBoard, Math.round(minSide * preferredRatio))
+    );
+
+    this.tileSize = nextTileSize;
+    this.snapThreshold = Math.max(12, Math.round(this.tileSize * 0.18));
+    this.board.style.setProperty("--panel-tile-size", `${this.tileSize}px`);
+
+    if (!this.items.length || previousTileSize === this.tileSize) return;
+
+    this.items.forEach((item) => {
+      const nextX = Math.round(item.userData.x / previousTileSize) * this.tileSize;
+      const nextY = Math.round(item.userData.y / previousTileSize) * this.tileSize;
+      this.setItemPosition(item, nextX, nextY);
+    });
+  }
+
   getSnapCandidates(item, axis) {
     const boardLimit =
       axis === "x"
@@ -263,38 +299,22 @@ export class Panel2DApp {
   }
 
   shufflePanelsOnWalls() {
-    if (!this.items.length) return;
+    if (this.items.length < 2) return;
 
-    const gap = 12;
-    const step = this.tileSize + gap;
-    const cols = Math.max(1, Math.floor((this.board.clientWidth + gap) / step));
-    const slots = [];
+    const occupiedPositions = this.items.map((item) => ({
+      x: item.userData.x,
+      y: item.userData.y,
+    }));
 
-    for (let row = 0; row < 100; row++) {
-      for (let col = 0; col < cols; col++) {
-        slots.push({
-          x: col * step,
-          y: row * step,
-        });
-      }
-
-      if ((row + 1) * step > this.board.clientHeight - this.tileSize) {
-        break;
-      }
-    }
-
-    for (let index = slots.length - 1; index > 0; index--) {
+    for (let index = occupiedPositions.length - 1; index > 0; index--) {
       const randomIndex = Math.floor(Math.random() * (index + 1));
-      const temp = slots[index];
-      slots[index] = slots[randomIndex];
-      slots[randomIndex] = temp;
+      const temp = occupiedPositions[index];
+      occupiedPositions[index] = occupiedPositions[randomIndex];
+      occupiedPositions[randomIndex] = temp;
     }
 
     this.items.forEach((item, index) => {
-      const slot = slots[index] || {
-        x: (index % cols) * step,
-        y: Math.floor(index / cols) * step,
-      };
+      const slot = occupiedPositions[index];
       this.setItemPosition(item, slot.x, slot.y);
     });
   }

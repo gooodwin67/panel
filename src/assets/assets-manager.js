@@ -8,7 +8,7 @@ export class AssetsManager {
     this.loader = new GLTFLoader();
     this.worldScale = gameContext.sceneConfig?.worldScale || 1;
     this.basePanelCellSize = 0.5;
-    this.basePanelGap = 0.01;
+    this.basePanelGap = -0.002;
     this.panelTargetSize =
       this.basePanelCellSize * this.worldScale - this.basePanelGap;
     this.panels = [];
@@ -57,23 +57,65 @@ export class AssetsManager {
 
         meshesToProcess.forEach((child) => {
           const oldMaterial = child.material;
-          const material = Array.isArray(oldMaterial)
-            ? oldMaterial[0]
-            : oldMaterial;
+          const sourceMaterials = Array.isArray(oldMaterial)
+            ? oldMaterial
+            : [oldMaterial];
 
-          const newMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            normalMap: material?.normalMap || null,
-            emissive: 0x000000,
-            metalness: 0.4,
-            roughness: 0.8,
-            side: THREE.FrontSide,
+          child.material = sourceMaterials.map((sourceMaterial) => {
+            const newMaterial = new THREE.MeshPhysicalMaterial({
+              color: 0xffffff,
+              map: sourceMaterial?.map || null,
+              normalMap: sourceMaterial?.normalMap || null,
+              roughnessMap: sourceMaterial?.roughnessMap || null,
+              metalnessMap: sourceMaterial?.metalnessMap || null,
+              aoMap: sourceMaterial?.aoMap || null,
+              displacementMap: sourceMaterial?.displacementMap || null,
+              alphaMap: sourceMaterial?.alphaMap || null,
+              transparent: sourceMaterial?.transparent || false,
+              opacity: sourceMaterial?.opacity ?? 1,
+              emissive: 0x000000,
+              metalness: 0.02,
+              roughness: 0.94,
+              clearcoat: 0.02,
+              clearcoatRoughness: 0.9,
+              sheen: 0.08,
+              sheenRoughness: 0.95,
+              side: THREE.FrontSide,
+            });
+
+            if (newMaterial.map) {
+              newMaterial.map.colorSpace = THREE.SRGBColorSpace;
+              newMaterial.map.anisotropy =
+                this.gameContext.renderer.capabilities.getMaxAnisotropy();
+            }
+
+            [
+              newMaterial.normalMap,
+              newMaterial.roughnessMap,
+              newMaterial.metalnessMap,
+              newMaterial.aoMap,
+              newMaterial.displacementMap,
+              newMaterial.alphaMap,
+            ].forEach((texture) => {
+              if (!texture) return;
+              texture.anisotropy =
+                this.gameContext.renderer.capabilities.getMaxAnisotropy();
+            });
+
+            return newMaterial;
           });
+
+          if (!Array.isArray(oldMaterial)) {
+            child.material = child.material[0];
+          }
 
           child.castShadow = true;
           child.receiveShadow = true;
 
-          const backMesh = new THREE.Mesh(backGeometry, newMaterial);
+          const backMaterial = Array.isArray(child.material)
+            ? child.material[0].clone()
+            : child.material.clone();
+          const backMesh = new THREE.Mesh(backGeometry, backMaterial);
           backMesh.position.y = 0.0005;
           backMesh.rotation.x = -Math.PI / 2;
 

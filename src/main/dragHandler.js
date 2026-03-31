@@ -307,7 +307,7 @@ export class PanelDragHandler {
     const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
       this.currentWall.quaternion
     );
-    worldPosition.add(normal.multiplyScalar(this.panelDepth * 0.1));
+    worldPosition.add(normal.multiplyScalar(this.panelDepth * 0.25));
 
     this.currentWall.add(newPanel);
     this.currentWall.worldToLocal(worldPosition);
