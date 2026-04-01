@@ -41,6 +41,9 @@ export class AssetsManager {
         const meshesToProcess = [];
         root.traverse((child) => {
           if (!child.isMesh) return;
+          if (child.geometry && !child.geometry.attributes.normal) {
+            child.geometry.computeVertexNormals();
+          }
           child.scale.set(1, 2, 1);
           meshesToProcess.push(child);
         });

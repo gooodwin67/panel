@@ -142,15 +142,6 @@ export class SceneClass {
         intensity: this.lightManager.ambientLight.intensity,
         color: "#" + this.lightManager.ambientLight.color.getHexString(),
       },
-      centerLight: this.lightManager.centerLight
-        ? {
-            position: this.lightManager.centerLight.position.toArray(),
-            color: "#" + this.lightManager.centerLight.color.getHexString(),
-            intensity: this.lightManager.centerLight.intensity,
-            distance: this.lightManager.centerLight.distance,
-            decay: this.lightManager.centerLight.decay,
-          }
-        : null,
       rug,
       table,
       lamp,
@@ -255,15 +246,6 @@ export class SceneClass {
       if (state.ambientLight.color) {
         this.lightManager.ambientLight.color.set(state.ambientLight.color);
       }
-    }
-
-    if (state.centerLight && this.lightManager.centerLight) {
-      this.lightManager.centerLight.position.fromArray(state.centerLight.position || this.lightManager.centerLight.position.toArray());
-      this.lightManager.lightBulbMesh.position.copy(this.lightManager.centerLight.position);
-      this.lightManager.centerLight.color.set(state.centerLight.color || "#ffe6c2");
-      this.lightManager.centerLight.intensity = Number(state.centerLight.intensity ?? this.lightManager.centerLight.intensity);
-      this.lightManager.centerLight.distance = Number(state.centerLight.distance ?? this.lightManager.centerLight.distance);
-      this.lightManager.centerLight.decay = Number(state.centerLight.decay ?? this.lightManager.centerLight.decay);
     }
 
     (state.sideLights || []).forEach((lightState) => {
@@ -556,26 +538,6 @@ export class SceneClass {
   // ---- Возвращает атмосферный свет ----
   get ambientLight() {
     return this.lightManager.ambientLight;
-  }
-
-  // ---- Возвращает основной свет ----
-  get centerLight() {
-    return this.lightManager.centerLight;
-  }
-
-  // ---- Возвращает меш лампы ----
-  get lightBulbMesh() {
-    return this.lightManager.lightBulbMesh;
-  }
-
-  // ---- Возвращает боковой свет ----
-  get sideLight() {
-    return this.lightManager.sideLight;
-  }
-
-  // ---- Возвращает меш боковой лампы ----
-  get sideBulbMesh() {
-    return this.lightManager.sideBulbMesh;
   }
 
   // ---- Возвращает лампочки ----

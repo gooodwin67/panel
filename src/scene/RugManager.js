@@ -17,11 +17,7 @@ export class RugManager {
     const rugWidth = 4 * this.worldScale;
     const rugDepth = 3 * this.worldScale;
 
-    const rugGeometry = new THREE.BoxGeometry(
-      rugWidth,
-      0.005 * this.worldScale,
-      rugDepth
-    );
+    const rugGeometry = new THREE.PlaneGeometry(rugWidth, rugDepth);
     const textureLoader = new THREE.TextureLoader();
     const rugTexture = textureLoader.load("textures/1/carpet-color.jpg");
     const rugBump = textureLoader.load("textures/1/carpet-normal.jpg");
@@ -50,7 +46,8 @@ export class RugManager {
     });
 
     this.rug = new THREE.Mesh(rugGeometry, rugMaterial);
-    this.rug.position.y = -heightWall / 2 + 0.005 * this.worldScale;
+    this.rug.rotation.x = -Math.PI / 2;
+    this.rug.position.y = -heightWall / 2 + 0.003 * this.worldScale;
     this.rug.receiveShadow = true;
     this.rug.castShadow = false;
     this.rug.userData.isRug = true;

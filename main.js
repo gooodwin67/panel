@@ -1,6 +1,6 @@
 ﻿import * as THREE from "three";
-import GUI from "three/addons/libs/lil-gui.module.min.js";
 
+import GUI from "three/addons/libs/lil-gui.module.min.js";
 import { InitClass } from "./src/main/init.js";
 import { SceneClass } from "./src/main/scene.js";
 import { GuiClass } from "./src/main/gui.js";
@@ -35,8 +35,7 @@ async function startScene() {
 
 // ---- Создает основные классы ----
 async function initClases() {
-  gameContext.gui = new GUI();
-
+  gameContext.gui = new GUI({ title: "Свет сцены" });
   gameContext.initClass = new InitClass(gameContext);
   gameContext.scene = gameContext.initClass.scene;
   gameContext.camera = gameContext.initClass.camera;
@@ -63,6 +62,7 @@ async function initSceneFunctions() {
   if (gameContext.guiClass) {
     gameContext.guiClass.refresh();
     gameContext.guiClass.refreshLight();
+    gameContext.guiClass.refreshAmbient?.();
   }
 }
 

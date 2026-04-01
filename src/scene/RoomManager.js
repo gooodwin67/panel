@@ -17,7 +17,6 @@ export class RoomManager {
 
     this.textureLoader = new THREE.TextureLoader();
     this.baseGridTexture = this.createGridTexture();
-    this.baseBlankTexture = this.createBlankTexture();
 
     this.wallTexture = this.textureLoader.load("textures/1/wall-color.jpg");
     this.wallTexture.wrapS = THREE.RepeatWrapping;
@@ -105,17 +104,9 @@ export class RoomManager {
     gridTexture.wrapT = THREE.RepeatWrapping;
     gridTexture.needsUpdate = true;
 
-    const blankTexture = this.baseBlankTexture.clone();
-    blankTexture.repeat.set(repeatX, repeatY);
-    blankTexture.wrapS = THREE.RepeatWrapping;
-    blankTexture.wrapT = THREE.RepeatWrapping;
-    blankTexture.needsUpdate = true;
-
     const material = new THREE.MeshStandardMaterial({
       map: wallTexture,
       roughnessMap: roughTexture,
-      alphaMap: gridTexture,
-      transparent: true,
       color: 0xffffff,
       roughness: 1.0,
       metalness: 0.0,
@@ -125,18 +116,32 @@ export class RoomManager {
     material.envMapIntensity = 0.8;
 
     const mesh = new THREE.Mesh(geometry, material);
+    const gridOverlayMaterial = new THREE.MeshBasicMaterial({
+      map: gridTexture,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+      toneMapped: false,
+    });
+    const gridOverlay = new THREE.Mesh(geometry, gridOverlayMaterial);
+    gridOverlay.position.z = 0.001 * this.config.worldScale;
+    gridOverlay.renderOrder = 2;
+    gridOverlay.visible = this.isNetVisible;
+    gridOverlay.raycast = () => {};
+
     mesh.userData.gridTexture = gridTexture;
-    mesh.userData.blankTexture = blankTexture;
+    mesh.userData.gridOverlay = gridOverlay;
     mesh.receiveShadow = true;
+    mesh.add(gridOverlay);
 
     mesh.onBeforeRender = (renderer, scene, camera) => {
       mesh.getWorldPosition(_tempVec);
       _tempVec.subVectors(camera.position, _tempVec);
       _tempNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
       const isLookingAtFront = _tempVec.dot(_tempNormal) > 0;
-      mesh.children.forEach((child) => {
-        child.visible = isLookingAtFront;
-      });
+      if (mesh.userData.gridOverlay) {
+        mesh.userData.gridOverlay.visible = this.isNetVisible && isLookingAtFront;
+      }
     };
 
     return mesh;
@@ -236,12 +241,9 @@ export class RoomManager {
     this.isNetVisible = !this.isNetVisible;
 
     this.walls.forEach((wall) => {
-      if (!wall.material) return;
-
-      wall.material.alphaMap = this.isNetVisible
-        ? wall.userData.gridTexture
-        : null;
-      wall.material.needsUpdate = true;
+      if (wall.userData.gridOverlay) {
+        wall.userData.gridOverlay.visible = this.isNetVisible;
+      }
     });
   }
   // ---- Красит все стены ----
@@ -259,32 +261,13 @@ export class RoomManager {
     canvas.height = 128;
 
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#cccccc";
-    ctx.fillRect(0, 0, 128, 128);
-    ctx.strokeStyle = "#444444";
+    ctx.clearRect(0, 0, 128, 128);
+    ctx.strokeStyle = "rgba(68, 68, 68, 0.95)";
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, 128, 128);
 
     const texture = new THREE.CanvasTexture(canvas);
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.generateMipmaps = true;
-    texture.anisotropy =
-      this.gameContext.renderer.capabilities.getMaxAnisotropy();
-
-    return texture;
-  }
-  // ---- Создает пустую текстуру ----
-  createBlankTexture() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-
-    const context = canvas.getContext("2d");
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, 128, 128);
-
-    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
     texture.magFilter = THREE.LinearFilter;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.generateMipmaps = true;
