@@ -6,6 +6,7 @@ export class InitClass {
   // ---- Собирает базовую сцену ----
   constructor(gameContext) {
     this.gameContext = gameContext;
+
     const worldScale = gameContext.sceneConfig?.worldScale || 1;
 
     this.onWindowResize = this.onWindowResize.bind(this);

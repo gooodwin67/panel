@@ -13,7 +13,7 @@ console.clear();
 const gameContext = {};
 gameContext.clock = new THREE.Clock();
 gameContext.sceneConfig = {
-  worldScale: 10,
+  worldScale: 1,
 };
 gameContext.appMode = null;
 const SCENE_STATE_STORAGE_KEY = "room-configurator-scene-state";

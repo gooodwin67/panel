@@ -63,7 +63,7 @@ export class AssetsManager {
 
           child.material = sourceMaterials.map((sourceMaterial) => {
             const newMaterial = new THREE.MeshPhysicalMaterial({
-              color: 0xffffff,
+              color: 0x91b195,
               map: sourceMaterial?.map || null,
               normalMap: sourceMaterial?.normalMap || null,
               roughnessMap: sourceMaterial?.roughnessMap || null,
@@ -73,13 +73,13 @@ export class AssetsManager {
               alphaMap: sourceMaterial?.alphaMap || null,
               transparent: sourceMaterial?.transparent || false,
               opacity: sourceMaterial?.opacity ?? 1,
-              emissive: 0x000000,
-              metalness: 0.02,
+              // emissive: 0x000000,
+              // metalness: 0.02,
               roughness: 0.94,
-              clearcoat: 0.02,
-              clearcoatRoughness: 0.9,
-              sheen: 0.08,
-              sheenRoughness: 0.95,
+              // clearcoat: 0.02,
+              // clearcoatRoughness: 0.9,
+              // sheen: 0.08,
+              // sheenRoughness: 0.95,
               side: THREE.FrontSide,
             });
 
@@ -109,7 +109,7 @@ export class AssetsManager {
             child.material = child.material[0];
           }
 
-          child.castShadow = true;
+          child.castShadow = false;
           child.receiveShadow = true;
 
           const backMaterial = Array.isArray(child.material)
