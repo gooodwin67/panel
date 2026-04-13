@@ -178,7 +178,6 @@ canvas {
     cursor: grab;
     touch-action: none;
     transform-origin: center center;
-    border-radius: 10px;
     transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -186,10 +185,21 @@ canvas {
     cursor: grabbing;
 }
 
+.panel-2d-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--panel-color-overlay, transparent);
+    pointer-events: none;
+}
+
 .panel-2d-item img {
     width: 100%;
     height: 100%;
     display: block;
+    position: relative;
+    z-index: 0;
     user-select: none;
     pointer-events: none;
     -webkit-user-drag: none;
@@ -199,8 +209,8 @@ canvas {
     content: "";
     position: absolute;
     inset: -6px;
+    z-index: 2;
     border: 2px solid #00E5FF;
-    border-radius: 14px;
     box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.2);
 }
 
@@ -208,7 +218,8 @@ body.mode-2d canvas,
 body.mode-2d .light-selection-ui,
 body.mode-2d .furniture-selection-ui,
 body.mode-2d .rug-selection-ui,
-body.mode-2d .table-lamp-selection-ui {
+body.mode-2d .table-lamp-selection-ui,
+body.mode-2d .wall-tv-selection-ui {
     display: none !important;
 }
 
@@ -216,7 +227,9 @@ body.mode-2d .ui-tab[data-target="tab-lights"],
 body.mode-2d #tab-lights,
 body.mode-2d #add-table,
 body.mode-2d #add-table-lamp,
-body.mode-2d #tab-scene .color-picker-group,
+body.mode-2d #add-wall-tv,
+body.mode-2d #btn-scene-lock,
+body.mode-2d #tab-scene .wall-color-control,
 body.mode-2d #selection-ui .color-picker-group,
 body.mode-2d #selection-ui #btn-all-color {
     display: none !important;
@@ -391,6 +404,53 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
     padding: 0;
 }
 
+.action-btn.color-picker-group {
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn.color-picker-group .btn-text,
+.action-btn.color-picker-group .color-preview {
+    pointer-events: none;
+}
+
+.action-btn.color-picker-group input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+.color-preview {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    background: var(--preview-color, #ffffff);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+}
+
+.color-presets {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.color-preset {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    border-radius: 6px;
+    background: var(--preset-color, #ffffff);
+    cursor: pointer;
+}
+
+.color-preset:hover {
+    border-color: #00E5FF;
+}
+
 
 
 /*////////////////////*/
@@ -438,6 +498,19 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
 
 .panel-controls button:hover {
     color: #fff;
+}
+
+#btn-scene-lock.active {
+    color: #00E5FF;
+}
+
+.scene-lock-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+body.scene-locked .panel {
+    cursor: default;
 }
 
 /* --- КОМПАКТНЫЙ РЕЖИМ --- */
@@ -498,7 +571,7 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    border-radius: 8px;
     color: #fff;
     z-index: 999999;
     width: 280px;
@@ -506,18 +579,6 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
     flex-direction: column;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     pointer-events: auto;
-}
-
-/* Для лампочки сделаем позицию справа, чтобы не перекрывали друг друга, если случайно откроются обе */
-.light-selection-ui {
-    left: auto;
-    right: 20px;
-}
-
-.table-lamp-selection-ui {
-    left: auto;
-    right: 20px;
-    top: 280px;
 }
 
 .ui-header {
@@ -695,18 +756,6 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
         margin: 0 auto; /* По центру */
     }
 
-    /* Сбрасываем привязку к правому краю для лампы */
-    .light-selection-ui {
-        left: 10px;
-        right: 10px;
-    }
-
-    .table-lamp-selection-ui {
-        left: 10px;
-        right: 10px;
-        top: auto;
-    }
-
     .ui-header {
         padding: 8px 12px;
     }
@@ -732,9 +781,25 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
         margin-left: 10px;
     }
 
-   .action-btn {
+    .action-btn {
         padding: 8px;
         font-size: 12px;
+    }
+
+    .ui-tab-content {
+        padding: 14px 12px;
+    }
+
+    .panels {
+        gap: 8px;
+    }
+
+    .panel {
+        flex: 0 1 calc((100% - 24px) / 4);
+        height: auto;
+        aspect-ratio: 1;
+        min-width: 0;
+        border-radius: 8px;
     }
 
     .panel-2d-board-wrap {

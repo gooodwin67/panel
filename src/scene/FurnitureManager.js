@@ -1,5 +1,7 @@
 ﻿import * as THREE from "three";
 
+import { hideFloatingUi, showFloatingUi } from "../main/floatingUi.js";
+
 const TABLE_POSITIONS = [
   { x: 0, z: 0 },
   { x: -1.2, z: 0.8 },
@@ -23,8 +25,10 @@ export class FurnitureManager {
     this.worldScale = config.worldScale || 1;
     this.furnitureItems = [];
     this.tableLamps = [];
+    this.wallTvs = [];
     this.selectedFurniture = null;
     this.selectedLamp = null;
+    this.selectedTv = null;
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this._tempQuaternion = new THREE.Quaternion();
@@ -175,6 +179,77 @@ export class FurnitureManager {
     }
   }
 
+  // ---- Добавляет телевизор на активную стену ----
+  addWallTv() {
+    if (this.wallTvs.length > 0) {
+      const existingTv = this.wallTvs[0];
+      this.selectWallTv(existingTv);
+      return existingTv;
+    }
+
+    const template = this.gameContext.assetManager.furniture.tv;
+    if (!template) {
+      console.warn("Телевизор еще не загружен");
+      return null;
+    }
+
+    const holder = new THREE.Group();
+    const tv = template.clone(true);
+    holder.name = `wall_tv_${this.wallTvs.length + 1}`;
+    holder.userData.isWallTv = true;
+    holder.userData.type = "wallTv";
+    holder.add(tv);
+
+    tv.traverse((child) => {
+      if (!child.isMesh) return;
+      child.castShadow = true;
+      child.receiveShadow = false;
+
+      if (Array.isArray(child.material)) {
+        child.material = child.material.map((material) => material.clone());
+      } else if (child.material) {
+        child.material = child.material.clone();
+      }
+
+      this.tuneFurnitureMaterial(child);
+    });
+
+    const bounds = new THREE.Box3().setFromObject(tv);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    tv.position.x -= center.x;
+    tv.position.y -= center.y;
+    tv.position.z -= center.z;
+
+    holder.userData.baseWidth = Math.max(size.x, 0.1);
+    holder.userData.baseHeight = Math.max(size.y, 0.1);
+    holder.userData.baseDepth = Math.max(size.z, 0.01);
+
+    const wallSize = this.getWallSizeForTv(this.getDefaultTvWallIndex());
+    const initialWidth = Math.min(holder.userData.baseWidth, wallSize.width * 0.55);
+    const scale = initialWidth / holder.userData.baseWidth;
+    holder.scale.set(scale, scale, scale);
+    holder.position.set(0, 0, 0);
+
+    this.attachTvToWall(holder, this.getDefaultTvWallIndex());
+    this.wallTvs.push(holder);
+    this.selectWallTv(holder);
+    return holder;
+  }
+
+  // ---- Удаляет телевизор со стены ----
+  deleteWallTv() {
+    const tv = this.wallTvs[0];
+    if (!tv) return;
+
+    this.removeObject(tv);
+    this.wallTvs = [];
+
+    if (this.selectedTv === tv) {
+      this.deselectWallTv();
+    }
+  }
+
   // ---- Подстраивает материалы мебели ----
   tuneFurnitureMaterial(mesh) {
     const materials = Array.isArray(mesh.material)
@@ -278,12 +353,29 @@ export class FurnitureManager {
     return target || null;
   }
 
+  // ---- Проверяет клик по телевизору на стене ----
+  hitWallTvTest(event) {
+    if (this.wallTvs.length === 0) return null;
+
+    this.updatePointer(event);
+    this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
+
+    const intersects = this.raycaster.intersectObjects(this.wallTvs, true);
+    if (intersects.length === 0) return null;
+
+    let target = intersects[0].object;
+    while (target && !target.userData.isWallTv) {
+      target = target.parent;
+    }
+
+    return target || null;
+  }
+
   // ---- Выбирает мебель ----
   selectFurniture(furniture) {
     this.selectedFurniture = furniture;
 
-    const ui = document.querySelector(".furniture-selection-ui");
-    if (ui) ui.style.display = "flex";
+    showFloatingUi(".furniture-selection-ui");
 
     this.refreshFurnitureUI();
   }
@@ -292,12 +384,14 @@ export class FurnitureManager {
   deselectFurniture() {
     this.selectedFurniture = null;
 
-    const ui = document.querySelector(".furniture-selection-ui");
-    if (ui) ui.style.display = "none";
+    hideFloatingUi(".furniture-selection-ui");
   }
 
   // ---- Удаляет объект мебели из сцены ----
   removeObject(object) {
+    if (object.parent) {
+      object.parent.remove(object);
+    }
     this.gameContext.scene.remove(object);
 
     object.traverse((child) => {
@@ -326,12 +420,19 @@ export class FurnitureManager {
     const width = furniture.userData.baseWidth * furniture.scale.x;
     const depth = furniture.userData.baseDepth * furniture.scale.z;
     const rotationStep = furniture.userData.rotationStep || 0;
+    const footprint = this.getRotatedFurnitureFootprint(furniture, width, depth);
     const maxWidth = Math.max(this.config.widthWallFront * 0.9, width);
     const maxDepth = Math.max(this.config.widthWallSide * 0.9, depth);
     const minWidth = Math.max(furniture.userData.baseWidth * 0.5, 0.1);
     const minDepth = Math.max(furniture.userData.baseDepth * 0.5, 0.1);
-    const posLimitX = Math.max((this.config.widthWallFront - width) / 2, 0);
-    const posLimitZ = Math.max((this.config.widthWallSide - depth) / 2, 0);
+    const posLimitX = Math.max(
+      (this.config.widthWallFront - footprint.width) / 2,
+      0
+    );
+    const posLimitZ = Math.max(
+      (this.config.widthWallSide - footprint.depth) / 2,
+      0
+    );
 
     if (widthInput) {
       widthInput.min = String(minWidth);
@@ -367,8 +468,15 @@ export class FurnitureManager {
 
     furniture.scale.set(width / baseWidth, 1, depth / baseDepth);
 
-    const posLimitX = Math.max((this.config.widthWallFront - width) / 2, 0);
-    const posLimitZ = Math.max((this.config.widthWallSide - depth) / 2, 0);
+    const footprint = this.getRotatedFurnitureFootprint(furniture, width, depth);
+    const posLimitX = Math.max(
+      (this.config.widthWallFront - footprint.width) / 2,
+      0
+    );
+    const posLimitZ = Math.max(
+      (this.config.widthWallSide - footprint.depth) / 2,
+      0
+    );
     furniture.position.x = THREE.MathUtils.clamp(posX, -posLimitX, posLimitX);
     furniture.position.z = THREE.MathUtils.clamp(posZ, -posLimitZ, posLimitZ);
     furniture.position.y = -this.config.heightWall / 2;
@@ -390,14 +498,43 @@ export class FurnitureManager {
       rotationValue.textContent = `${normalizedStep * 90}\u00b0`;
     }
 
+    const width = furniture.userData.baseWidth * furniture.scale.x;
+    const depth = furniture.userData.baseDepth * furniture.scale.z;
+    const footprint = this.getRotatedFurnitureFootprint(furniture, width, depth);
+    const posLimitX = Math.max(
+      (this.config.widthWallFront - footprint.width) / 2,
+      0
+    );
+    const posLimitZ = Math.max(
+      (this.config.widthWallSide - footprint.depth) / 2,
+      0
+    );
+    furniture.position.x = THREE.MathUtils.clamp(
+      furniture.position.x,
+      -posLimitX,
+      posLimitX
+    );
+    furniture.position.z = THREE.MathUtils.clamp(
+      furniture.position.z,
+      -posLimitZ,
+      posLimitZ
+    );
+    this.refreshFurnitureUI();
+  }
+
+  // ---- Возвращает занимаемый размер мебели с учетом поворота ----
+  getRotatedFurnitureFootprint(furniture, width, depth) {
+    const rotationStep = Math.abs(furniture.userData.rotationStep || 0) % 2;
+    return rotationStep === 1
+      ? { width: depth, depth: width }
+      : { width, depth };
   }
 
   // ---- Выбирает настольную лампу ----
   selectLamp(lamp) {
     this.selectedLamp = lamp;
 
-    const ui = document.querySelector(".table-lamp-selection-ui");
-    if (ui) ui.style.display = "flex";
+    showFloatingUi(".table-lamp-selection-ui");
 
     this.refreshLampUI();
   }
@@ -406,8 +543,7 @@ export class FurnitureManager {
   deselectLamp() {
     this.selectedLamp = null;
 
-    const ui = document.querySelector(".table-lamp-selection-ui");
-    if (ui) ui.style.display = "none";
+    hideFloatingUi(".table-lamp-selection-ui");
   }
 
   // ---- Обновляет UI настольной лампы ----
@@ -482,6 +618,165 @@ export class FurnitureManager {
       this.config.widthWallSide / 2
     );
     this.refreshLampUI();
+  }
+
+  // ---- Выбирает настенный телевизор ----
+  selectWallTv(tv) {
+    this.selectedTv = tv;
+
+    showFloatingUi(".wall-tv-selection-ui");
+
+    this.refreshWallTvUI();
+  }
+
+  // ---- Снимает выбор настенного телевизора ----
+  deselectWallTv() {
+    this.selectedTv = null;
+
+    hideFloatingUi(".wall-tv-selection-ui");
+  }
+
+  // ---- Обновляет UI телевизора ----
+  refreshWallTvUI() {
+    const tv = this.selectedTv;
+    if (!tv) return;
+
+    const widthInput = document.getElementById("wall-tv-width");
+    const heightInput = document.getElementById("wall-tv-height");
+    const posXInput = document.getElementById("wall-tv-pos-x");
+    const posYInput = document.getElementById("wall-tv-pos-y");
+    const wallInput = document.getElementById("wall-tv-wall");
+    const wallValue = document.getElementById("wall-tv-wall-value");
+    const wallIndex = tv.userData.wallIndex || 0;
+    const wallSize = this.getWallSizeForTv(wallIndex);
+    const width = tv.userData.baseWidth * tv.scale.x;
+    const height = tv.userData.baseHeight * tv.scale.y;
+    const minWidth = Math.max(tv.userData.baseWidth * 0.25, 0.1);
+    const minHeight = Math.max(tv.userData.baseHeight * 0.25, 0.1);
+    const maxWidth = Math.max(wallSize.width * 0.9, width);
+    const maxHeight = Math.max(wallSize.height * 0.9, height);
+    const posLimitX = Math.max((wallSize.width - width) / 2, 0);
+    const posLimitY = Math.max((wallSize.height - height) / 2, 0);
+
+    if (widthInput) {
+      widthInput.min = String(minWidth);
+      widthInput.max = String(maxWidth);
+      widthInput.value = String(width);
+    }
+    if (heightInput) {
+      heightInput.min = String(minHeight);
+      heightInput.max = String(maxHeight);
+      heightInput.value = String(height);
+    }
+    if (posXInput) {
+      posXInput.min = String(-posLimitX);
+      posXInput.max = String(posLimitX);
+      posXInput.value = String(tv.position.x);
+    }
+    if (posYInput) {
+      posYInput.min = String(-posLimitY);
+      posYInput.max = String(posLimitY);
+      posYInput.value = String(tv.position.y);
+    }
+    if (wallInput) {
+      wallInput.min = "1";
+      wallInput.max = String(
+        Math.max(this.gameContext.sceneClass?.walls?.length || 4, 1)
+      );
+      wallInput.value = String(wallIndex + 1);
+    }
+    if (wallValue) wallValue.textContent = String(wallIndex + 1);
+  }
+
+  // ---- Меняет размер, стену и позицию телевизора ----
+  updateWallTvTransform(width, height, posX, posY, wallNumber) {
+    const tv = this.selectedTv;
+    if (!tv) return;
+
+    const requestedWallIndex = Number.isFinite(wallNumber)
+      ? wallNumber - 1
+      : tv.userData.wallIndex || 0;
+    const wallIndex = this.getClampedTvWallIndex(requestedWallIndex);
+    const wallSize = this.getWallSizeForTv(wallIndex);
+    const safeWidth = THREE.MathUtils.clamp(
+      width,
+      Math.max(tv.userData.baseWidth * 0.25, 0.1),
+      wallSize.width * 0.9
+    );
+    const safeHeight = THREE.MathUtils.clamp(
+      height,
+      Math.max(tv.userData.baseHeight * 0.25, 0.1),
+      wallSize.height * 0.9
+    );
+
+    this.attachTvToWall(tv, wallIndex);
+    tv.scale.set(
+      safeWidth / (tv.userData.baseWidth || 1),
+      safeHeight / (tv.userData.baseHeight || 1),
+      Math.max(
+        safeWidth / (tv.userData.baseWidth || 1),
+        safeHeight / (tv.userData.baseHeight || 1)
+      )
+    );
+
+    const posLimitX = Math.max((wallSize.width - safeWidth) / 2, 0);
+    const posLimitY = Math.max((wallSize.height - safeHeight) / 2, 0);
+    tv.position.x = THREE.MathUtils.clamp(posX, -posLimitX, posLimitX);
+    tv.position.y = THREE.MathUtils.clamp(posY, -posLimitY, posLimitY);
+    this.setWallTvDepthOffset(tv);
+    this.refreshWallTvUI();
+  }
+
+  // ---- Прикрепляет телевизор к стене ----
+  attachTvToWall(tv, wallIndex) {
+    const walls = this.gameContext.sceneClass?.walls || [];
+    const clampedWallIndex = this.getClampedTvWallIndex(wallIndex);
+    const wall = walls[clampedWallIndex];
+    if (!wall) return;
+
+    wall.add(tv);
+    tv.userData.wallIndex = clampedWallIndex;
+    this.setWallTvDepthOffset(tv);
+  }
+
+  // ---- Отодвигает телевизор от стены на толщину модели ----
+  setWallTvDepthOffset(tv) {
+    const depth = tv.userData.baseDepth || 0.01;
+    const scaleZ = tv.scale.z || 1;
+    tv.position.z = Math.max(
+      0.006 * this.worldScale,
+      depth * scaleZ * 0.5 + 0.006 * this.worldScale
+    );
+  }
+
+  // ---- Возвращает размер стены для телевизора ----
+  getWallSizeForTv(wallIndex) {
+    const normalizedIndex = this.getClampedTvWallIndex(wallIndex);
+    return {
+      width:
+        normalizedIndex === 2 || normalizedIndex === 3
+          ? this.config.widthWallSide
+          : this.config.widthWallFront,
+      height: this.config.heightWall,
+    };
+  }
+
+  // ---- Возвращает стену по умолчанию для телевизора ----
+  getDefaultTvWallIndex() {
+    const activeWallIndex = this.gameContext.sceneClass?.activeWallIndex;
+    return Number.isFinite(activeWallIndex)
+      ? this.getClampedTvWallIndex(activeWallIndex)
+      : 0;
+  }
+
+  // ---- Ограничивает индекс стены ----
+  getClampedTvWallIndex(wallIndex) {
+    const wallsCount = this.gameContext.sceneClass?.walls?.length || 4;
+    return THREE.MathUtils.clamp(
+      Math.round(Number(wallIndex) || 0),
+      0,
+      Math.max(wallsCount - 1, 0)
+    );
   }
 
   // ---- Считает координаты указателя ----

@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import { hideFloatingUi, showFloatingUi } from "../main/floatingUi.js";
+
+const _panelToCamera = new THREE.Vector3();
+const _panelWallNormal = new THREE.Vector3();
 
 export class PanelManager {
 // ---- Готовит состояние панелей ----
@@ -10,6 +14,8 @@ export class PanelManager {
   }
 // ---- Анимирует панели ----
   updateAnimations(delta) {
+    this.updatePanelVisibility();
+
     const rotationSpeed = 10;
     const moveSpeed = 10;
 
@@ -41,6 +47,30 @@ export class PanelManager {
       }
     }
   }
+// ---- Обновляет видимость панелей по стороне стены ----
+  updatePanelVisibility() {
+    const camera = this.roomManager.gameContext?.camera;
+    if (!camera) return;
+
+    this.roomManager.walls.forEach((wall) => {
+      const isFacingCamera = this.isWallFacingCamera(wall, camera);
+
+      wall.children.forEach((child) => {
+        if (child.userData?.isPanel) {
+          child.visible = isFacingCamera;
+        }
+      });
+    });
+  }
+// ---- Проверяет, смотрит ли камера на лицевую сторону стены ----
+  isWallFacingCamera(wall, camera) {
+    wall.getWorldPosition(_panelToCamera);
+    _panelToCamera.subVectors(camera.position, _panelToCamera);
+    _panelWallNormal.set(0, 0, 1).transformDirection(wall.matrixWorld);
+
+    return _panelToCamera.dot(_panelWallNormal) > 0;
+  }
+
 // ---- Случайно вращает панели ----
   randomRotate() {
     const panels = this.getAllPanels();
@@ -133,22 +163,23 @@ export class PanelManager {
       }
     });
 
-    const ui = document.querySelector(".selection-ui");
+    const ui = showFloatingUi(".selection-ui");
     if (ui) {
-      ui.style.display = "flex";
       const colorInput = document.getElementById("panel-color-picker");
       if (colorInput) colorInput.value = currentColor;
     }
   }
 // ---- Снимает выбор панели ----
   deselectPanel() {
-    if (!this.selectedPanel) return;
+    if (!this.selectedPanel) {
+      hideFloatingUi(".selection-ui");
+      return;
+    }
 
     this.removeSelectionOutline();
     this.selectedPanel = null;
 
-    const ui = document.querySelector(".selection-ui");
-    if (ui) ui.style.display = "none";
+    hideFloatingUi(".selection-ui");
   }
 // ---- Меняет цвет панели ----
   changeSelectedPanelColor(colorValue) {

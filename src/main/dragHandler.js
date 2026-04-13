@@ -277,6 +277,15 @@ export class PanelDragHandler {
     this.cleanupGhost();
   }
 
+  // ---- Отменяет перенос панели ----
+  cancelDrag() {
+    if (this.gameContext.controls) {
+      this.gameContext.controls.enabled = true;
+    }
+
+    this.cleanupGhost();
+  }
+
   // ---- Ставит панель на стену ----
   placePanel() {
     const templates = this.gameContext.assetManager.panels;

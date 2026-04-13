@@ -8,9 +8,7 @@ export class GuiClass {
     this.wallControllers = [];
     this.rendererControllers = [];
     this.ambientControllers = [];
-    this.hemisphereControllers = [];
     this.ceilingControllers = [];
-    this.fillLightFolders = [];
 
     this.init();
   }
@@ -19,18 +17,29 @@ export class GuiClass {
   init() {
     if (!this.gameContext.gui) return;
 
-    this.wallFolder = this.gameContext.gui.addFolder("Стены");
+    this.wallFolder = this.gameContext.gui.addFolder("Сетка");
     this.rendererFolder = this.gameContext.gui.addFolder("Рендер");
     this.lightFolder = this.gameContext.gui.addFolder("Свет комнаты");
     this.presetsFolder = this.lightFolder.addFolder("Пресеты");
-    this.ambientFolder = this.lightFolder.addFolder("Ambient");
-    this.hemisphereFolder = this.lightFolder.addFolder("Hemisphere");
-    this.ceilingFolder = this.lightFolder.addFolder("Потолочный Spot");
+    this.ambientFolder = this.lightFolder.addFolder("Фоновый свет");
+    this.ceilingFolder = this.lightFolder.addFolder("Потолочный свет");
     this.ceilingPositionFolder = this.ceilingFolder.addFolder("Позиция");
     this.ceilingBeamFolder = this.ceilingFolder.addFolder("Пятно");
-    this.ceilingTargetFolder = this.ceilingFolder.addFolder("Target");
+    this.ceilingTargetFolder = this.ceilingFolder.addFolder("Направление");
     this.ceilingShadowFolder = this.ceilingFolder.addFolder("Тени");
-    this.fillFolder = this.lightFolder.addFolder("Fill Lights");
+
+    [
+      this.wallFolder,
+      this.rendererFolder,
+      this.lightFolder,
+      this.presetsFolder,
+      this.ambientFolder,
+      this.ceilingFolder,
+      this.ceilingPositionFolder,
+      this.ceilingBeamFolder,
+      this.ceilingTargetFolder,
+      this.ceilingShadowFolder,
+    ].forEach((folder) => folder.close());
 
     this.sceneClass.onWallChanged = () => this.refresh();
 
@@ -46,10 +55,26 @@ export class GuiClass {
     this.wallControllers = [];
 
     const activeWall = this.sceneClass.walls[this.sceneClass.activeWallIndex];
-    if (!activeWall) return;
+    if (!activeWall) {
+      const hint = { message: "Выберете стену" };
+      const controller = this.wallFolder
+        .add(hint, "message")
+        .name(" ");
+      controller.disable?.();
+      this.wallControllers.push(controller);
+      return;
+    }
 
     const texture = activeWall.userData.gridTexture;
-    if (!texture) return;
+    if (!texture) {
+      const hint = { message: "Выберете стену" };
+      const controller = this.wallFolder
+        .add(hint, "message")
+        .name(" ");
+      controller.disable?.();
+      this.wallControllers.push(controller);
+      return;
+    }
 
     this.wallControllers.push(
       this.wallFolder
@@ -70,9 +95,7 @@ export class GuiClass {
     this.refreshRendererControls();
     this.refreshPresetControls();
     this.refreshAmbient();
-    this.refreshHemisphereControls();
     this.refreshCeilingControls();
-    this.refreshFillLightControls();
   }
 
   // ---- Обновляет кнопки пресетов ----
@@ -123,7 +146,7 @@ export class GuiClass {
     this.rendererControllers.push(
       this.rendererFolder
         .add(rendererParams, "exposure", 0.2, 1.6, 0.01)
-        .name("Exposure")
+        .name("Экспозиция")
         .onChange((value) => {
           renderer.toneMappingExposure = value;
         }),
@@ -153,53 +176,13 @@ export class GuiClass {
     this.ambientControllers.push(
       this.ambientFolder
         .add(ambientLight, "intensity", 0, 2, 0.01)
-        .name("Intensity")
+        .name("Яркость")
         .listen(),
       this.ambientFolder
         .addColor(params, "color")
-        .name("Color")
+        .name("Цвет")
         .onChange((value) => {
           ambientLight.color.set(value);
-        })
-    );
-  }
-
-  // ---- Обновляет hemisphere ----
-  refreshHemisphereControls() {
-    if (!this.hemisphereFolder) return;
-
-    this.hemisphereControllers.forEach((controller) => controller.destroy());
-    this.hemisphereControllers = [];
-
-    const roomLights = this.sceneClass.lightManager.getRoomLights();
-    const hemisphereLight = roomLights.hemisphereLight;
-    if (!hemisphereLight) return;
-
-    const params = {
-      skyColor: "#" + hemisphereLight.color.getHexString(),
-      groundColor: "#" + hemisphereLight.groundColor.getHexString(),
-    };
-
-    this.hemisphereControllers.push(
-      this.hemisphereFolder
-        .add(hemisphereLight, "intensity", 0, 2, 0.01)
-        .name("Intensity")
-        .listen(),
-      this.hemisphereFolder
-        .add(hemisphereLight.position, "y", -5, 5, 0.01)
-        .name("Height")
-        .listen(),
-      this.hemisphereFolder
-        .addColor(params, "skyColor")
-        .name("Sky")
-        .onChange((value) => {
-          hemisphereLight.color.set(value);
-        }),
-      this.hemisphereFolder
-        .addColor(params, "groundColor")
-        .name("Ground")
-        .onChange((value) => {
-          hemisphereLight.groundColor.set(value);
         })
     );
   }
@@ -242,33 +225,33 @@ export class GuiClass {
         .listen(),
       this.ceilingFolder
         .add(ceilingSpotLight, "intensity", 0, 120, 0.1)
-        .name("Intensity")
+        .name("Яркость")
         .onChange(() => {
           this.sceneClass.lightManager.syncLightFixture(ceilingSpotLight);
         })
         .listen(),
       this.ceilingFolder
         .add(ceilingSpotLight, "distance", 0, 30, 0.1)
-        .name("Distance")
+        .name("Дальность")
         .listen(),
       this.ceilingFolder
         .add(ceilingSpotLight, "decay", 0, 4, 0.01)
-        .name("Decay")
+        .name("Затухание")
         .listen(),
       this.ceilingFolder
         .addColor(params, "color")
-        .name("Color")
+        .name("Цвет")
         .onChange((value) => {
           ceilingSpotLight.color.set(value);
           this.sceneClass.lightManager.syncLightFixture(ceilingSpotLight);
         }),
       this.ceilingBeamFolder
         .add(ceilingSpotLight, "angle", 0.1, Math.PI / 1.5, 0.001)
-        .name("Angle")
+        .name("Угол")
         .listen(),
       this.ceilingBeamFolder
         .add(ceilingSpotLight, "penumbra", 0, 1, 0.01)
-        .name("Penumbra")
+        .name("Мягкость")
         .listen(),
       this.ceilingTargetFolder
         .add(params, "targetX", -4, 4, 0.01)
@@ -290,13 +273,13 @@ export class GuiClass {
         }),
       this.ceilingShadowFolder
         .add(params, "castShadow")
-        .name("castShadow")
+        .name("Отбрасывать")
         .onChange((value) => {
           ceilingSpotLight.castShadow = value;
         }),
       this.ceilingShadowFolder
         .add(params, "shadowMapSize", [512, 1024, 2048, 4096])
-        .name("mapSize")
+        .name("Размер карты")
         .onChange((value) => {
           const size = Number(value);
           ceilingSpotLight.shadow.mapSize.set(size, size);
@@ -304,72 +287,17 @@ export class GuiClass {
         }),
       this.ceilingShadowFolder
         .add(params, "shadowBias", -0.01, 0.01, 0.00001)
-        .name("bias")
+        .name("Смещение")
         .onChange((value) => {
           ceilingSpotLight.shadow.bias = value;
         }),
       this.ceilingShadowFolder
         .add(params, "shadowNormalBias", 0, 0.2, 0.001)
-        .name("normalBias")
+        .name("Смещение нормали")
         .onChange((value) => {
           ceilingSpotLight.shadow.normalBias = value;
         })
     );
-  }
-
-  // ---- Обновляет fill-lights ----
-  refreshFillLightControls() {
-    if (!this.fillFolder) return;
-
-    this.fillLightFolders.forEach((folder) => folder.destroy());
-    this.fillLightFolders = [];
-
-    const roomLights = this.sceneClass.lightManager.getRoomLights();
-    const fillLights = roomLights.fillLights || [];
-
-    fillLights.forEach((light, index) => {
-      const folder = this.fillFolder.addFolder(`Fill ${index + 1}`);
-      const params = {
-        color: "#" + light.color.getHexString(),
-      };
-
-      folder
-        .add(light, "intensity", 0, 60, 0.1)
-        .name("Intensity")
-        .onChange(() => {
-          this.sceneClass.lightManager.syncLightFixture(light);
-        })
-        .listen();
-      folder
-        .add(light, "distance", 0, 20, 0.1)
-        .name("Distance")
-        .listen();
-      folder
-        .add(light, "decay", 0, 4, 0.01)
-        .name("Decay")
-        .listen();
-      folder
-        .add(light.position, "x", -4, 4, 0.01)
-        .name("X")
-        .listen();
-      folder
-        .add(light.position, "y", -4, 4, 0.01)
-        .name("Y")
-        .listen();
-      folder
-        .add(light.position, "z", -4, 4, 0.01)
-        .name("Z")
-        .listen();
-      folder
-        .addColor(params, "color")
-        .name("Color")
-        .onChange((value) => {
-          light.color.set(value);
-          this.sceneClass.lightManager.syncLightFixture(light);
-        });
-
-      this.fillLightFolders.push(folder);
-    });
   }
 
   // ---- Переводит кельвины в цвет ----

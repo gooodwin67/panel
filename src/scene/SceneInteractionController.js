@@ -14,9 +14,14 @@
   onPointerDown(event) {
     if (
       event.target.closest(".floating-ui") ||
+      event.target.closest(".bottom_panel") ||
       event.target.tagName === "BUTTON" ||
       event.target.tagName === "INPUT"
     ) {
+      return;
+    }
+
+    if (this.sceneClass.isSceneLocked) {
       return;
     }
 
@@ -30,6 +35,12 @@
     const hitLamp = this.sceneClass.furnitureManager.hitLampTest(event);
     if (hitLamp) {
       this.sceneClass.selectTableLamp(hitLamp);
+      return;
+    }
+
+    const hitWallTv = this.sceneClass.furnitureManager.hitWallTvTest(event);
+    if (hitWallTv) {
+      this.sceneClass.selectWallTv(hitWallTv);
       return;
     }
 
@@ -52,6 +63,10 @@
   }
 // ---- Обрабатывает движение указателя ----
   onPointerMove(event) {
+    if (this.sceneClass.isSceneLocked) {
+      return;
+    }
+
     if (this.sceneClass.lightManager.isDraggingLightBulb) {
       this.sceneClass.lightManager.onPointerMoveLightBulb(event);
       return;
@@ -61,6 +76,10 @@
   }
 // ---- Обрабатывает отпускание указателя ----
   onPointerUp(event) {
+    if (this.sceneClass.isSceneLocked) {
+      return;
+    }
+
     if (this.sceneClass.lightManager.isDraggingLightBulb) {
       this.sceneClass.lightManager.stopDragLightBulb();
       return;

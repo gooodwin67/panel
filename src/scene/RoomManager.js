@@ -13,7 +13,10 @@ export class RoomManager {
     this.floor = null;
     this.ceiling = null;
     this.isNetVisible = true;
-    this.activeWallIndex = 0;
+    this.activeWallIndex = null;
+    this.gridSelectionColor = "#1612d3";
+    this.inactiveGridOpacity = 0.45;
+    this.activeGridOpacity = 1;
 
     this.textureLoader = new THREE.TextureLoader();
     this.baseGridTexture = this.createGridTexture();
@@ -118,7 +121,9 @@ export class RoomManager {
     const mesh = new THREE.Mesh(geometry, material);
     const gridOverlayMaterial = new THREE.MeshBasicMaterial({
       map: gridTexture,
+      color: 0xffffff,
       transparent: true,
+      opacity: this.inactiveGridOpacity,
       depthWrite: false,
       side: THREE.FrontSide,
       toneMapped: false,
@@ -224,6 +229,7 @@ export class RoomManager {
     if (nextIndex === -1) return;
 
     this.activeWallIndex = nextIndex;
+    this.highlightActiveWall();
     if (this.onWallChanged) {
       this.onWallChanged();
     }
@@ -232,8 +238,14 @@ export class RoomManager {
   highlightActiveWall() {
     this.walls.forEach((wall, index) => {
       const isActive = index === this.activeWallIndex;
-      wall.material.color.setHex(!isActive ? 0xffffff : 0x888888);
-      wall.material.opacity = !isActive ? 0.8 : 0.4;
+      const gridMaterial = wall.userData.gridOverlay?.material;
+      if (!gridMaterial) return;
+
+      gridMaterial.color.set(this.gridSelectionColor);
+      gridMaterial.opacity = isActive
+        ? this.activeGridOpacity
+        : this.inactiveGridOpacity;
+      gridMaterial.needsUpdate = true;
     });
   }
   // ---- Показывает сетку стены ----

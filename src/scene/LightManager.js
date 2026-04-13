@@ -1,5 +1,7 @@
 ﻿import * as THREE from "three";
 
+import { hideFloatingUi, showFloatingUi } from "../main/floatingUi.js";
+
 export class LightManager {
   // ---- Готовит состояние света ----
   constructor(gameContext, config) {
@@ -104,18 +106,16 @@ export class LightManager {
       },
     ];
 
-    this.fillLights = fillLightConfigs.map((config) => {
-      const light = new THREE.PointLight(
-        config.color,
-        config.intensity,
-        config.distance,
-        config.decay
-      );
-      light.position.copy(config.position);
-      light.castShadow = false;
-      this.attachFillFixture(light);
-      this.gameContext.scene.add(light);
-      return light;
+    this.fillLights = [];
+    fillLightConfigs.forEach((config) => {
+      this.addLightBulb({
+        color: config.color,
+        intensity: config.intensity,
+        distance: config.distance,
+        decay: config.decay,
+        position: config.position,
+        isRoomLight: true,
+      });
     });
 
     this.syncRoomLightVisuals();
@@ -132,55 +132,160 @@ export class LightManager {
   // ---- Добавляет корпус потолочного светильника ----
   attachCeilingFixture(light) {
     const fixtureRoot = new THREE.Group();
-    const trim = new THREE.Mesh(
-      new THREE.RingGeometry(
-        0.07 * this.worldScale,
-        0.16 * this.worldScale,
-        32
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0xf3eee6,
-        roughness: 0.68,
-        metalness: 0.02,
-        side: THREE.FrontSide,
-      })
-    );
-    trim.rotation.x = Math.PI / 2;
-    trim.position.set(0, -0.0015 * this.worldScale, 0);
+    fixtureRoot.position.y = -0.022 * this.worldScale;
 
-    const core = new THREE.Mesh(
-      new THREE.CircleGeometry(0.07 * this.worldScale, 24),
-      new THREE.MeshStandardMaterial({
-        color: 0xd8d0c3,
-        roughness: 0.95,
-        metalness: 0.0,
-        side: THREE.FrontSide,
-      })
+    const bodyMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd8d0c3,
+      roughness: 0.72,
+      metalness: 0.02,
+    });
+    const diffuserMaterial = new THREE.MeshBasicMaterial({
+      color: light.color.clone(),
+      transparent: true,
+      opacity: 0.78,
+      toneMapped: false,
+    });
+
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        0.13 * this.worldScale,
+        0.105 * this.worldScale,
+        0.045 * this.worldScale,
+        40
+      ),
+      bodyMaterial
     );
-    core.rotation.x = Math.PI / 2;
-    core.position.set(0, -0.0014 * this.worldScale, 0);
 
     const diffuser = new THREE.Mesh(
-      new THREE.CircleGeometry(0.038 * this.worldScale, 24),
-      new THREE.MeshBasicMaterial({
-        color: light.color.clone(),
-        transparent: true,
-        opacity: 0.82,
-        side: THREE.FrontSide,
-        toneMapped: false,
-      })
+      new THREE.CylinderGeometry(
+        0.124 * this.worldScale,
+        0.124 * this.worldScale,
+        0.026 * this.worldScale,
+        40,
+      ),
+      diffuserMaterial
     );
-    diffuser.rotation.x = Math.PI / 2;
-    diffuser.position.set(0, -0.0013 * this.worldScale, 0);
+    diffuser.rotation.x = Math.PI;
+    diffuser.position.y = -0.024 * this.worldScale;
 
-    fixtureRoot.add(trim);
-    fixtureRoot.add(core);
+    fixtureRoot.add(body);
     fixtureRoot.add(diffuser);
     light.add(fixtureRoot);
     light.userData.fixtureMaterials = {
       glow: diffuser.material,
       emissive: [],
     };
+  }
+  // ---- Создает единый вид лампочки ----
+  createLightBulbMesh(colorValue = 0xffaa66) {
+    const bulbGroup = new THREE.Group();
+    const innerMaterial = new THREE.MeshStandardMaterial({
+      color: colorValue,
+      emissive: colorValue,
+      emissiveIntensity: 2.0,
+      roughness: 0.22,
+      metalness: 0,
+    });
+    const outerMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.12,
+      metalness: 0,
+      transparent: true,
+      opacity: 0.34,
+      transmission: 0.45,
+      thickness: 0.02 * this.worldScale,
+      side: THREE.DoubleSide,
+    });
+    const glowMaterial = new THREE.MeshBasicMaterial({
+      color: colorValue,
+      transparent: true,
+      opacity: 0.28,
+      toneMapped: false,
+      depthWrite: false,
+    });
+
+    const inner = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        0.036 * this.worldScale,
+        32,
+        16
+      ),
+      innerMaterial
+    );
+
+    const outer = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        0.064 * this.worldScale,
+        32,
+        16
+      ),
+      outerMaterial
+    );
+
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.082 * this.worldScale, 24, 12),
+      glowMaterial
+    );
+    glow.raycast = () => { };
+
+    bulbGroup.add(inner);
+    bulbGroup.add(outer);
+    bulbGroup.add(glow);
+    bulbGroup.userData.lightVisualMaterials = {
+      emissive: [innerMaterial],
+      color: [innerMaterial],
+      glow: glowMaterial,
+    };
+
+    return bulbGroup;
+  }
+  // ---- Создает лампочку и источник света ----
+  addLightBulb({
+    color = 0xffaa66,
+    intensity = this.defaultSideLightIntensity,
+    distance = this.defaultSideLightDistance,
+    decay = 1.7,
+    position = null,
+    isRoomLight = false,
+  } = {}) {
+    const bulbMesh = this.createLightBulbMesh(color);
+    const nextPosition =
+      position ||
+      new THREE.Vector3(
+        (Math.random() - 0.5) * this.config.widthWallFront,
+        (Math.random() - 0.5) * this.config.heightWall,
+        (Math.random() - 0.5) * this.config.widthWallSide
+      );
+    bulbMesh.position.copy(nextPosition);
+
+    const pointLight = new THREE.PointLight(
+      color,
+      intensity,
+      distance,
+      decay
+    );
+    pointLight.position.copy(bulbMesh.position);
+    pointLight.castShadow = false;
+
+    bulbMesh.userData.isLightBulb = true;
+    bulbMesh.userData.isRoomLight = isRoomLight;
+    bulbMesh.userData.light = pointLight;
+    pointLight.userData.bulbMesh = bulbMesh;
+
+    this.gameContext.scene.add(bulbMesh);
+    this.gameContext.scene.add(pointLight);
+
+    const entry = {
+      mesh: bulbMesh,
+      light: pointLight,
+    };
+    this.lightBulbs.push(entry);
+
+    if (isRoomLight) {
+      this.fillLights.push(pointLight);
+    }
+
+    return entry;
   }
   // ---- Добавляет корпус локального источника света ----
   attachFillFixture(light) {
@@ -311,6 +416,8 @@ export class LightManager {
   }
   // ---- Синхронизирует вид корпусов со светом ----
   syncLightFixture(light) {
+    this.syncLightBulbMesh(light);
+
     const fixture = light?.userData?.fixtureMaterials;
     if (!fixture) return;
 
@@ -332,6 +439,96 @@ export class LightManager {
         0.95
       );
     }
+  }
+  // ---- Синхронизирует единый корпус лампочки со светом ----
+  syncLightBulbMesh(light) {
+    const bulbMesh = light?.userData?.bulbMesh;
+    const visualMaterials = bulbMesh?.userData?.lightVisualMaterials;
+    if (visualMaterials) {
+      const emissiveIntensity = bulbMesh.userData.emissiveIntensity ?? THREE.MathUtils.clamp(
+        0.4 + light.intensity / (18 * this.worldScaleSquared),
+        0.4,
+        6
+      );
+      visualMaterials.emissive.forEach((material) => {
+        if (material.color) {
+          material.color.copy(light.color);
+        }
+        material.emissive.copy(light.color);
+        material.emissiveIntensity = emissiveIntensity;
+        material.needsUpdate = true;
+      });
+
+      if (visualMaterials.glow) {
+        visualMaterials.glow.color.copy(light.color);
+        visualMaterials.glow.opacity = THREE.MathUtils.clamp(
+          0.14 + light.intensity / (40 * this.worldScaleSquared),
+          0.14,
+          0.62
+        );
+        visualMaterials.glow.needsUpdate = true;
+      }
+      return;
+    }
+
+    const material = bulbMesh?.material;
+    if (!material) return;
+    if (material.emissive) {
+      material.emissive.copy(light.color);
+    }
+    material.emissiveIntensity = THREE.MathUtils.clamp(
+      0.4 + light.intensity / (18 * this.worldScaleSquared),
+      0.4,
+      6
+    );
+    material.needsUpdate = true;
+  }
+  // ---- Возвращает яркость визуального свечения лампочки ----
+  getLightBulbEmissiveIntensity(bulbMesh) {
+    const visualMaterials = bulbMesh?.userData?.lightVisualMaterials;
+    if (bulbMesh?.userData?.emissiveIntensity !== undefined) {
+      return bulbMesh.userData.emissiveIntensity;
+    }
+
+    if (visualMaterials?.emissive?.[0]) {
+      return visualMaterials.emissive[0].emissiveIntensity;
+    }
+
+    return bulbMesh?.material?.emissiveIntensity ?? 2;
+  }
+  // ---- Меняет яркость визуального свечения лампочки ----
+  setLightBulbEmissiveIntensity(bulbMesh, value) {
+    bulbMesh.userData.emissiveIntensity = value;
+
+    const visualMaterials = bulbMesh?.userData?.lightVisualMaterials;
+    if (visualMaterials) {
+      visualMaterials.emissive.forEach((material) => {
+        material.emissiveIntensity = value;
+        material.needsUpdate = true;
+      });
+
+      if (visualMaterials.glow) {
+        visualMaterials.glow.opacity = THREE.MathUtils.clamp(value / 8, 0.08, 0.8);
+        visualMaterials.glow.needsUpdate = true;
+      }
+      return;
+    }
+
+    if (bulbMesh?.material?.emissiveIntensity !== undefined) {
+      bulbMesh.material.emissiveIntensity = value;
+      bulbMesh.material.needsUpdate = true;
+    }
+  }
+  // ---- Освобождает геометрию и материалы лампочки ----
+  disposeLightBulbMesh(bulbMesh) {
+    bulbMesh.traverse((child) => {
+      child.geometry?.dispose?.();
+      if (Array.isArray(child.material)) {
+        child.material.forEach((material) => material.dispose?.());
+      } else {
+        child.material?.dispose?.();
+      }
+    });
   }
   // ---- Синхронизирует все корпуса нового света ----
   syncRoomLightVisuals() {
@@ -526,6 +723,9 @@ export class LightManager {
       light.distance = fillPreset.distance;
       light.decay = fillPreset.decay;
       light.position.set(...fillPreset.position);
+      if (light.userData?.bulbMesh) {
+        light.userData.bulbMesh.position.copy(light.position);
+      }
     });
 
     this.syncRoomLightVisuals();
@@ -542,51 +742,18 @@ export class LightManager {
   }
   // ---- Создает боковую лампочку ----
   addSideLightBulb() {
-    const bulbGeometry = new THREE.BoxGeometry(
-      0.1 * this.worldScale,
-      0.1 * this.worldScale,
-      0.1 * this.worldScale
-    );
-    const bulbMaterial = new THREE.MeshStandardMaterial({
-      color: 0x000000,
-      emissive: 0xffaa77,
-      emissiveIntensity: 2.0,
-      roughness: 0.8,
-      metalness: 0.8,
-    });
-
-    const bulbMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
-    const x = (Math.random() - 0.5) * this.config.widthWallFront;
-    const y = (Math.random() - 0.5) * this.config.heightWall;
-    const z = (Math.random() - 0.5) * this.config.widthWallSide;
-    bulbMesh.position.set(x, y, z);
-
-    const pointLight = new THREE.PointLight(
-      0xffaa66,
-      this.defaultSideLightIntensity,
-      this.defaultSideLightDistance,
-      1.7
-    );
-    pointLight.position.copy(bulbMesh.position);
-    pointLight.castShadow = false;
-
-    bulbMesh.userData.isLightBulb = true;
-    bulbMesh.userData.light = pointLight;
-
-    this.gameContext.scene.add(bulbMesh);
-    this.gameContext.scene.add(pointLight);
-
-    this.lightBulbs.push({
-      mesh: bulbMesh,
-      light: pointLight,
+    return this.addLightBulb({
+      color: 0xffaa66,
+      intensity: this.defaultSideLightIntensity,
+      distance: this.defaultSideLightDistance,
+      decay: 1.7,
     });
   }
   // ---- Выбирает лампочку ----
   selectLightBulb(bulbMesh) {
     this.selectedLightBulb = bulbMesh;
 
-    const lightUI = document.querySelector(".light-selection-ui");
-    if (lightUI) lightUI.style.display = "flex";
+    showFloatingUi(".light-selection-ui");
 
     this.refreshLightBulbUI();
   }
@@ -594,8 +761,7 @@ export class LightManager {
   deselectLightBulb() {
     this.selectedLightBulb = null;
 
-    const lightUI = document.querySelector(".light-selection-ui");
-    if (lightUI) lightUI.style.display = "none";
+    hideFloatingUi(".light-selection-ui");
   }
   // ---- Синхронизирует UI лампочки ----
   refreshLightBulbUI() {
@@ -637,12 +803,8 @@ export class LightManager {
     if (bulbVisibleInput) bulbVisibleInput.checked = bulbMesh.visible;
 
     const emissiveInput = document.getElementById("bulb-emissive");
-    if (
-      emissiveInput &&
-      bulbMesh.material &&
-      bulbMesh.material.emissiveIntensity !== undefined
-    ) {
-      emissiveInput.value = String(bulbMesh.material.emissiveIntensity);
+    if (emissiveInput) {
+      emissiveInput.value = String(this.getLightBulbEmissiveIntensity(bulbMesh));
     }
   }
   // ---- Ищет попадание по лампочке ----
@@ -653,10 +815,15 @@ export class LightManager {
     this.updatePointer(event);
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
 
-    const intersects = this.raycaster.intersectObjects(bulbMeshes, false);
+    const intersects = this.raycaster.intersectObjects(bulbMeshes, true);
     if (intersects.length === 0) return null;
 
-    return intersects[0].object;
+    let target = intersects[0].object;
+    while (target.parent && !target.userData.isLightBulb) {
+      target = target.parent;
+    }
+
+    return target.userData.isLightBulb ? target : null;
   }
   // ---- Стартует перенос лампочки ----
   startDragLightBulb(bulbMesh, event) {

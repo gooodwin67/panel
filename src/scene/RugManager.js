@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { hideFloatingUi, showFloatingUi } from "../main/floatingUi.js";
 
 export class RugManager {
 // ---- Готовит состояние ковра ----
@@ -69,16 +70,14 @@ export class RugManager {
 // ---- Выбирает ковёр ----
   selectRug() {
     this.selectedRug = this.rug;
-    const rugUI = document.querySelector(".rug-selection-ui");
-    if (rugUI) rugUI.style.display = "flex";
+    showFloatingUi(".rug-selection-ui");
     this.refreshRugUI();
   }
 // ---- Снимает выбор ковра ----
   deselectRug() {
     this.selectedRug = null;
 
-    const rugUI = document.querySelector(".rug-selection-ui");
-    if (rugUI) rugUI.style.display = "none";
+    hideFloatingUi(".rug-selection-ui");
 
     if (this.rug) {
       const colorInput = document.getElementById("rug-color-picker");

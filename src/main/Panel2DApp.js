@@ -1,3 +1,5 @@
+import { hideFloatingUi, showFloatingUi } from "./floatingUi.js";
+
 export class Panel2DApp {
   constructor(gameContext) {
     this.gameContext = gameContext;
@@ -14,6 +16,7 @@ export class Panel2DApp {
     this.nextItemId = 1;
     this.tileSize = 140;
     this.snapThreshold = 24;
+    this.globalPanelColor = null;
     this.panelImages = [
       "images/panels/panel_1.png",
       "images/panels/panel_2.png",
@@ -84,6 +87,7 @@ export class Panel2DApp {
       x: 0,
       y: 0,
       rotation,
+      color: null,
     };
 
     item.addEventListener("pointerdown", (event) => {
@@ -104,6 +108,9 @@ export class Panel2DApp {
 
     this.setItemPosition(item, x, y);
     this.setItemRotation(item, rotation);
+    if (this.globalPanelColor) {
+      this.setItemColor(item, this.globalPanelColor);
+    }
     this.refreshEmptyState();
 
     return item;
@@ -254,10 +261,7 @@ export class Panel2DApp {
     this.selectedItem = item;
     item.classList.add("selected");
 
-    const ui = document.getElementById("selection-ui");
-    if (ui) {
-      ui.style.display = "flex";
-    }
+    showFloatingUi("#selection-ui");
   }
 
   deselectPanel() {
@@ -267,10 +271,7 @@ export class Panel2DApp {
 
     this.selectedItem = null;
 
-    const ui = document.getElementById("selection-ui");
-    if (ui) {
-      ui.style.display = "none";
-    }
+    hideFloatingUi("#selection-ui");
   }
 
   deleteSelectedPanel() {
@@ -324,20 +325,56 @@ export class Panel2DApp {
     this.board.classList.toggle("grid-hidden", !this.gridVisible);
   }
 
-  changeSelectedPanelColor() {}
+  setItemColor(item, colorValue) {
+    item.userData.color = colorValue;
+    item.style.setProperty(
+      "--panel-color-overlay",
+      this.toPanelOverlayColor(colorValue)
+    );
+  }
 
-  setAllPanelsColor() {}
+  toPanelOverlayColor(colorValue) {
+    if (typeof colorValue !== "string" || !colorValue.startsWith("#")) {
+      return colorValue;
+    }
+
+    const hex = colorValue.slice(1);
+    const normalizedHex = hex.length === 3
+      ? hex.split("").map((char) => char + char).join("")
+      : hex;
+    const colorNumber = Number.parseInt(normalizedHex, 16);
+
+    if (Number.isNaN(colorNumber)) return colorValue;
+
+    const red = (colorNumber >> 16) & 255;
+    const green = (colorNumber >> 8) & 255;
+    const blue = colorNumber & 255;
+
+    return `rgb(${red} ${green} ${blue} / 40%)`;
+  }
+
+  changeSelectedPanelColor(colorValue) {
+    if (!this.selectedItem) return;
+    this.setItemColor(this.selectedItem, colorValue);
+  }
+
+  setAllPanelsColor(colorValue) {
+    this.globalPanelColor = colorValue;
+    this.items.forEach((item) => this.setItemColor(item, colorValue));
+  }
 
   getSceneState() {
     return {
       version: 1,
       mode: "2d",
       gridVisible: this.gridVisible,
+      globalPanelColor: this.globalPanelColor,
       panels: this.items.map((item) => ({
         panelIndex: item.userData.panelIndex,
         x: item.userData.x,
         y: item.userData.y,
         rotation: item.userData.rotation,
+        color: item.userData.color,
       })),
     };
   }
@@ -350,15 +387,19 @@ export class Panel2DApp {
     this.clearPanels();
 
     this.gridVisible = state.gridVisible !== false;
+    this.globalPanelColor = state.globalPanelColor || null;
     this.board.classList.toggle("grid-hidden", !this.gridVisible);
 
     state.panels.forEach((panelState) => {
-      this.addPanel(
+      const item = this.addPanel(
         Number(panelState.panelIndex) || 0,
         Number(panelState.x) || 0,
         Number(panelState.y) || 0,
         Number(panelState.rotation) || 0
       );
+      if (panelState.color) {
+        this.setItemColor(item, panelState.color);
+      }
     });
   }
 

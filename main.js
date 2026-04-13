@@ -18,6 +18,55 @@ gameContext.sceneConfig = {
 gameContext.appMode = null;
 const SCENE_STATE_STORAGE_KEY = "room-configurator-scene-state";
 const SCENE_STATE_LIBRARY_KEY = "room-configurator-scene-library";
+const SCENE_LOCK_DISABLED_SELECTORS = [
+  "#random_rotate",
+  "#random_shuffle",
+  "#toglle_net",
+  "#add-light-bulb",
+  "#add-table",
+  "#add-table-lamp",
+  "#add-wall-tv",
+  "#wall-color-picker",
+  "#panel-global-color-picker",
+  "#btn-apply-panel-global-color",
+  "[data-panel-preset-color]",
+  "#btn-rot-left",
+  "#btn-rot-right",
+  "#btn-all-color",
+  "#btn-delete-2d-panel",
+  "#panel-color-picker",
+  "#light-color-picker",
+  "#light-kelvin",
+  "#light-intensity",
+  "#light-distance",
+  "#light-decay",
+  "#bulb-emissive",
+  "#bulb-visible",
+  "#btn-delete-light",
+  "#rug-color-picker",
+  "#rug-width",
+  "#rug-depth",
+  "#rug-pos-x",
+  "#rug-pos-z",
+  "#furniture-width",
+  "#furniture-depth",
+  "#furniture-pos-x",
+  "#furniture-pos-z",
+  "#furniture-rotation",
+  "#btn-delete-furniture",
+  "#table-lamp-width",
+  "#table-lamp-height",
+  "#table-lamp-pos-x",
+  "#table-lamp-pos-y",
+  "#table-lamp-pos-z",
+  "#btn-delete-table-lamp-ui",
+  "#wall-tv-width",
+  "#wall-tv-height",
+  "#wall-tv-pos-x",
+  "#wall-tv-pos-y",
+  "#wall-tv-wall",
+  "#btn-delete-wall-tv-ui",
+];
 
 initStaticUI();
 initAppModeChooser();
@@ -35,7 +84,7 @@ async function startScene() {
 
 // ---- Создает основные классы ----
 async function initClases() {
-  gameContext.gui = new GUI({ title: "Свет сцены" });
+  gameContext.gui = new GUI({ title: "Характеристики" });
   gameContext.initClass = new InitClass(gameContext);
   gameContext.scene = gameContext.initClass.scene;
   gameContext.camera = gameContext.initClass.camera;
@@ -43,6 +92,7 @@ async function initClases() {
   gameContext.assetManager = new AssetsManager(gameContext);
   gameContext.sceneClass = new SceneClass(gameContext);
   gameContext.keyboardOrbitMove = new KeyboardOrbitMove(gameContext);
+  syncSceneLockUI();
 
   gameContext.renderer.localClippingEnabled = true;
   gameContext.guiClass = new GuiClass(gameContext);
@@ -56,6 +106,7 @@ async function initSceneFunctions() {
   initRugSelectionUI();
   initFurnitureSelectionUI();
   initTableLampSelectionUI();
+  initWallTvSelectionUI();
 
   gameContext.sceneClass.createScene();
 
@@ -129,6 +180,14 @@ function initPanelPalette() {
 
 // ---- Подключает нижние кнопки ----
 function initBottomBtns() {
+  const sceneLockBtn = document.getElementById("btn-scene-lock");
+  if (sceneLockBtn) {
+    sceneLockBtn.onclick = () => {
+      const isLocked = gameContext.sceneClass?.toggleSceneLock?.() || false;
+      syncSceneLockUI(isLocked);
+    };
+  }
+
   document.getElementById("random_rotate").onclick = () => {
     getActiveConfigurator()?.randomRotate?.();
   };
@@ -161,6 +220,44 @@ function initBottomBtns() {
       gameContext.sceneClass?.addTableLamp();
     };
   }
+
+  const addWallTvBtn = document.getElementById("add-wall-tv");
+  if (addWallTvBtn) {
+    addWallTvBtn.onclick = () => {
+      gameContext.sceneClass?.addWallTv();
+    };
+  }
+}
+
+function syncSceneLockUI(forcedLocked = null) {
+  const isLocked =
+    forcedLocked ?? Boolean(gameContext.sceneClass?.isSceneLocked);
+  const sceneLockBtn = document.getElementById("btn-scene-lock");
+  const bottomPanel = document.getElementById("bottom_panel");
+
+  document.body.classList.toggle("scene-locked", isLocked);
+  if (bottomPanel) {
+    bottomPanel.classList.toggle("closed", isLocked);
+    if (isLocked) {
+      bottomPanel.classList.remove("compact");
+    }
+  }
+
+  if (sceneLockBtn) {
+    sceneLockBtn.textContent = isLocked ? "🔒" : "🔓";
+    sceneLockBtn.title = isLocked
+      ? "Разблокировать редактирование сцены"
+      : "Заблокировать редактирование сцены";
+    sceneLockBtn.setAttribute("aria-pressed", String(isLocked));
+    sceneLockBtn.classList.toggle("active", isLocked);
+  }
+
+  document
+    .querySelectorAll(SCENE_LOCK_DISABLED_SELECTORS.join(","))
+    .forEach((element) => {
+      element.disabled = isLocked;
+      element.classList.toggle("scene-lock-disabled", isLocked);
+    });
 }
 
 // ---- Подключает UI панели ----
@@ -195,16 +292,61 @@ function createSelectionUI() {
   document.getElementById("btn-all-color").onclick = () => {
     const colorInput = document.getElementById("panel-color-picker");
     if (!colorInput) return;
-    if (gameContext.appMode !== "3d") return;
-    gameContext.sceneClass?.setAllPanelsColor(colorInput.value);
+    getActiveConfigurator()?.setAllPanelsColor?.(colorInput.value);
+    syncGlobalPanelColorPicker(colorInput.value);
   };
 
   const wallColorPicker = document.getElementById("wall-color-picker");
   if (wallColorPicker) {
     wallColorPicker.addEventListener("input", (event) => {
       gameContext.sceneClass?.setAllWallsColor(event.target.value);
+      syncColorPreview("wall-color-preview", event.target.value);
     });
   }
+
+  const globalPanelColorPicker = document.getElementById("panel-global-color-picker");
+  if (globalPanelColorPicker) {
+    globalPanelColorPicker.addEventListener("input", (event) => {
+      applyGlobalPanelColor(event.target.value);
+    });
+  }
+
+  const applyGlobalPanelColorBtn = document.getElementById("btn-apply-panel-global-color");
+  if (applyGlobalPanelColorBtn) {
+    applyGlobalPanelColorBtn.onclick = () => {
+      const colorInput = document.getElementById("panel-global-color-picker");
+      if (!colorInput) return;
+      applyGlobalPanelColor(colorInput.value);
+    };
+  }
+
+  document.querySelectorAll("[data-panel-preset-color]").forEach((presetBtn) => {
+    presetBtn.addEventListener("click", () => {
+      applyGlobalPanelColor(presetBtn.dataset.panelPresetColor);
+    });
+  });
+}
+
+function applyGlobalPanelColor(colorValue) {
+  getActiveConfigurator()?.setAllPanelsColor?.(colorValue);
+  syncGlobalPanelColorPicker(colorValue);
+  syncSelectionPanelColorPicker(colorValue);
+  syncColorPreview("panel-global-color-preview", colorValue);
+}
+
+function syncGlobalPanelColorPicker(colorValue) {
+  const colorInput = document.getElementById("panel-global-color-picker");
+  if (colorInput) colorInput.value = colorValue;
+}
+
+function syncSelectionPanelColorPicker(colorValue) {
+  const colorInput = document.getElementById("panel-color-picker");
+  if (colorInput) colorInput.value = colorValue;
+}
+
+function syncColorPreview(previewId, colorValue) {
+  const preview = document.getElementById(previewId);
+  if (preview) preview.style.setProperty("--preview-color", colorValue);
 }
 
 // ---- Подключает UI света ----
@@ -248,6 +390,7 @@ function initLightSelectionUI() {
       const selected = getSelected();
       if (!selected) return;
       selected.pointLight.color.set(event.target.value);
+      gameContext.sceneClass.lightManager.syncLightFixture(selected.pointLight);
     });
 
   document.getElementById("light-kelvin").addEventListener("input", (event) => {
@@ -257,6 +400,7 @@ function initLightSelectionUI() {
     const kelvin = Number(event.target.value);
     const hex = gameContext.guiClass.kelvinToHex(kelvin);
     selected.pointLight.color.set(hex);
+    gameContext.sceneClass.lightManager.syncLightFixture(selected.pointLight);
 
     const colorInput = document.getElementById("light-color-picker");
     if (colorInput) {
@@ -270,6 +414,7 @@ function initLightSelectionUI() {
       const selected = getSelected();
       if (!selected) return;
       selected.pointLight.intensity = Number(event.target.value);
+      gameContext.sceneClass.lightManager.syncLightFixture(selected.pointLight);
     });
 
   document
@@ -299,10 +444,10 @@ function initLightSelectionUI() {
     .addEventListener("input", (event) => {
       const selected = getSelected();
       if (!selected) return;
-      if (!selected.bulbMesh.material) return;
-
-      selected.bulbMesh.material.emissiveIntensity = Number(event.target.value);
-      selected.bulbMesh.material.needsUpdate = true;
+      gameContext.sceneClass.lightManager.setLightBulbEmissiveIntensity(
+        selected.bulbMesh,
+        Number(event.target.value)
+      );
     });
 
   document.getElementById("btn-delete-light").onclick = () => {
@@ -316,9 +461,12 @@ function initLightSelectionUI() {
       (entry) => entry.mesh === selected.bulbMesh
     );
     if (index !== -1) gameContext.sceneClass.lightBulbs.splice(index, 1);
+    gameContext.sceneClass.lightManager.fillLights =
+      gameContext.sceneClass.lightManager.fillLights.filter(
+        (light) => light !== selected.pointLight
+      );
 
-    if (selected.bulbMesh.geometry) selected.bulbMesh.geometry.dispose();
-    if (selected.bulbMesh.material) selected.bulbMesh.material.dispose();
+    gameContext.sceneClass.lightManager.disposeLightBulbMesh(selected.bulbMesh);
 
     gameContext.sceneClass.deselectLightBulb();
   };
@@ -514,6 +662,55 @@ function initTableLampSelectionUI() {
   if (deleteLampBtn) {
     deleteLampBtn.onclick = () => {
       gameContext.sceneClass.deleteTableLamp();
+    };
+  }
+}
+
+// ---- Подключает UI настенного телевизора ----
+function initWallTvSelectionUI() {
+  const btnClose = document.getElementById("btn-close-wall-tv");
+  if (!btnClose) return;
+
+  btnClose.onclick = () => {
+    gameContext.sceneClass.deselectWallTv();
+  };
+
+  const updateWallTv = () => {
+    const width = Number(document.getElementById("wall-tv-width").value);
+    const height = Number(document.getElementById("wall-tv-height").value);
+    const posX = Number(document.getElementById("wall-tv-pos-x").value);
+    const posY = Number(document.getElementById("wall-tv-pos-y").value);
+    const wallNumber = Number(document.getElementById("wall-tv-wall").value);
+
+    gameContext.sceneClass.updateWallTvTransform(
+      width,
+      height,
+      posX,
+      posY,
+      wallNumber
+    );
+  };
+
+  document
+    .getElementById("wall-tv-width")
+    .addEventListener("input", updateWallTv);
+  document
+    .getElementById("wall-tv-height")
+    .addEventListener("input", updateWallTv);
+  document
+    .getElementById("wall-tv-pos-x")
+    .addEventListener("input", updateWallTv);
+  document
+    .getElementById("wall-tv-pos-y")
+    .addEventListener("input", updateWallTv);
+  document
+    .getElementById("wall-tv-wall")
+    .addEventListener("input", updateWallTv);
+
+  const deleteWallTvBtn = document.getElementById("btn-delete-wall-tv-ui");
+  if (deleteWallTvBtn) {
+    deleteWallTvBtn.onclick = () => {
+      gameContext.sceneClass.deleteWallTv();
     };
   }
 }

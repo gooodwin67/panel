@@ -11,6 +11,7 @@ export class SceneClass {
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.onWallChanged = null;
+    this.isSceneLocked = false;
     const worldScale = gameContext.sceneConfig?.worldScale || 1;
 
     this.config = {
@@ -88,7 +89,8 @@ export class SceneClass {
       distance: light.distance,
       decay: light.decay,
       visible: mesh.visible,
-      emissiveIntensity: mesh.material?.emissiveIntensity ?? 2,
+      isRoomLight: !!mesh.userData.isRoomLight,
+      emissiveIntensity: this.lightManager.getLightBulbEmissiveIntensity(mesh),
     }));
 
     const rug = this.rugManager.rug
@@ -129,6 +131,20 @@ export class SceneClass {
         }
       : null;
 
+    const wallTv = this.furnitureManager.wallTvs[0]
+      ? {
+          width:
+            this.furnitureManager.wallTvs[0].userData.baseWidth *
+            this.furnitureManager.wallTvs[0].scale.x,
+          height:
+            this.furnitureManager.wallTvs[0].userData.baseHeight *
+            this.furnitureManager.wallTvs[0].scale.y,
+          posX: this.furnitureManager.wallTvs[0].position.x,
+          posY: this.furnitureManager.wallTvs[0].position.y,
+          wallIndex: this.furnitureManager.wallTvs[0].userData.wallIndex || 0,
+        }
+      : null;
+
     return {
       version: 1,
       worldScale: this.config.worldScale,
@@ -145,6 +161,7 @@ export class SceneClass {
       rug,
       table,
       lamp,
+      wallTv,
     };
   }
 
@@ -168,13 +185,14 @@ export class SceneClass {
     this.lightManager.lightBulbs.forEach(({ mesh, light }) => {
       this.gameContext.scene.remove(mesh);
       this.gameContext.scene.remove(light);
-      mesh.geometry?.dispose?.();
-      mesh.material?.dispose?.();
+      this.lightManager.disposeLightBulbMesh(mesh);
     });
     this.lightManager.lightBulbs = [];
+    this.lightManager.fillLights = [];
     this.lightManager.deselectLightBulb();
 
     this.furnitureManager.deleteTableLamp();
+    this.furnitureManager.deleteWallTv();
     this.furnitureManager.deleteTable();
 
     if (Array.isArray(state.walls)) {
@@ -196,6 +214,10 @@ export class SceneClass {
 
     if (typeof state.activeWallIndex === "number") {
       this.roomManager.activeWallIndex = state.activeWallIndex;
+      this.roomManager.highlightActiveWall();
+      if (this.onWallChanged) {
+        this.onWallChanged();
+      }
     }
 
     if (typeof state.isNetVisible === "boolean" && state.isNetVisible !== this.roomManager.isNetVisible) {
@@ -249,8 +271,13 @@ export class SceneClass {
     }
 
     (state.sideLights || []).forEach((lightState) => {
-      this.lightManager.addSideLightBulb();
-      const latest = this.lightManager.lightBulbs[this.lightManager.lightBulbs.length - 1];
+      const latest = this.lightManager.addLightBulb({
+        color: lightState.color || 0xffaa66,
+        intensity: Number(lightState.intensity ?? this.lightManager.defaultSideLightIntensity),
+        distance: Number(lightState.distance ?? this.lightManager.defaultSideLightDistance),
+        decay: Number(lightState.decay ?? 1.7),
+        isRoomLight: !!lightState.isRoomLight,
+      });
       if (!latest) return;
 
       latest.mesh.position.fromArray(lightState.position || latest.mesh.position.toArray());
@@ -260,11 +287,14 @@ export class SceneClass {
       latest.light.distance = Number(lightState.distance ?? latest.light.distance);
       latest.light.decay = Number(lightState.decay ?? latest.light.decay);
       latest.mesh.visible = lightState.visible !== false;
-      if (latest.mesh.material?.emissiveIntensity !== undefined) {
-        latest.mesh.material.emissiveIntensity = Number(
-          lightState.emissiveIntensity ?? latest.mesh.material.emissiveIntensity
-        );
-      }
+      this.lightManager.setLightBulbEmissiveIntensity(
+        latest.mesh,
+        Number(
+          lightState.emissiveIntensity ??
+          this.lightManager.getLightBulbEmissiveIntensity(latest.mesh)
+        )
+      );
+      this.lightManager.syncLightFixture(latest.light);
     });
 
     if (state.rug && this.rugManager.rug) {
@@ -306,6 +336,20 @@ export class SceneClass {
         );
       }
     }
+
+    if (state.wallTv) {
+      const wallTv = this.addWallTv();
+      if (wallTv) {
+        this.selectWallTv(wallTv);
+        this.updateWallTvTransform(
+          Number(state.wallTv.width),
+          Number(state.wallTv.height),
+          Number(state.wallTv.posX),
+          Number(state.wallTv.posY),
+          Number(state.wallTv.wallIndex || 0) + 1
+        );
+      }
+    }
   }
 
   // ---- Меняет цвет комнаты ----
@@ -320,23 +364,31 @@ export class SceneClass {
 
   // ---- Стартует перенос панели ----
   startDrag(type, event) {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.dragHandler.startDrag(type, event);
   }
 
   // ---- Случайно вращает панели ----
   randomRotate() {
+    if (this.isSceneLocked) return;
+
     this.panelManager.randomRotate();
   }
 
   // ---- Перемешивает панели по стенам ----
   shufflePanelsOnWalls() {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.panelManager.shufflePanelsOnWalls();
   }
 
   // ---- Добавляет стол в комнату ----
   addTable() {
+    if (this.isSceneLocked) return null;
+
     this.clearSelections();
     return this.furnitureManager.addTable();
   }
@@ -348,6 +400,9 @@ export class SceneClass {
 
   // ---- Добавляет лампу на стол ----
   addTableLamp() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
     return this.furnitureManager.addTableLamp();
   }
 
@@ -356,8 +411,47 @@ export class SceneClass {
     this.furnitureManager.deleteTableLamp();
   }
 
+  // ---- Добавляет телевизор на стену ----
+  addWallTv() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addWallTv();
+  }
+
+  // ---- Удаляет телевизор со стены ----
+  deleteWallTv() {
+    this.furnitureManager.deleteWallTv();
+  }
+
+  // ---- Выбирает телевизор ----
+  selectWallTv(tv) {
+    if (this.isSceneLocked) return;
+
+    this.clearSelections();
+    this.furnitureManager.selectWallTv(tv);
+  }
+
+  // ---- Снимает выбор телевизора ----
+  deselectWallTv() {
+    this.furnitureManager.deselectWallTv();
+  }
+
+  // ---- Обновляет трансформацию телевизора ----
+  updateWallTvTransform(width, height, posX, posY, wallNumber) {
+    this.furnitureManager.updateWallTvTransform(
+      width,
+      height,
+      posX,
+      posY,
+      wallNumber
+    );
+  }
+
   // ---- Выбирает настольную лампу ----
   selectTableLamp(lamp) {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.furnitureManager.selectLamp(lamp);
   }
@@ -374,6 +468,8 @@ export class SceneClass {
 
   // ---- Выбирает мебель ----
   selectFurniture(furniture) {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.furnitureManager.selectFurniture(furniture);
   }
@@ -400,18 +496,24 @@ export class SceneClass {
 
   // ---- Выбирает панель ----
   selectPanel(panelMesh) {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.panelManager.onPanelSelected(panelMesh);
   }
 
   // ---- Выбирает лампочку ----
   selectLightBulb(bulbMesh) {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.lightManager.selectLightBulb(bulbMesh);
   }
 
   // ---- Выбирает ковёр ----
   selectRug() {
+    if (this.isSceneLocked) return;
+
     this.clearSelections();
     this.rugManager.selectRug();
   }
@@ -423,6 +525,28 @@ export class SceneClass {
     this.rugManager.deselectRug();
     this.furnitureManager.deselectFurniture();
     this.furnitureManager.deselectLamp();
+    this.furnitureManager.deselectWallTv();
+  }
+
+  // ---- Блокирует или разблокирует редактирование сцены ----
+  setSceneLocked(isLocked) {
+    this.isSceneLocked = Boolean(isLocked);
+
+    if (!this.isSceneLocked) return;
+
+    this.clearSelections();
+    this.dragHandler.cancelDrag();
+    this.lightManager.stopDragLightBulb();
+
+    if (this.gameContext.controls) {
+      this.gameContext.controls.enabled = true;
+    }
+  }
+
+  // ---- Переключает блокировку редактирования сцены ----
+  toggleSceneLock() {
+    this.setSceneLocked(!this.isSceneLocked);
+    return this.isSceneLocked;
   }
 
   // ---- Снимает выбор панели ----
@@ -467,21 +591,29 @@ export class SceneClass {
 
   // ---- Переключает сетку стены ----
   toggleNet() {
+    if (this.isSceneLocked) return;
+
     this.roomManager.toggleNet();
   }
 
   // ---- Красит все стены ----
   setAllWallsColor(colorValue) {
+    if (this.isSceneLocked) return;
+
     this.roomManager.setAllWallsColor(colorValue);
   }
 
   // ---- Красит все панели ----
   setAllPanelsColor(colorValue) {
+    if (this.isSceneLocked) return;
+
     this.panelManager.setAllPanelsColor(colorValue);
   }
 
   // ---- Добавляет боковую лампочку ----
   addSideLightBulb() {
+    if (this.isSceneLocked) return;
+
     this.lightManager.addSideLightBulb();
   }
 
