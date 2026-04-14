@@ -22,6 +22,7 @@ export class LightManager {
     this.selectedLightBulb = null;
     this.isDraggingLightBulb = false;
     this.draggedLightBulbMesh = null;
+    this.areLightBulbMeshesVisible = true;
     this.lightDragPlane = new THREE.Plane();
     this.lightDragIntersectionPoint = new THREE.Vector3();
     this.lightDragOffset = new THREE.Vector3();
@@ -70,55 +71,14 @@ export class LightManager {
     this.gameContext.scene.add(this.ceilingSpotTarget);
     this.gameContext.scene.add(this.ceilingSpotLight);
 
-    const fillLightConfigs = [
-      {
-        color: 0xfff0dd,
-        intensity: 10 * this.worldScaleSquared,
-        distance: maxRoomSpan * 1.9,
-        decay: 1.35,
-        position: new THREE.Vector3(
-          -widthWallFront * 0.26,
-          heightWall * 0.18,
-          widthWallSide * 0.18
-        ),
-      },
-      {
-        color: 0xfff0dd,
-        intensity: 10 * this.worldScaleSquared,
-        distance: maxRoomSpan * 1.9,
-        decay: 1.35,
-        position: new THREE.Vector3(
-          widthWallFront * 0.26,
-          heightWall * 0.18,
-          widthWallSide * 0.18
-        ),
-      },
-      {
-        color: 0xf2f0ea,
-        intensity: 7 * this.worldScaleSquared,
-        distance: maxRoomSpan * 1.7,
-        decay: 1.25,
-        position: new THREE.Vector3(
-          0,
-          -heightWall * 0.08,
-          -widthWallSide * 0.22
-        ),
-      },
-    ];
-
-    this.fillLights = [];
-    fillLightConfigs.forEach((config) => {
-      this.addLightBulb({
-        color: config.color,
-        intensity: config.intensity,
-        distance: config.distance,
-        decay: config.decay,
-        position: config.position,
-        isRoomLight: true,
-      });
-    });
-
     this.syncRoomLightVisuals();
+  }
+  // ---- Удаляет служебные источники комнатного света ----
+  clearFillLights() {
+    this.fillLights.forEach((light) => {
+      this.gameContext.scene.remove(light);
+    });
+    this.fillLights = [];
   }
   // ---- Добавляет атмосферный свет ----
   addAmbientLight() {
@@ -270,6 +230,7 @@ export class LightManager {
     bulbMesh.userData.isLightBulb = true;
     bulbMesh.userData.isRoomLight = isRoomLight;
     bulbMesh.userData.light = pointLight;
+    bulbMesh.visible = this.areLightBulbMeshesVisible;
     pointLight.userData.bulbMesh = bulbMesh;
 
     this.gameContext.scene.add(bulbMesh);
@@ -551,8 +512,7 @@ export class LightManager {
       !ambientLight ||
       !hemisphereLight ||
       !ceilingSpotLight ||
-      !ceilingSpotTarget ||
-      !fillLights.length
+      !ceilingSpotTarget
     ) {
       return;
     }
@@ -749,6 +709,25 @@ export class LightManager {
       decay: 1.7,
     });
   }
+  // ---- Показывает или скрывает плафоны всех лампочек ----
+  setAllLightBulbMeshesVisible(isVisible) {
+    this.areLightBulbMeshesVisible = Boolean(isVisible);
+    this.lightBulbs.forEach(({ mesh }) => {
+      mesh.visible = this.areLightBulbMeshesVisible;
+    });
+    if (!this.areLightBulbMeshesVisible) {
+      this.deselectLightBulb();
+      this.stopDragLightBulb();
+    }
+    this.refreshLightBulbUI();
+    return this.areLightBulbMeshesVisible;
+  }
+  // ---- Переключает видимость плафонов всех лампочек ----
+  toggleAllLightBulbMeshesVisible() {
+    return this.setAllLightBulbMeshesVisible(
+      !this.areLightBulbMeshesVisible
+    );
+  }
   // ---- Выбирает лампочку ----
   selectLightBulb(bulbMesh) {
     this.selectedLightBulb = bulbMesh;
@@ -809,7 +788,9 @@ export class LightManager {
   }
   // ---- Ищет попадание по лампочке ----
   findLightBulbHit(event) {
-    const bulbMeshes = this.lightBulbs.map((entry) => entry.mesh);
+    const bulbMeshes = this.lightBulbs
+      .map((entry) => entry.mesh)
+      .filter((mesh) => mesh.visible);
     if (bulbMeshes.length === 0) return null;
 
     this.updatePointer(event);

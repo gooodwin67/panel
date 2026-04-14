@@ -17,6 +17,7 @@ export class Panel2DApp {
     this.tileSize = 140;
     this.snapThreshold = 24;
     this.globalPanelColor = null;
+    this.onPanelsChanged = null;
     this.panelImages = [
       "images/panels/panel_1.png",
       "images/panels/panel_2.png",
@@ -112,6 +113,7 @@ export class Panel2DApp {
       this.setItemColor(item, this.globalPanelColor);
     }
     this.refreshEmptyState();
+    this.notifyPanelsChanged();
 
     return item;
   }
@@ -282,6 +284,7 @@ export class Panel2DApp {
     this.items = this.items.filter((item) => item !== itemToDelete);
     itemToDelete.remove();
     this.refreshEmptyState();
+    this.notifyPanelsChanged();
   }
 
   rotateSelectedPanel(angle) {
@@ -401,6 +404,7 @@ export class Panel2DApp {
         this.setItemColor(item, panelState.color);
       }
     });
+    this.notifyPanelsChanged();
   }
 
   clearPanels() {
@@ -408,6 +412,29 @@ export class Panel2DApp {
     this.items.forEach((item) => item.remove());
     this.items = [];
     this.refreshEmptyState();
+    this.notifyPanelsChanged();
+  }
+
+  getPanelKitInfo() {
+    const counts = [0, 0, 0, 0];
+
+    this.items.forEach((item) => {
+      const panelIndex = Number(item.userData.panelIndex);
+      if (panelIndex >= 0 && panelIndex < counts.length) {
+        counts[panelIndex] += 1;
+      }
+    });
+
+    return {
+      counts,
+      kits: Math.max(0, ...counts),
+    };
+  }
+
+  notifyPanelsChanged() {
+    if (this.onPanelsChanged) {
+      this.onPanelsChanged(this.getPanelKitInfo());
+    }
   }
 
   refreshEmptyState() {

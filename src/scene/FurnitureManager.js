@@ -17,6 +17,63 @@ const TABLE_LAMP_POSITION = {
   z: 0,
 };
 
+const FLOOR_FURNITURE_OPTIONS = {
+  table: {
+    assetKey: "table",
+    collectionName: "furnitureItems",
+    itemName: "table",
+    label: "Стол",
+    deleteLabel: "Удалить стол",
+    missingLabel: "Стол еще не загружен",
+    initialScale: { x: 0.5, y: 1, z: 0.5 },
+  },
+  sofa: {
+    assetKey: "sofa",
+    collectionName: "sofaItems",
+    itemName: "sofa",
+    label: "Диван",
+    deleteLabel: "Удалить диван",
+    missingLabel: "Диван еще не загружен",
+    initialScale: { x: 1, y: 1, z: 1 },
+  },
+  sofa2: {
+    assetKey: "sofa2",
+    collectionName: "sofa2Items",
+    itemName: "sofa2",
+    label: "Диван 2",
+    deleteLabel: "Удалить диван 2",
+    missingLabel: "Диван 2 еще не загружен",
+    initialScale: { x: 1, y: 1, z: 1 },
+  },
+  table2: {
+    assetKey: "table2",
+    collectionName: "table2Items",
+    itemName: "table2",
+    label: "Стол 2",
+    deleteLabel: "Удалить стол 2",
+    missingLabel: "Стол 2 еще не загружен",
+    initialScale: { x: 1, y: 1, z: 1 },
+  },
+  chair: {
+    assetKey: "chair",
+    collectionName: "chairItems",
+    itemName: "chair",
+    label: "Стул",
+    deleteLabel: "Удалить стул",
+    missingLabel: "Стул еще не загружен",
+    initialScale: { x: 1, y: 1, z: 1 },
+  },
+  wardrobe: {
+    assetKey: "wardrobe",
+    collectionName: "wardrobeItems",
+    itemName: "wardrobe",
+    label: "Шкаф",
+    deleteLabel: "Удалить шкаф",
+    missingLabel: "Шкаф еще не загружен",
+    initialScale: { x: 1, y: 1, z: 1 },
+  },
+};
+
 export class FurnitureManager {
   // ---- Готовит состояние мебели ----
   constructor(gameContext, config) {
@@ -24,6 +81,11 @@ export class FurnitureManager {
     this.config = config;
     this.worldScale = config.worldScale || 1;
     this.furnitureItems = [];
+    this.sofaItems = [];
+    this.sofa2Items = [];
+    this.table2Items = [];
+    this.chairItems = [];
+    this.wardrobeItems = [];
     this.tableLamps = [];
     this.wallTvs = [];
     this.selectedFurniture = null;
@@ -52,6 +114,8 @@ export class FurnitureManager {
     const table = template.clone(true);
     holder.name = `table_${this.furnitureItems.length + 1}`;
     holder.userData.type = "table";
+    holder.userData.label = "Стол";
+    holder.userData.deleteLabel = "Удалить стол";
     holder.userData.isFurniture = true;
     holder.add(table);
 
@@ -80,6 +144,7 @@ export class FurnitureManager {
     holder.userData.baseDepth = size.z;
     holder.userData.baseHeight = size.y;
     holder.userData.rotationStep = 0;
+    holder.scale.set(0.5, 1, 0.5);
 
     const floorY = -this.config.heightWall / 2;
     const placement =
@@ -109,9 +174,122 @@ export class FurnitureManager {
     }
   }
 
+  // ---- Добавляет диван в комнату ----
+  addSofa() {
+    return this.addFloorFurniture("sofa");
+  }
+
+  // ---- Добавляет второй диван в комнату ----
+  addSofa2() {
+    return this.addFloorFurniture("sofa2");
+  }
+
+  // ---- Добавляет второй стол в комнату ----
+  addTable2() {
+    return this.addFloorFurniture("table2");
+  }
+
+  // ---- Добавляет стул в комнату ----
+  addChair() {
+    return this.addFloorFurniture("chair");
+  }
+
+  // ---- Добавляет шкаф в комнату ----
+  addWardrobe() {
+    return this.addFloorFurniture("wardrobe");
+  }
+
+  // ---- Добавляет напольную мебель в комнату ----
+  addFloorFurniture(type) {
+    const options = FLOOR_FURNITURE_OPTIONS[type];
+    if (!options) return null;
+
+    const collection = this[options.collectionName];
+    if (collection.length > 0) {
+      const existingItem = collection[0];
+      this.selectFurniture(existingItem);
+      return existingItem;
+    }
+
+    const template = this.gameContext.assetManager.furniture[options.assetKey];
+    if (!template) {
+      console.warn(options.missingLabel);
+      return null;
+    }
+
+    const holder = new THREE.Group();
+    const item = template.clone(true);
+    holder.name = `${options.itemName}_${collection.length + 1}`;
+    holder.userData.type = type;
+    holder.userData.label = options.label;
+    holder.userData.deleteLabel = options.deleteLabel;
+    holder.userData.isFurniture = true;
+    holder.add(item);
+
+    item.traverse((child) => {
+      if (!child.isMesh) return;
+      child.castShadow = true;
+      child.receiveShadow = false;
+
+      if (Array.isArray(child.material)) {
+        child.material = child.material.map((material) => material.clone());
+      } else if (child.material) {
+        child.material = child.material.clone();
+      }
+
+      this.tuneFurnitureMaterial(child);
+    });
+
+    const bounds = new THREE.Box3().setFromObject(item);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    item.position.x -= center.x;
+    item.position.y -= bounds.min.y;
+    item.position.z -= center.z;
+
+    holder.userData.baseWidth = Math.max(size.x, 0.1);
+    holder.userData.baseDepth = Math.max(size.z, 0.1);
+    holder.userData.baseHeight = Math.max(size.y, 0.1);
+    holder.userData.rotationStep = 0;
+    holder.scale.set(
+      options.initialScale.x,
+      options.initialScale.y,
+      options.initialScale.z
+    );
+
+    const floorY = -this.config.heightWall / 2;
+    const placement =
+      TABLE_POSITIONS[this.getAllFloorFurniture().length % TABLE_POSITIONS.length];
+    holder.position.set(
+      placement.x * this.worldScale,
+      floorY,
+      placement.z * this.worldScale
+    );
+
+    this.gameContext.scene.add(holder);
+    collection.push(holder);
+    this.selectFurniture(holder);
+    return holder;
+  }
+
+  // ---- Удаляет выбранную напольную мебель ----
+  deleteSelectedFurniture() {
+    const furniture = this.selectedFurniture;
+    if (!furniture) return;
+
+    this.removeObject(furniture);
+    this.furnitureItems = this.furnitureItems.filter((item) => item !== furniture);
+    this.sofaItems = this.sofaItems.filter((item) => item !== furniture);
+    this.sofa2Items = this.sofa2Items.filter((item) => item !== furniture);
+    this.table2Items = this.table2Items.filter((item) => item !== furniture);
+    this.chairItems = this.chairItems.filter((item) => item !== furniture);
+    this.wardrobeItems = this.wardrobeItems.filter((item) => item !== furniture);
+    this.deselectFurniture();
+  }
+
   // ---- Добавляет независимую лампу в комнату ----
-  addTableLamp() {
-    if (this.tableLamps.length > 0) {
+  addTableLamp(forceNew = false) {
+    if (this.tableLamps.length > 0 && !forceNew) {
       const existingLamp = this.tableLamps[0];
       this.selectLamp(existingLamp);
       return existingLamp;
@@ -155,7 +333,7 @@ export class FurnitureManager {
     holder.userData.baseDepth = size.z;
     holder.userData.baseHeight = size.y;
     holder.position.set(
-      TABLE_LAMP_POSITION.x * this.worldScale,
+      (TABLE_LAMP_POSITION.x + this.tableLamps.length * 0.45) * this.worldScale,
       TABLE_LAMP_POSITION.y * this.worldScale,
       TABLE_LAMP_POSITION.z * this.worldScale
     );
@@ -168,15 +346,24 @@ export class FurnitureManager {
 
   // ---- Удаляет лампу со стола ----
   deleteTableLamp() {
-    const lamp = this.tableLamps[0];
+    const lamp = this.selectedLamp || this.tableLamps[0];
     if (!lamp) return;
 
     this.removeObject(lamp);
-    this.tableLamps = [];
+    this.tableLamps = this.tableLamps.filter((tableLamp) => tableLamp !== lamp);
 
     if (this.selectedLamp === lamp) {
       this.deselectLamp();
     }
+  }
+
+  // ---- Удаляет все настольные лампы ----
+  clearTableLamps() {
+    this.tableLamps.slice().forEach((lamp) => {
+      this.removeObject(lamp);
+    });
+    this.tableLamps = [];
+    this.deselectLamp();
   }
 
   // ---- Добавляет телевизор на активную стену ----
@@ -211,7 +398,7 @@ export class FurnitureManager {
         child.material = child.material.clone();
       }
 
-      this.tuneFurnitureMaterial(child);
+      this.tuneTvMaterial(child);
     });
 
     const bounds = new THREE.Box3().setFromObject(tv);
@@ -317,14 +504,49 @@ export class FurnitureManager {
     });
   }
 
+  // ---- Подстраивает материалы телевизора ----
+  tuneTvMaterial(mesh) {
+    const materials = Array.isArray(mesh.material)
+      ? mesh.material
+      : [mesh.material];
+
+    materials.forEach((material) => {
+      if (!material) return;
+
+      material.side = THREE.DoubleSide;
+      material.envMap = null;
+      material.envMapIntensity = 0;
+      material.toneMapped = true;
+
+      if (material.map) {
+        material.map.colorSpace = THREE.SRGBColorSpace;
+        material.map.anisotropy =
+          this.gameContext.renderer.capabilities.getMaxAnisotropy();
+        material.map.needsUpdate = true;
+      }
+
+      material.color.multiplyScalar(2.4);
+      material.roughness = 0.36;
+      material.metalness = 0.06;
+
+      if (material.emissive) {
+        material.emissive.setRGB(0.03, 0.035, 0.04);
+        material.emissiveIntensity = 0.65;
+      }
+
+      material.needsUpdate = true;
+    });
+  }
+
   // ---- Проверяет клик по мебели ----
   hitTest(event) {
-    if (this.furnitureItems.length === 0) return null;
+    const floorFurniture = this.getAllFloorFurniture();
+    if (floorFurniture.length === 0) return null;
 
     this.updatePointer(event);
     this.raycaster.setFromCamera(this.pointer, this.gameContext.camera);
 
-    const intersects = this.raycaster.intersectObjects(this.furnitureItems, true);
+    const intersects = this.raycaster.intersectObjects(floorFurniture, true);
     if (intersects.length === 0) return null;
 
     let target = intersects[0].object;
@@ -351,6 +573,18 @@ export class FurnitureManager {
     }
 
     return target || null;
+  }
+
+  // ---- Возвращает всю напольную мебель ----
+  getAllFloorFurniture() {
+    return [
+      ...this.furnitureItems,
+      ...this.sofaItems,
+      ...this.sofa2Items,
+      ...this.table2Items,
+      ...this.chairItems,
+      ...this.wardrobeItems,
+    ];
   }
 
   // ---- Проверяет клик по телевизору на стене ----
@@ -412,19 +646,34 @@ export class FurnitureManager {
 
     const widthInput = document.getElementById("furniture-width");
     const depthInput = document.getElementById("furniture-depth");
+    const widthRow = document.getElementById("furniture-width-row");
+    const depthRow = document.getElementById("furniture-depth-row");
+    const widthLabel = document.getElementById("furniture-width-label");
+    const depthLabel = document.getElementById("furniture-depth-label");
     const posXInput = document.getElementById("furniture-pos-x");
     const posZInput = document.getElementById("furniture-pos-z");
     const rotationInput = document.getElementById("furniture-rotation");
     const rotationValue = document.getElementById("furniture-rotation-value");
+    const title = document.getElementById("furniture-selection-title");
+    const deleteButton = document.getElementById("btn-delete-furniture");
 
     const width = furniture.userData.baseWidth * furniture.scale.x;
     const depth = furniture.userData.baseDepth * furniture.scale.z;
+    const isChair = furniture.userData.type === "chair";
+    const isWardrobe = furniture.userData.type === "wardrobe";
+    const secondSize = isWardrobe
+      ? furniture.userData.baseHeight * furniture.scale.y
+      : depth;
     const rotationStep = furniture.userData.rotationStep || 0;
     const footprint = this.getRotatedFurnitureFootprint(furniture, width, depth);
     const maxWidth = Math.max(this.config.widthWallFront * 0.9, width);
-    const maxDepth = Math.max(this.config.widthWallSide * 0.9, depth);
-    const minWidth = Math.max(furniture.userData.baseWidth * 0.5, 0.1);
-    const minDepth = Math.max(furniture.userData.baseDepth * 0.5, 0.1);
+    const maxDepth = isWardrobe
+      ? Math.max(this.config.heightWall * 0.95, secondSize)
+      : Math.max(this.config.widthWallSide * 0.9, depth);
+    const minWidth = Math.max(furniture.userData.baseWidth * 0.15, 0.05);
+    const minDepth = isWardrobe
+      ? Math.max(furniture.userData.baseHeight * 0.15, 0.05)
+      : Math.max(furniture.userData.baseDepth * 0.15, 0.05);
     const posLimitX = Math.max(
       (this.config.widthWallFront - footprint.width) / 2,
       0
@@ -434,6 +683,11 @@ export class FurnitureManager {
       0
     );
 
+    if (widthRow) widthRow.style.display = "flex";
+    if (depthRow) depthRow.style.display = isChair ? "none" : "flex";
+    if (widthLabel) widthLabel.textContent = isChair ? "Размер:" : "Ширина:";
+    if (depthLabel) depthLabel.textContent = isWardrobe ? "Высота:" : "Глубина:";
+
     if (widthInput) {
       widthInput.min = String(minWidth);
       widthInput.max = String(maxWidth);
@@ -442,7 +696,7 @@ export class FurnitureManager {
     if (depthInput) {
       depthInput.min = String(minDepth);
       depthInput.max = String(maxDepth);
-      depthInput.value = String(depth);
+      depthInput.value = String(secondSize);
     }
     if (posXInput) {
       posXInput.min = String(-posLimitX);
@@ -456,6 +710,10 @@ export class FurnitureManager {
     }
     if (rotationInput) rotationInput.value = String(rotationStep);
     if (rotationValue) rotationValue.textContent = `${rotationStep * 90}\u00b0`;
+    if (title) title.textContent = furniture.userData.label || "Мебель";
+    if (deleteButton) {
+      deleteButton.textContent = furniture.userData.deleteLabel || "Удалить";
+    }
   }
 
   // ---- Меняет размер и позицию мебели ----
@@ -465,10 +723,29 @@ export class FurnitureManager {
 
     const baseWidth = furniture.userData.baseWidth || 1;
     const baseDepth = furniture.userData.baseDepth || 1;
+    const safeWidth = Math.max(width, Math.max(baseWidth * 0.15, 0.05));
+    const safeDepth = Math.max(depth, Math.max(baseDepth * 0.15, 0.05));
+    const isChair = furniture.userData.type === "chair";
+    const isWardrobe = furniture.userData.type === "wardrobe";
 
-    furniture.scale.set(width / baseWidth, 1, depth / baseDepth);
+    if (isChair) {
+      const scale = safeWidth / baseWidth;
+      furniture.scale.set(scale, scale, scale);
+    } else if (isWardrobe) {
+      const baseHeight = furniture.userData.baseHeight || 1;
+      const safeHeight = Math.max(depth, Math.max(baseHeight * 0.15, 0.05));
+      furniture.scale.set(safeWidth / baseWidth, safeHeight / baseHeight, 1);
+    } else {
+      furniture.scale.set(safeWidth / baseWidth, 1, safeDepth / baseDepth);
+    }
 
-    const footprint = this.getRotatedFurnitureFootprint(furniture, width, depth);
+    const footprint = this.getRotatedFurnitureFootprint(
+      furniture,
+      safeWidth,
+      isChair || isWardrobe
+        ? furniture.userData.baseDepth * furniture.scale.z
+        : safeDepth
+    );
     const posLimitX = Math.max(
       (this.config.widthWallFront - footprint.width) / 2,
       0

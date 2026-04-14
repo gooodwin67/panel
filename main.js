@@ -23,8 +23,15 @@ const SCENE_LOCK_DISABLED_SELECTORS = [
   "#random_shuffle",
   "#toglle_net",
   "#add-light-bulb",
+  "#toggle-light-bulb-visuals",
   "#add-table",
+  "#add-sofa",
+  "#add-sofa2",
+  "#add-table2",
+  "#add-chair",
+  "#add-wardrobe",
   "#add-table-lamp",
+  "#add-table-lamp-2",
   "#add-wall-tv",
   "#wall-color-picker",
   "#panel-global-color-picker",
@@ -109,6 +116,8 @@ async function initSceneFunctions() {
   initWallTvSelectionUI();
 
   gameContext.sceneClass.createScene();
+  gameContext.sceneClass.onPanelsChanged = refreshPanelKitCounter;
+  refreshPanelKitCounter();
 
   if (gameContext.guiClass) {
     gameContext.guiClass.refresh();
@@ -147,8 +156,10 @@ function initAppModeChooser() {
     document.body.classList.add("mode-2d");
     gameContext.appMode = "2d";
     gameContext.panel2dApp = new Panel2DApp(gameContext);
+    gameContext.panel2dApp.onPanelsChanged = refreshPanelKitCounter;
     gameContext.panel2dApp.init();
     gameContext.panel2dApp.show();
+    refreshPanelKitCounter();
   };
 }
 
@@ -158,6 +169,14 @@ function getActiveConfigurator() {
   }
 
   return gameContext.sceneClass || null;
+}
+
+function refreshPanelKitCounter(panelKitInfo = null) {
+  const count = document.getElementById("panel-kit-count");
+  if (!count) return;
+
+  const info = panelKitInfo || getActiveConfigurator()?.getPanelKitInfo?.();
+  count.textContent = String(info?.kits ?? 0);
 }
 
 function initPanelPalette() {
@@ -194,6 +213,7 @@ function initBottomBtns() {
 
   document.getElementById("random_shuffle").onclick = () => {
     getActiveConfigurator()?.shufflePanelsOnWalls?.();
+    refreshPanelKitCounter();
   };
 
   document.getElementById("toglle_net").onclick = () => {
@@ -207,10 +227,56 @@ function initBottomBtns() {
     };
   }
 
+  const toggleLightBulbVisualsBtn = document.getElementById(
+    "toggle-light-bulb-visuals"
+  );
+  if (toggleLightBulbVisualsBtn) {
+    toggleLightBulbVisualsBtn.onclick = () => {
+      const isVisible =
+        gameContext.sceneClass?.toggleAllLightBulbMeshesVisible?.();
+      syncLightBulbVisualsButton(isVisible);
+    };
+  }
+
   const addTableBtn = document.getElementById("add-table");
   if (addTableBtn) {
     addTableBtn.onclick = () => {
       gameContext.sceneClass?.addTable();
+    };
+  }
+
+  const addSofaBtn = document.getElementById("add-sofa");
+  if (addSofaBtn) {
+    addSofaBtn.onclick = () => {
+      gameContext.sceneClass?.addSofa();
+    };
+  }
+
+  const addSofa2Btn = document.getElementById("add-sofa2");
+  if (addSofa2Btn) {
+    addSofa2Btn.onclick = () => {
+      gameContext.sceneClass?.addSofa2();
+    };
+  }
+
+  const addTable2Btn = document.getElementById("add-table2");
+  if (addTable2Btn) {
+    addTable2Btn.onclick = () => {
+      gameContext.sceneClass?.addTable2();
+    };
+  }
+
+  const addChairBtn = document.getElementById("add-chair");
+  if (addChairBtn) {
+    addChairBtn.onclick = () => {
+      gameContext.sceneClass?.addChair();
+    };
+  }
+
+  const addWardrobeBtn = document.getElementById("add-wardrobe");
+  if (addWardrobeBtn) {
+    addWardrobeBtn.onclick = () => {
+      gameContext.sceneClass?.addWardrobe();
     };
   }
 
@@ -221,11 +287,32 @@ function initBottomBtns() {
     };
   }
 
+  const addTableLamp2Btn = document.getElementById("add-table-lamp-2");
+  if (addTableLamp2Btn) {
+    addTableLamp2Btn.onclick = () => {
+      gameContext.sceneClass?.addTableLamp(true);
+    };
+  }
+
   const addWallTvBtn = document.getElementById("add-wall-tv");
   if (addWallTvBtn) {
     addWallTvBtn.onclick = () => {
       gameContext.sceneClass?.addWallTv();
     };
+  }
+}
+
+function syncLightBulbVisualsButton(forcedVisible = null) {
+  const button = document.getElementById("toggle-light-bulb-visuals");
+  if (!button) return;
+
+  const isVisible =
+    forcedVisible ??
+    Boolean(gameContext.sceneClass?.lightManager?.areLightBulbMeshesVisible);
+  const text = button.querySelector(".btn-text");
+  button.firstChild.textContent = isVisible ? "🙈 " : "👁 ";
+  if (text) {
+    text.textContent = isVisible ? "Скрыть лампочки" : "Показать лампочки";
   }
 }
 
@@ -286,6 +373,7 @@ function createSelectionUI() {
   if (delete2dPanelBtn) {
     delete2dPanelBtn.onclick = () => {
       getActiveConfigurator()?.deleteSelectedPanel?.();
+      refreshPanelKitCounter();
     };
   }
 
@@ -593,7 +681,7 @@ function initFurnitureSelectionUI() {
   const deleteFurnitureBtn = document.getElementById("btn-delete-furniture");
   if (deleteFurnitureBtn) {
     deleteFurnitureBtn.onclick = () => {
-      gameContext.sceneClass.deleteTable();
+      gameContext.sceneClass.deleteSelectedFurniture();
     };
   }
 }
@@ -753,6 +841,32 @@ function initSaveLoadUI() {
       state: activeConfigurator.getSceneState(),
     };
   };
+  const getPayloadMode = (payload) => {
+    const isWrappedState =
+      payload &&
+      typeof payload === "object" &&
+      payload.mode &&
+      Object.prototype.hasOwnProperty.call(payload, "state");
+
+    return isWrappedState ? payload.mode : "3d";
+  };
+  const getEncodedStateMode = (encoded) => {
+    try {
+      return getPayloadMode(decodeState(encoded));
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+  const getCurrentMode = () => gameContext.appMode || "3d";
+  const getCurrentStorageKey = () =>
+    getCurrentMode() === "2d"
+      ? `${SCENE_STATE_STORAGE_KEY}-2d`
+      : SCENE_STATE_STORAGE_KEY;
+  const getCurrentLibraryKey = () =>
+    getCurrentMode() === "2d"
+      ? `${SCENE_STATE_LIBRARY_KEY}-2d`
+      : SCENE_STATE_LIBRARY_KEY;
   const applyStatePayload = (payload) => {
     const isWrappedState =
       payload &&
@@ -773,16 +887,20 @@ function initSaveLoadUI() {
     }
 
     activeConfigurator.applySceneState(targetState);
+    refreshPanelKitCounter();
   };
 
   const readStoredLibrary = () => {
     try {
       const parsed = JSON.parse(
-        localStorage.getItem(SCENE_STATE_LIBRARY_KEY) || "[]"
+        localStorage.getItem(getCurrentLibraryKey()) || "[]"
       );
       if (!Array.isArray(parsed)) return [];
       return parsed.filter(
-        (item) => typeof item === "string" && item.trim().length > 0
+        (item) =>
+          typeof item === "string" &&
+          item.trim().length > 0 &&
+          getEncodedStateMode(item) === getCurrentMode()
       );
     } catch (error) {
       console.error(error);
@@ -791,7 +909,7 @@ function initSaveLoadUI() {
   };
 
   const writeStoredLibrary = (items) => {
-    localStorage.setItem(SCENE_STATE_LIBRARY_KEY, JSON.stringify(items));
+    localStorage.setItem(getCurrentLibraryKey(), JSON.stringify(items));
   };
 
   const persistStateString = (encoded) => {
@@ -802,7 +920,7 @@ function initSaveLoadUI() {
       ? library
       : [normalized, ...library];
 
-    localStorage.setItem(SCENE_STATE_STORAGE_KEY, normalized);
+    localStorage.setItem(getCurrentStorageKey(), normalized);
     writeStoredLibrary(nextLibrary);
 
     return { alreadyExists, library: nextLibrary };
@@ -838,7 +956,7 @@ function initSaveLoadUI() {
         try {
           textArea.value = encoded;
           applyStatePayload(decodeState(encoded));
-          localStorage.setItem(SCENE_STATE_STORAGE_KEY, encoded);
+          localStorage.setItem(getCurrentStorageKey(), encoded);
           setStatus("Состояние загружено из списка сохранений.");
         } catch (error) {
           setStatus("Не удалось загрузить выбранное состояние.");
@@ -853,7 +971,7 @@ function initSaveLoadUI() {
         try {
           await navigator.clipboard.writeText(encoded);
           textArea.value = encoded;
-          localStorage.setItem(SCENE_STATE_STORAGE_KEY, encoded);
+          localStorage.setItem(getCurrentStorageKey(), encoded);
           setStatus("Строка состояния скопирована из списка.");
         } catch (error) {
           setStatus("Не удалось скопировать выбранную строку.");
@@ -872,12 +990,12 @@ function initSaveLoadUI() {
           textArea.value = "";
         }
 
-        if ((localStorage.getItem(SCENE_STATE_STORAGE_KEY) || "").trim() === encoded) {
+        if ((localStorage.getItem(getCurrentStorageKey()) || "").trim() === encoded) {
           const nextCurrent = nextLibrary[0] || "";
           if (nextCurrent) {
-            localStorage.setItem(SCENE_STATE_STORAGE_KEY, nextCurrent);
+            localStorage.setItem(getCurrentStorageKey(), nextCurrent);
           } else {
-            localStorage.removeItem(SCENE_STATE_STORAGE_KEY);
+            localStorage.removeItem(getCurrentStorageKey());
           }
         }
 
@@ -895,14 +1013,15 @@ function initSaveLoadUI() {
   };
 
   const rememberLegacySingleState = () => {
-    const legacy = localStorage.getItem(SCENE_STATE_STORAGE_KEY);
+    const legacy = localStorage.getItem(getCurrentStorageKey());
     if (!legacy || readStoredLibrary().includes(legacy)) return;
+    if (getEncodedStateMode(legacy) !== getCurrentMode()) return;
     writeStoredLibrary([legacy, ...readStoredLibrary()]);
   };
 
   const openModal = () => {
     modal.style.display = "block";
-    textArea.value = localStorage.getItem(SCENE_STATE_STORAGE_KEY) || "";
+    textArea.value = localStorage.getItem(getCurrentStorageKey()) || "";
     rememberLegacySingleState();
     renderSavedList();
     setStatus("");
@@ -938,7 +1057,7 @@ function initSaveLoadUI() {
   if (loadStorageBtn) {
     loadStorageBtn.onclick = () => {
       try {
-        const encoded = localStorage.getItem(SCENE_STATE_STORAGE_KEY);
+        const encoded = localStorage.getItem(getCurrentStorageKey());
         if (!encoded) {
           setStatus("В локальном хранилище пока ничего нет.");
           return;

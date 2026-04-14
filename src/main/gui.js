@@ -24,7 +24,7 @@ export class GuiClass {
     this.ambientFolder = this.lightFolder.addFolder("Фоновый свет");
     this.ceilingFolder = this.lightFolder.addFolder("Потолочный свет");
     this.ceilingPositionFolder = this.ceilingFolder.addFolder("Позиция");
-    this.ceilingBeamFolder = this.ceilingFolder.addFolder("Пятно");
+    this.ceilingBeamFolder = this.ceilingFolder.addFolder("Луч");
     this.ceilingTargetFolder = this.ceilingFolder.addFolder("Направление");
     this.ceilingShadowFolder = this.ceilingFolder.addFolder("Тени");
 

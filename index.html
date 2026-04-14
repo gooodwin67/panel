@@ -41,6 +41,9 @@
          <div class="panel-header">
             <div class="drag-handle"></div>
             <button id="btn-presets" class="panel-presets-btn" title="Сохранить / загрузить">💾</button>
+            <div class="panel-kit-counter" id="panel-kit-counter">
+               Комплектов: <span id="panel-kit-count">0</span>
+            </div>
             <div class="panel-controls">
                <button id="btn-scene-lock" title="Заблокировать редактирование сцены" aria-pressed="false">🔓</button>
                <button id="btn-compact" title="Компактный вид">🗕</button>
@@ -67,10 +70,17 @@
 
             <div class="ui-pane" id="tab-lights">
                <div class="btns">
-                  <button id="add-light-bulb" class="action-btn primary">➕ <span class="btn-text">Добавить лампочку</span></button>
-                  <button id="add-table" class="action-btn primary">🪑 <span class="btn-text">Добавить стол</span></button>
-                  <button id="add-table-lamp" class="action-btn">💡 <span class="btn-text">Добавить лампу</span></button>
-                  <button id="add-wall-tv" class="action-btn">📺 <span class="btn-text">Добавить телевизор</span></button>
+                  <button id="add-light-bulb" class="action-btn primary">➕ <span class="btn-text">Лампочка</span></button>
+                  <button id="toggle-light-bulb-visuals" class="action-btn">🙈 <span class="btn-text">Скрыть лампочки</span></button>
+                  <button id="add-table" class="action-btn primary">🪑 <span class="btn-text">Стол</span></button>
+                  <button id="add-sofa" class="action-btn">🛋 <span class="btn-text">Диван</span></button>
+                  <button id="add-sofa2" class="action-btn">🛋 <span class="btn-text">Диван 2</span></button>
+                  <button id="add-table2" class="action-btn">▤ <span class="btn-text">Стол 2</span></button>
+                  <button id="add-chair" class="action-btn">▣ <span class="btn-text">Стул</span></button>
+                  <button id="add-wardrobe" class="action-btn">▥ <span class="btn-text">Шкаф</span></button>
+                  <button id="add-table-lamp" class="action-btn">💡 <span class="btn-text">Лампа</span></button>
+                  <button id="add-table-lamp-2" class="action-btn">💡 <span class="btn-text">Лампа 2</span></button>
+                  <button id="add-wall-tv" class="action-btn">📺 <span class="btn-text">Телевизор</span></button>
                </div>
             </div>
 
@@ -216,16 +226,16 @@
 
       <div class="floating-ui furniture-selection-ui" id="furniture-selection-ui" style="display:none;">
          <div class="ui-header">
-            <span class="ui-title">Стол</span>
+            <span class="ui-title" id="furniture-selection-title">Стол</span>
             <button id="btn-close-furniture" class="ui-close-btn">✖</button>
          </div>
          <div class="ui-body">
-            <div class="ui-row">
-               <span>Ширина:</span>
+            <div class="ui-row" id="furniture-width-row">
+               <span id="furniture-width-label">Ширина:</span>
                <input type="range" id="furniture-width" min="0.5" max="6" step="0.1" value="2">
             </div>
-            <div class="ui-row">
-               <span>Глубина:</span>
+            <div class="ui-row" id="furniture-depth-row">
+               <span id="furniture-depth-label">Глубина:</span>
                <input type="range" id="furniture-depth" min="0.5" max="6" step="0.1" value="1.5">
             </div>
             <div class="ui-row">

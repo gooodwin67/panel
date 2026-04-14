@@ -86,5 +86,6 @@
     }
 
     this.dragHandler.onPointerUp(event);
+    this.sceneClass.notifyPanelsChanged();
   }
 }

@@ -226,7 +226,13 @@ body.mode-2d .wall-tv-selection-ui {
 body.mode-2d .ui-tab[data-target="tab-lights"],
 body.mode-2d #tab-lights,
 body.mode-2d #add-table,
+body.mode-2d #add-sofa,
+body.mode-2d #add-sofa2,
+body.mode-2d #add-table2,
+body.mode-2d #add-chair,
+body.mode-2d #add-wardrobe,
 body.mode-2d #add-table-lamp,
+body.mode-2d #add-table-lamp-2,
 body.mode-2d #add-wall-tv,
 body.mode-2d #btn-scene-lock,
 body.mode-2d #tab-scene .wall-color-control,
@@ -339,6 +345,28 @@ body.mode-2d #selection-ui #btn-delete-2d-panel {
 .panels::-webkit-scrollbar { display: none; }
 
 /* Сама панель */
+.panel-kit-counter {
+    position: absolute;
+    left: 66px;
+    top: 4px;
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+#panel-kit-count {
+    margin-left: 4px;
+    color: #00E5FF;
+}
+
 .panel {
     flex: 0 0 80px; 
     height: 80px;

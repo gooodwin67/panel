@@ -11,6 +11,7 @@ export class SceneClass {
   constructor(gameContext) {
     this.gameContext = gameContext;
     this.onWallChanged = null;
+    this.onPanelsChanged = null;
     this.isSceneLocked = false;
     const worldScale = gameContext.sceneConfig?.worldScale || 1;
 
@@ -117,19 +118,32 @@ export class SceneClass {
         }
       : null;
 
-    const lamp = this.furnitureManager.tableLamps[0]
-      ? {
-          width:
-            this.furnitureManager.tableLamps[0].userData.baseWidth *
-            this.furnitureManager.tableLamps[0].scale.x,
-          height:
-            this.furnitureManager.tableLamps[0].userData.baseHeight *
-            this.furnitureManager.tableLamps[0].scale.y,
-          posX: this.furnitureManager.tableLamps[0].position.x,
-          posY: this.furnitureManager.tableLamps[0].position.y,
-          posZ: this.furnitureManager.tableLamps[0].position.z,
-        }
-      : null;
+    const tableLamps = this.furnitureManager.tableLamps.map((tableLamp) => ({
+      width: tableLamp.userData.baseWidth * tableLamp.scale.x,
+      height: tableLamp.userData.baseHeight * tableLamp.scale.y,
+      posX: tableLamp.position.x,
+      posY: tableLamp.position.y,
+      posZ: tableLamp.position.z,
+    }));
+    const lamp = tableLamps[0] || null;
+
+    const floorFurniture = [
+      ...this.furnitureManager.sofaItems,
+      ...this.furnitureManager.sofa2Items,
+      ...this.furnitureManager.table2Items,
+      ...this.furnitureManager.chairItems,
+      ...this.furnitureManager.wardrobeItems,
+    ].map((item) => ({
+      type: item.userData.type,
+      width: item.userData.baseWidth * item.scale.x,
+      depth:
+        item.userData.type === "wardrobe"
+          ? item.userData.baseHeight * item.scale.y
+          : item.userData.baseDepth * item.scale.z,
+      posX: item.position.x,
+      posZ: item.position.z,
+      rotationStep: item.userData.rotationStep || 0,
+    }));
 
     const wallTv = this.furnitureManager.wallTvs[0]
       ? {
@@ -161,6 +175,8 @@ export class SceneClass {
       rug,
       table,
       lamp,
+      tableLamps,
+      floorFurniture,
       wallTv,
     };
   }
@@ -188,11 +204,31 @@ export class SceneClass {
       this.lightManager.disposeLightBulbMesh(mesh);
     });
     this.lightManager.lightBulbs = [];
-    this.lightManager.fillLights = [];
+    this.lightManager.clearFillLights();
     this.lightManager.deselectLightBulb();
 
-    this.furnitureManager.deleteTableLamp();
+    this.furnitureManager.clearTableLamps();
     this.furnitureManager.deleteWallTv();
+    this.furnitureManager.sofaItems.slice().forEach((item) => {
+      this.furnitureManager.removeObject(item);
+    });
+    this.furnitureManager.sofaItems = [];
+    this.furnitureManager.sofa2Items.slice().forEach((item) => {
+      this.furnitureManager.removeObject(item);
+    });
+    this.furnitureManager.sofa2Items = [];
+    this.furnitureManager.table2Items.slice().forEach((item) => {
+      this.furnitureManager.removeObject(item);
+    });
+    this.furnitureManager.table2Items = [];
+    this.furnitureManager.chairItems.slice().forEach((item) => {
+      this.furnitureManager.removeObject(item);
+    });
+    this.furnitureManager.chairItems = [];
+    this.furnitureManager.wardrobeItems.slice().forEach((item) => {
+      this.furnitureManager.removeObject(item);
+    });
+    this.furnitureManager.wardrobeItems = [];
     this.furnitureManager.deleteTable();
 
     if (Array.isArray(state.walls)) {
@@ -270,32 +306,43 @@ export class SceneClass {
       }
     }
 
-    (state.sideLights || []).forEach((lightState) => {
-      const latest = this.lightManager.addLightBulb({
-        color: lightState.color || 0xffaa66,
-        intensity: Number(lightState.intensity ?? this.lightManager.defaultSideLightIntensity),
-        distance: Number(lightState.distance ?? this.lightManager.defaultSideLightDistance),
-        decay: Number(lightState.decay ?? 1.7),
-        isRoomLight: !!lightState.isRoomLight,
-      });
-      if (!latest) return;
+    (state.sideLights || [])
+      .filter((lightState) => !lightState.isRoomLight)
+      .forEach((lightState) => {
+        const latest = this.lightManager.addLightBulb({
+          color: lightState.color || 0xffaa66,
+          intensity: Number(
+            lightState.intensity ?? this.lightManager.defaultSideLightIntensity
+          ),
+          distance: Number(
+            lightState.distance ?? this.lightManager.defaultSideLightDistance
+          ),
+          decay: Number(lightState.decay ?? 1.7),
+        });
+        if (!latest) return;
 
-      latest.mesh.position.fromArray(lightState.position || latest.mesh.position.toArray());
-      latest.light.position.copy(latest.mesh.position);
-      latest.light.color.set(lightState.color || "#ffaa66");
-      latest.light.intensity = Number(lightState.intensity ?? latest.light.intensity);
-      latest.light.distance = Number(lightState.distance ?? latest.light.distance);
-      latest.light.decay = Number(lightState.decay ?? latest.light.decay);
-      latest.mesh.visible = lightState.visible !== false;
-      this.lightManager.setLightBulbEmissiveIntensity(
-        latest.mesh,
-        Number(
-          lightState.emissiveIntensity ??
-          this.lightManager.getLightBulbEmissiveIntensity(latest.mesh)
-        )
-      );
-      this.lightManager.syncLightFixture(latest.light);
-    });
+        latest.mesh.position.fromArray(
+          lightState.position || latest.mesh.position.toArray()
+        );
+        latest.light.position.copy(latest.mesh.position);
+        latest.light.color.set(lightState.color || "#ffaa66");
+        latest.light.intensity = Number(
+          lightState.intensity ?? latest.light.intensity
+        );
+        latest.light.distance = Number(
+          lightState.distance ?? latest.light.distance
+        );
+        latest.light.decay = Number(lightState.decay ?? latest.light.decay);
+        latest.mesh.visible = lightState.visible !== false;
+        this.lightManager.setLightBulbEmissiveIntensity(
+          latest.mesh,
+          Number(
+            lightState.emissiveIntensity ??
+              this.lightManager.getLightBulbEmissiveIntensity(latest.mesh)
+          )
+        );
+        this.lightManager.syncLightFixture(latest.light);
+      });
 
     if (state.rug && this.rugManager.rug) {
       this.rugManager.updateRugTransform(
@@ -313,29 +360,61 @@ export class SceneClass {
       const table = this.addTable();
       if (table) {
         this.furnitureManager.selectFurniture(table);
+        this.updateFurnitureRotation(Number(state.table.rotationStep || 0));
         this.updateFurnitureTransform(
           Number(state.table.width),
           Number(state.table.depth),
           Number(state.table.posX),
           Number(state.table.posZ)
         );
-        this.updateFurnitureRotation(Number(state.table.rotationStep || 0));
       }
     }
 
-    if (state.lamp) {
-      const lamp = this.addTableLamp();
+    const tableLampStates = Array.isArray(state.tableLamps)
+      ? state.tableLamps
+      : state.lamp
+        ? [state.lamp]
+        : [];
+
+    tableLampStates.forEach((lampState, index) => {
+      const lamp = this.addTableLamp(index > 0);
       if (lamp) {
         this.selectTableLamp(lamp);
         this.updateTableLampTransform(
-          Number(state.lamp.width),
-          Number(state.lamp.height),
-          Number(state.lamp.posX),
-          Number(state.lamp.posY),
-          Number(state.lamp.posZ)
+          Number(lampState.width),
+          Number(lampState.height),
+          Number(lampState.posX),
+          Number(lampState.posY),
+          Number(lampState.posZ)
         );
       }
-    }
+    });
+
+    (state.floorFurniture || []).forEach((furnitureState) => {
+      const item =
+        furnitureState.type === "sofa"
+          ? this.addSofa()
+          : furnitureState.type === "sofa2"
+            ? this.addSofa2()
+            : furnitureState.type === "table2"
+              ? this.addTable2()
+              : furnitureState.type === "chair"
+                ? this.addChair()
+                : furnitureState.type === "wardrobe" ||
+                    furnitureState.type === "cabinet"
+                  ? this.addWardrobe()
+                  : null;
+      if (!item) return;
+
+      this.selectFurniture(item);
+      this.updateFurnitureRotation(Number(furnitureState.rotationStep || 0));
+      this.updateFurnitureTransform(
+        Number(furnitureState.width),
+        Number(furnitureState.depth),
+        Number(furnitureState.posX),
+        Number(furnitureState.posZ)
+      );
+    });
 
     if (state.wallTv) {
       const wallTv = this.addWallTv();
@@ -349,6 +428,32 @@ export class SceneClass {
           Number(state.wallTv.wallIndex || 0) + 1
         );
       }
+    }
+
+    this.notifyPanelsChanged();
+  }
+
+  // ---- Считает, сколько комплектов нужно для панелей на стенах ----
+  getPanelKitInfo() {
+    const counts = [0, 0, 0, 0];
+
+    this.panelManager.getAllPanels().forEach((panel) => {
+      const panelIndex = Number(panel.userData.panelIndex);
+      if (panelIndex >= 0 && panelIndex < counts.length) {
+        counts[panelIndex] += 1;
+      }
+    });
+
+    return {
+      counts,
+      kits: Math.max(0, ...counts),
+    };
+  }
+
+  // ---- Сообщает UI, что количество панелей изменилось ----
+  notifyPanelsChanged() {
+    if (this.onPanelsChanged) {
+      this.onPanelsChanged(this.getPanelKitInfo());
     }
   }
 
@@ -398,12 +503,57 @@ export class SceneClass {
     this.furnitureManager.deleteTable();
   }
 
-  // ---- Добавляет лампу на стол ----
-  addTableLamp() {
+  // ---- Добавляет диван в комнату ----
+  addSofa() {
     if (this.isSceneLocked) return null;
 
     this.clearSelections();
-    return this.furnitureManager.addTableLamp();
+    return this.furnitureManager.addSofa();
+  }
+
+  // ---- Добавляет второй диван в комнату ----
+  addSofa2() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addSofa2();
+  }
+
+  // ---- Добавляет второй стол в комнату ----
+  addTable2() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addTable2();
+  }
+
+  // ---- Добавляет стул в комнату ----
+  addChair() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addChair();
+  }
+
+  // ---- Добавляет шкаф в комнату ----
+  addWardrobe() {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addWardrobe();
+  }
+
+  // ---- Удаляет выбранную напольную мебель ----
+  deleteSelectedFurniture() {
+    this.furnitureManager.deleteSelectedFurniture();
+  }
+
+  // ---- Добавляет лампу на стол ----
+  addTableLamp(forceNew = false) {
+    if (this.isSceneLocked) return null;
+
+    this.clearSelections();
+    return this.furnitureManager.addTableLamp(forceNew);
   }
 
   // ---- Удаляет лампу со стола ----
@@ -615,6 +765,13 @@ export class SceneClass {
     if (this.isSceneLocked) return;
 
     this.lightManager.addSideLightBulb();
+  }
+
+  // ---- Переключает видимость плафонов лампочек ----
+  toggleAllLightBulbMeshesVisible() {
+    if (this.isSceneLocked) return true;
+
+    return this.lightManager.toggleAllLightBulbMeshesVisible();
   }
 
   // ---- Обновляет UI лампочки ----

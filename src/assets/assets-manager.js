@@ -16,6 +16,11 @@ export class AssetsManager {
       table: null,
       tableLamp: null,
       tv: null,
+      sofa: null,
+      sofa2: null,
+      table2: null,
+      chair: null,
+      wardrobe: null,
     };
     this.panelUrls = [
       "models/panels/panel1.gltf",
@@ -148,5 +153,24 @@ export class AssetsManager {
     this.furniture.table = tableModel.scene;
     this.furniture.tableLamp = lampModel.scene;
     this.furniture.tv = tvModel.scene;
+
+    await Promise.all([
+      this.loadOptionalFurniture("sofa", "models/mebel/sofa.gltf"),
+      this.loadOptionalFurniture("sofa2", "models/mebel/sofa2.gltf"),
+      this.loadOptionalFurniture("table2", "models/mebel/table2.gltf"),
+      this.loadOptionalFurniture("chair", "models/mebel/chair.gltf"),
+      this.loadOptionalFurniture("wardrobe", "models/mebel/wardrobe.gltf"),
+    ]);
+  }
+
+  // ---- Загружает необязательную модель мебели ----
+  async loadOptionalFurniture(key, url) {
+    try {
+      const model = await this.loader.loadAsync(url);
+      model.scene.scale.multiplyScalar(this.worldScale);
+      this.furniture[key] = model.scene;
+    } catch (error) {
+      console.warn(`Модель ${url} пока не найдена`, error);
+    }
   }
 }
