@@ -11,9 +11,9 @@
    <link rel="icon" type="image/x-icon" href="./assets/favicon-Bw0IQTl4.ico">
    <link rel="shortcut icon" href="./assets/favicon-Bw0IQTl4.ico" type="image/x-icon">
 
-  <script type="module" crossorigin src="./assets/index-DVMuUGJY.js"></script>
+  <script type="module" crossorigin src="./assets/index-Bn-Y__Ii.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/three-DbH9v004.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-BK1oEFhc.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-i4Lfa94T.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
@@ -44,6 +44,9 @@
          <div class="panel-header">
             <div class="drag-handle"></div>
             <button id="btn-presets" class="panel-presets-btn" title="Сохранить / загрузить">💾</button>
+            <div class="panel-kit-counter" id="panel-kit-counter">
+               Комплектов: <span id="panel-kit-count">0</span>
+            </div>
             <div class="panel-controls">
                <button id="btn-scene-lock" title="Заблокировать редактирование сцены" aria-pressed="false">🔓</button>
                <button id="btn-compact" title="Компактный вид">🗕</button>
@@ -70,10 +73,17 @@
 
             <div class="ui-pane" id="tab-lights">
                <div class="btns">
-                  <button id="add-light-bulb" class="action-btn primary">➕ <span class="btn-text">Добавить лампочку</span></button>
-                  <button id="add-table" class="action-btn primary">🪑 <span class="btn-text">Добавить стол</span></button>
-                  <button id="add-table-lamp" class="action-btn">💡 <span class="btn-text">Добавить лампу</span></button>
-                  <button id="add-wall-tv" class="action-btn">📺 <span class="btn-text">Добавить телевизор</span></button>
+                  <button id="add-light-bulb" class="action-btn primary">➕ <span class="btn-text">Лампочка</span></button>
+                  <button id="toggle-light-bulb-visuals" class="action-btn">🙈 <span class="btn-text">Скрыть лампочки</span></button>
+                  <button id="add-table" class="action-btn primary">🪑 <span class="btn-text">Стол</span></button>
+                  <button id="add-sofa" class="action-btn">🛋 <span class="btn-text">Диван</span></button>
+                  <button id="add-sofa2" class="action-btn">🛋 <span class="btn-text">Диван 2</span></button>
+                  <button id="add-table2" class="action-btn">▤ <span class="btn-text">Стол 2</span></button>
+                  <button id="add-chair" class="action-btn">▣ <span class="btn-text">Стул</span></button>
+                  <button id="add-wardrobe" class="action-btn">▥ <span class="btn-text">Шкаф</span></button>
+                  <button id="add-table-lamp" class="action-btn">💡 <span class="btn-text">Лампа</span></button>
+                  <button id="add-table-lamp-2" class="action-btn">💡 <span class="btn-text">Лампа 2</span></button>
+                  <button id="add-wall-tv" class="action-btn">📺 <span class="btn-text">Телевизор</span></button>
                </div>
             </div>
 
@@ -219,16 +229,16 @@
 
       <div class="floating-ui furniture-selection-ui" id="furniture-selection-ui" style="display:none;">
          <div class="ui-header">
-            <span class="ui-title">Стол</span>
+            <span class="ui-title" id="furniture-selection-title">Стол</span>
             <button id="btn-close-furniture" class="ui-close-btn">✖</button>
          </div>
          <div class="ui-body">
-            <div class="ui-row">
-               <span>Ширина:</span>
+            <div class="ui-row" id="furniture-width-row">
+               <span id="furniture-width-label">Ширина:</span>
                <input type="range" id="furniture-width" min="0.5" max="6" step="0.1" value="2">
             </div>
-            <div class="ui-row">
-               <span>Глубина:</span>
+            <div class="ui-row" id="furniture-depth-row">
+               <span id="furniture-depth-label">Глубина:</span>
                <input type="range" id="furniture-depth" min="0.5" max="6" step="0.1" value="1.5">
             </div>
             <div class="ui-row">
@@ -376,7 +386,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-Dg1pvkOn.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-CTP5U6VS.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-Di3iliKz.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
