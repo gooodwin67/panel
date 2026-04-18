@@ -43,8 +43,8 @@ export class InitClass {
 
     this.stats = new Stats();
     document.body.appendChild(this.stats.dom);
-    this.stats.dom.style.top = "0px";
-    this.stats.dom.style.left = "0%";
+    this.stats.dom.style.cssText =
+      "position: fixed; top: 100vh; top: 100dvh; right: auto; bottom: auto; left: 0; transform: translateY(-45px); z-index: 1000000;";
 
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();

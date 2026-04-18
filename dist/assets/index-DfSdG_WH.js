@@ -1,4 +1,4 @@
-import { S as Ie, P as Le, W as Pe, a as T, b as Be, A as Ee, O as De, c as We, R as $, V, d as f, e as Z, f as Te, H as Fe, g as Ae, h as ze, G as R, M as W, i as re, j as L, C as ue, k as ye, D as Q, l as oe, m as ke, F, n as j, o as ge, p as x, Q as he, B as q, q as Ne, E as Re, L as Oe, r as He, T as we, s as C, t as Ue, u as Xe, v as Se, w as Ye, x as qe, y as Ve, z as je } from "./three-DbH9v004.js";
+import { S as Ie, P as Le, W as Pe, a as T, b as Be, A as Ee, O as De, c as We, R as $, V, d as f, e as Z, f as Te, H as Fe, g as Ae, h as ze, G as R, M as W, i as re, j as L, C as ue, k as ye, D as Q, l as oe, m as ke, F, n as j, o as ge, p as S, Q as he, B as q, q as Ne, E as Re, L as Oe, r as He, T as we, s as C, t as Ue, u as Xe, v as xe, w as Ye, x as qe, y as Ve, z as je } from "./three-DbH9v004.js";
 let Et;
 let __tla = (async () => {
   Et = function() {
@@ -36,7 +36,7 @@ let __tla = (async () => {
       const t = ((_a = e.sceneConfig) == null ? void 0 : _a.worldScale) || 1;
       this.onWindowResize = this.onWindowResize.bind(this), this.scene = new Ie(), this.camera = new Le(40, window.innerWidth / window.innerHeight, 0.1 * t, 40 * t), this.camera.position.x = 0, this.camera.position.y = 0, this.camera.position.z = 10 * t, this.renderer = new Pe({
         antialias: true
-      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = T, this.renderer.shadowMap.enabled = true, this.renderer.shadowMap.type = Be, this.renderer.toneMapping = Ee, this.renderer.toneMappingExposure = 0.58, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new De(this.camera, this.renderer.domElement), this.controls.rotateSpeed = 0.5, this.gameContext.controls = this.controls, this.stats = new We(), document.body.appendChild(this.stats.dom), this.stats.dom.style.top = "0px", this.stats.dom.style.left = "0%", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
+      }), this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)), this.renderer.setSize(window.innerWidth, window.innerHeight), this.renderer.outputColorSpace = T, this.renderer.shadowMap.enabled = true, this.renderer.shadowMap.type = Be, this.renderer.toneMapping = Ee, this.renderer.toneMappingExposure = 0.58, this.renderer.physicallyCorrectLights = true, document.body.appendChild(this.renderer.domElement), this.controls = new De(this.camera, this.renderer.domElement), this.controls.rotateSpeed = 0.5, this.gameContext.controls = this.controls, this.stats = new We(), document.body.appendChild(this.stats.dom), this.stats.dom.style.cssText = "position: fixed; top: auto; right: auto; bottom: 0; left: 0; z-index: 1000000;", window.addEventListener("resize", this.onWindowResize), this.onWindowResize();
     }
     onWindowResize() {
       const i = window.innerWidth, s = window.innerHeight, a = Math.min(i, 1920), n = Math.min(s, 1080);
@@ -117,8 +117,8 @@ let __tla = (async () => {
         return;
       }
       this.ghostMesh.visible = true, this.canPlace = true, this.ghostMesh.userData.gridX = r, this.ghostMesh.userData.gridY = c;
-      const d = (r + 0.5 - a.offset.x) / a.repeat.x, p = (c + 0.5 - a.offset.y) / a.repeat.y, y = (d - 0.5) * i, S = (p - 0.5) * s;
-      n.x = y, n.y = S, n.z = 0;
+      const d = (r + 0.5 - a.offset.x) / a.repeat.x, p = (c + 0.5 - a.offset.y) / a.repeat.y, y = (d - 0.5) * i, x = (p - 0.5) * s;
+      n.x = y, n.y = x, n.z = 0;
       const I = t.localToWorld(n);
       this.ghostMesh.position.copy(I), this.ghostMesh.quaternion.copy(t.quaternion), this.ghostMesh.rotateX(Math.PI / 2);
     }
@@ -366,23 +366,23 @@ let __tla = (async () => {
       this.syncLightBulbMesh(e);
       const t = (_a = e == null ? void 0 : e.userData) == null ? void 0 : _a.fixtureMaterials;
       if (!t) return;
-      const i = x.clamp(0.18 + e.intensity / (18 * this.worldScaleSquared), 0.18, 1.6);
+      const i = S.clamp(0.18 + e.intensity / (18 * this.worldScaleSquared), 0.18, 1.6);
       t.emissive.forEach((s) => {
         s.emissive.copy(e.color), s.emissiveIntensity = i;
-      }), t.glow && (t.glow.color.copy(e.color), t.glow.opacity = x.clamp(0.22 + e.intensity / (28 * this.worldScaleSquared), 0.22, 0.95));
+      }), t.glow && (t.glow.color.copy(e.color), t.glow.opacity = S.clamp(0.22 + e.intensity / (28 * this.worldScaleSquared), 0.22, 0.95));
     }
     syncLightBulbMesh(e) {
       var _a, _b, _c;
       const t = (_a = e == null ? void 0 : e.userData) == null ? void 0 : _a.bulbMesh, i = (_b = t == null ? void 0 : t.userData) == null ? void 0 : _b.lightVisualMaterials;
       if (i) {
-        const a = (_c = t.userData.emissiveIntensity) != null ? _c : x.clamp(0.4 + e.intensity / (18 * this.worldScaleSquared), 0.4, 6);
+        const a = (_c = t.userData.emissiveIntensity) != null ? _c : S.clamp(0.4 + e.intensity / (18 * this.worldScaleSquared), 0.4, 6);
         i.emissive.forEach((n) => {
           n.color && n.color.copy(e.color), n.emissive.copy(e.color), n.emissiveIntensity = a, n.needsUpdate = true;
-        }), i.glow && (i.glow.color.copy(e.color), i.glow.opacity = x.clamp(0.14 + e.intensity / (40 * this.worldScaleSquared), 0.14, 0.62), i.glow.needsUpdate = true);
+        }), i.glow && (i.glow.color.copy(e.color), i.glow.opacity = S.clamp(0.14 + e.intensity / (40 * this.worldScaleSquared), 0.14, 0.62), i.glow.needsUpdate = true);
         return;
       }
       const s = t == null ? void 0 : t.material;
-      s && (s.emissive && s.emissive.copy(e.color), s.emissiveIntensity = x.clamp(0.4 + e.intensity / (18 * this.worldScaleSquared), 0.4, 6), s.needsUpdate = true);
+      s && (s.emissive && s.emissive.copy(e.color), s.emissiveIntensity = S.clamp(0.4 + e.intensity / (18 * this.worldScaleSquared), 0.4, 6), s.needsUpdate = true);
     }
     getLightBulbEmissiveIntensity(e) {
       var _a, _b, _c, _d, _e2;
@@ -396,7 +396,7 @@ let __tla = (async () => {
       if (i) {
         i.emissive.forEach((s) => {
           s.emissiveIntensity = t, s.needsUpdate = true;
-        }), i.glow && (i.glow.opacity = x.clamp(t / 8, 0.08, 0.8), i.glow.needsUpdate = true);
+        }), i.glow && (i.glow.opacity = S.clamp(t / 8, 0.08, 0.8), i.glow.needsUpdate = true);
         return;
       }
       ((_b = e == null ? void 0 : e.material) == null ? void 0 : _b.emissiveIntensity) !== void 0 && (e.material.emissiveIntensity = t, e.material.needsUpdate = true);
@@ -908,8 +908,8 @@ let __tla = (async () => {
         toneMapped: false
       }), d = new L(i, g);
       return d.position.z = 1e-3 * this.config.worldScale, d.renderOrder = 2, d.visible = this.isNetVisible, d.raycast = () => {
-      }, c.userData.gridTexture = o, c.userData.gridOverlay = d, c.receiveShadow = true, c.add(d), c.onBeforeRender = (p, y, S) => {
-        c.getWorldPosition(ae), ae.subVectors(S.position, ae), pe.set(0, 0, 1).transformDirection(c.matrixWorld);
+      }, c.userData.gridTexture = o, c.userData.gridOverlay = d, c.receiveShadow = true, c.add(d), c.onBeforeRender = (p, y, x) => {
+        c.getWorldPosition(ae), ae.subVectors(x.position, ae), pe.set(0, 0, 1).transformDirection(c.matrixWorld);
         const I = ae.dot(pe) > 0;
         c.userData.gridOverlay && (c.userData.gridOverlay.visible = this.isNetVisible && I);
       }, c;
@@ -983,7 +983,7 @@ let __tla = (async () => {
       const t = e.getContext("2d");
       t.clearRect(0, 0, 128, 128), t.strokeStyle = "rgba(68, 68, 68, 0.95)", t.lineWidth = 2, t.strokeRect(0, 0, 128, 128);
       const i = new Ue(e);
-      return i.colorSpace = T, i.magFilter = Xe, i.minFilter = Se, i.generateMipmaps = true, i.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), i;
+      return i.colorSpace = T, i.magFilter = Xe, i.minFilter = xe, i.generateMipmaps = true, i.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), i;
     }
     getPointer(e) {
       const i = this.gameContext.renderer.domElement.getBoundingClientRect();
@@ -996,7 +996,7 @@ let __tla = (async () => {
     }
     createScene() {
       const { heightWall: e } = this.config, t = 4 * this.worldScale, i = 3 * this.worldScale, s = new j(t, i), a = new we(), n = a.load("textures/1/carpet-color.jpg"), l = a.load("textures/1/carpet-normal.jpg");
-      n.wrapS = C, n.wrapT = C, n.repeat.set(t, i), l.wrapS = C, l.wrapT = C, l.repeat.set(t, i), n.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), n.colorSpace = T, n.generateMipmaps = true, n.minFilter = Se;
+      n.wrapS = C, n.wrapT = C, n.repeat.set(t, i), l.wrapS = C, l.wrapT = C, l.repeat.set(t, i), n.anisotropy = this.gameContext.renderer.capabilities.getMaxAnisotropy(), n.colorSpace = T, n.generateMipmaps = true, n.minFilter = xe;
       const o = new W({
         map: n,
         bumpMap: l,
@@ -1022,7 +1022,7 @@ let __tla = (async () => {
     updateRugTransform(e, t, i, s) {
       if (!this.rug) return;
       const a = this.rug.userData.baseWidth, n = this.rug.userData.baseDepth, l = Math.max((this.config.widthWallFront - e) / 2, 0), o = Math.max((this.config.widthWallSide - t) / 2, 0);
-      this.rug.scale.set(e / a, 1, t / n), this.rug.position.x = x.clamp(i, -l, l), this.rug.position.z = x.clamp(s, -o, o), this.rug.material.map && this.rug.material.map.repeat.set(e, t), this.rug.material.bumpMap && this.rug.material.bumpMap.repeat.set(e, t), this.refreshRugUI();
+      this.rug.scale.set(e / a, 1, t / n), this.rug.position.x = S.clamp(i, -l, l), this.rug.position.z = S.clamp(s, -o, o), this.rug.material.map && this.rug.material.map.repeat.set(e, t), this.rug.material.bumpMap && this.rug.material.bumpMap.repeat.set(e, t), this.refreshRugUI();
     }
     refreshRugUI() {
       if (!this.rug) return;
@@ -1329,7 +1329,7 @@ let __tla = (async () => {
     refreshFurnitureUI() {
       const e = this.selectedFurniture;
       if (!e) return;
-      const t = document.getElementById("furniture-width"), i = document.getElementById("furniture-depth"), s = document.getElementById("furniture-width-row"), a = document.getElementById("furniture-depth-row"), n = document.getElementById("furniture-width-label"), l = document.getElementById("furniture-depth-label"), o = document.getElementById("furniture-pos-x"), r = document.getElementById("furniture-pos-z"), c = document.getElementById("furniture-rotation"), g = document.getElementById("furniture-rotation-value"), d = document.getElementById("furniture-selection-title"), p = document.getElementById("btn-delete-furniture"), y = e.userData.baseWidth * e.scale.x, S = e.userData.baseDepth * e.scale.z, I = e.userData.type === "chair", M = e.userData.type === "wardrobe", v = M ? e.userData.baseHeight * e.scale.y : S, w = e.userData.rotationStep || 0, A = this.getRotatedFurnitureFootprint(e, y, S), U = Math.max(this.config.widthWallFront * 0.9, y), k = M ? Math.max(this.config.heightWall * 0.95, v) : Math.max(this.config.widthWallSide * 0.9, S), _ = Math.max(e.userData.baseWidth * 0.15, 0.05), X = Math.max(M ? e.userData.baseHeight * 0.15 : e.userData.baseDepth * 0.15, 0.05), B = Math.max((this.config.widthWallFront - A.width) / 2, 0), G = Math.max((this.config.widthWallSide - A.depth) / 2, 0);
+      const t = document.getElementById("furniture-width"), i = document.getElementById("furniture-depth"), s = document.getElementById("furniture-width-row"), a = document.getElementById("furniture-depth-row"), n = document.getElementById("furniture-width-label"), l = document.getElementById("furniture-depth-label"), o = document.getElementById("furniture-pos-x"), r = document.getElementById("furniture-pos-z"), c = document.getElementById("furniture-rotation"), g = document.getElementById("furniture-rotation-value"), d = document.getElementById("furniture-selection-title"), p = document.getElementById("btn-delete-furniture"), y = e.userData.baseWidth * e.scale.x, x = e.userData.baseDepth * e.scale.z, I = e.userData.type === "chair", M = e.userData.type === "wardrobe", v = M ? e.userData.baseHeight * e.scale.y : x, w = e.userData.rotationStep || 0, A = this.getRotatedFurnitureFootprint(e, y, x), U = Math.max(this.config.widthWallFront * 0.9, y), k = M ? Math.max(this.config.heightWall * 0.95, v) : Math.max(this.config.widthWallSide * 0.9, x), _ = Math.max(e.userData.baseWidth * 0.15, 0.05), X = Math.max(M ? e.userData.baseHeight * 0.15 : e.userData.baseDepth * 0.15, 0.05), B = Math.max((this.config.widthWallFront - A.width) / 2, 0), G = Math.max((this.config.widthWallSide - A.depth) / 2, 0);
       s && (s.style.display = "flex"), a && (a.style.display = I ? "none" : "flex"), n && (n.textContent = I ? "\u0420\u0430\u0437\u043C\u0435\u0440:" : "\u0428\u0438\u0440\u0438\u043D\u0430:"), l && (l.textContent = M ? "\u0412\u044B\u0441\u043E\u0442\u0430:" : "\u0413\u043B\u0443\u0431\u0438\u043D\u0430:"), t && (t.min = String(_), t.max = String(U), t.value = String(y)), i && (i.min = String(X), i.max = String(k), i.value = String(v)), o && (o.min = String(-B), o.max = String(B), o.value = String(e.position.x)), r && (r.min = String(-G), r.max = String(G), r.value = String(e.position.z)), c && (c.value = String(w)), g && (g.textContent = "".concat(w * 90, "\xB0")), d && (d.textContent = e.userData.label || "\u041C\u0435\u0431\u0435\u043B\u044C"), p && (p.textContent = e.userData.deleteLabel || "\u0423\u0434\u0430\u043B\u0438\u0442\u044C");
     }
     updateFurnitureTransform(e, t, i, s) {
@@ -1337,14 +1337,14 @@ let __tla = (async () => {
       if (!a) return;
       const n = a.userData.baseWidth || 1, l = a.userData.baseDepth || 1, o = Math.max(e, Math.max(n * 0.15, 0.05)), r = Math.max(t, Math.max(l * 0.15, 0.05)), c = a.userData.type === "chair", g = a.userData.type === "wardrobe";
       if (c) {
-        const S = o / n;
-        a.scale.set(S, S, S);
+        const x = o / n;
+        a.scale.set(x, x, x);
       } else if (g) {
-        const S = a.userData.baseHeight || 1, I = Math.max(t, Math.max(S * 0.15, 0.05));
-        a.scale.set(o / n, I / S, 1);
+        const x = a.userData.baseHeight || 1, I = Math.max(t, Math.max(x * 0.15, 0.05));
+        a.scale.set(o / n, I / x, 1);
       } else a.scale.set(o / n, 1, r / l);
       const d = this.getRotatedFurnitureFootprint(a, o, c || g ? a.userData.baseDepth * a.scale.z : r), p = Math.max((this.config.widthWallFront - d.width) / 2, 0), y = Math.max((this.config.widthWallSide - d.depth) / 2, 0);
-      a.position.x = x.clamp(i, -p, p), a.position.z = x.clamp(s, -y, y), a.position.y = -this.config.heightWall / 2, this.refreshFurnitureUI();
+      a.position.x = S.clamp(i, -p, p), a.position.z = S.clamp(s, -y, y), a.position.y = -this.config.heightWall / 2, this.refreshFurnitureUI();
     }
     updateFurnitureRotation(e) {
       const t = this.selectedFurniture;
@@ -1354,7 +1354,7 @@ let __tla = (async () => {
       const s = document.getElementById("furniture-rotation-value");
       s && (s.textContent = "".concat(i * 90, "\xB0"));
       const a = t.userData.baseWidth * t.scale.x, n = t.userData.baseDepth * t.scale.z, l = this.getRotatedFurnitureFootprint(t, a, n), o = Math.max((this.config.widthWallFront - l.width) / 2, 0), r = Math.max((this.config.widthWallSide - l.depth) / 2, 0);
-      t.position.x = x.clamp(t.position.x, -o, o), t.position.z = x.clamp(t.position.z, -r, r), this.refreshFurnitureUI();
+      t.position.x = S.clamp(t.position.x, -o, o), t.position.z = S.clamp(t.position.z, -r, r), this.refreshFurnitureUI();
     }
     getRotatedFurnitureFootprint(e, t, i) {
       return Math.abs(e.userData.rotationStep || 0) % 2 === 1 ? {
@@ -1381,7 +1381,7 @@ let __tla = (async () => {
       const n = this.selectedLamp;
       if (!n) return;
       const l = n.userData.baseWidth || 1, o = n.userData.baseHeight || 1, r = e / l;
-      n.scale.set(r, t / o, r), n.position.x = x.clamp(i, -this.config.widthWallFront / 2, this.config.widthWallFront / 2), n.position.y = x.clamp(s, -this.config.heightWall / 2, this.config.heightWall / 2), n.position.z = x.clamp(a, -this.config.widthWallSide / 2, this.config.widthWallSide / 2), this.refreshLampUI();
+      n.scale.set(r, t / o, r), n.position.x = S.clamp(i, -this.config.widthWallFront / 2, this.config.widthWallFront / 2), n.position.y = S.clamp(s, -this.config.heightWall / 2, this.config.heightWall / 2), n.position.z = S.clamp(a, -this.config.widthWallSide / 2, this.config.widthWallSide / 2), this.refreshLampUI();
     }
     selectWallTv(e) {
       this.selectedTv = e, O(".wall-tv-selection-ui"), this.refreshWallTvUI();
@@ -1393,16 +1393,16 @@ let __tla = (async () => {
       var _a, _b;
       const e = this.selectedTv;
       if (!e) return;
-      const t = document.getElementById("wall-tv-width"), i = document.getElementById("wall-tv-height"), s = document.getElementById("wall-tv-pos-x"), a = document.getElementById("wall-tv-pos-y"), n = document.getElementById("wall-tv-wall"), l = document.getElementById("wall-tv-wall-value"), o = e.userData.wallIndex || 0, r = this.getWallSizeForTv(o), c = e.userData.baseWidth * e.scale.x, g = e.userData.baseHeight * e.scale.y, d = Math.max(e.userData.baseWidth * 0.25, 0.1), p = Math.max(e.userData.baseHeight * 0.25, 0.1), y = Math.max(r.width * 0.9, c), S = Math.max(r.height * 0.9, g), I = Math.max((r.width - c) / 2, 0), M = Math.max((r.height - g) / 2, 0);
-      t && (t.min = String(d), t.max = String(y), t.value = String(c)), i && (i.min = String(p), i.max = String(S), i.value = String(g)), s && (s.min = String(-I), s.max = String(I), s.value = String(e.position.x)), a && (a.min = String(-M), a.max = String(M), a.value = String(e.position.y)), n && (n.min = "1", n.max = String(Math.max(((_b = (_a = this.gameContext.sceneClass) == null ? void 0 : _a.walls) == null ? void 0 : _b.length) || 4, 1)), n.value = String(o + 1)), l && (l.textContent = String(o + 1));
+      const t = document.getElementById("wall-tv-width"), i = document.getElementById("wall-tv-height"), s = document.getElementById("wall-tv-pos-x"), a = document.getElementById("wall-tv-pos-y"), n = document.getElementById("wall-tv-wall"), l = document.getElementById("wall-tv-wall-value"), o = e.userData.wallIndex || 0, r = this.getWallSizeForTv(o), c = e.userData.baseWidth * e.scale.x, g = e.userData.baseHeight * e.scale.y, d = Math.max(e.userData.baseWidth * 0.25, 0.1), p = Math.max(e.userData.baseHeight * 0.25, 0.1), y = Math.max(r.width * 0.9, c), x = Math.max(r.height * 0.9, g), I = Math.max((r.width - c) / 2, 0), M = Math.max((r.height - g) / 2, 0);
+      t && (t.min = String(d), t.max = String(y), t.value = String(c)), i && (i.min = String(p), i.max = String(x), i.value = String(g)), s && (s.min = String(-I), s.max = String(I), s.value = String(e.position.x)), a && (a.min = String(-M), a.max = String(M), a.value = String(e.position.y)), n && (n.min = "1", n.max = String(Math.max(((_b = (_a = this.gameContext.sceneClass) == null ? void 0 : _a.walls) == null ? void 0 : _b.length) || 4, 1)), n.value = String(o + 1)), l && (l.textContent = String(o + 1));
     }
     updateWallTvTransform(e, t, i, s, a) {
       const n = this.selectedTv;
       if (!n) return;
-      const l = Number.isFinite(a) ? a - 1 : n.userData.wallIndex || 0, o = this.getClampedTvWallIndex(l), r = this.getWallSizeForTv(o), c = x.clamp(e, Math.max(n.userData.baseWidth * 0.25, 0.1), r.width * 0.9), g = x.clamp(t, Math.max(n.userData.baseHeight * 0.25, 0.1), r.height * 0.9);
+      const l = Number.isFinite(a) ? a - 1 : n.userData.wallIndex || 0, o = this.getClampedTvWallIndex(l), r = this.getWallSizeForTv(o), c = S.clamp(e, Math.max(n.userData.baseWidth * 0.25, 0.1), r.width * 0.9), g = S.clamp(t, Math.max(n.userData.baseHeight * 0.25, 0.1), r.height * 0.9);
       this.attachTvToWall(n, o), n.scale.set(c / (n.userData.baseWidth || 1), g / (n.userData.baseHeight || 1), Math.max(c / (n.userData.baseWidth || 1), g / (n.userData.baseHeight || 1)));
       const d = Math.max((r.width - c) / 2, 0), p = Math.max((r.height - g) / 2, 0);
-      n.position.x = x.clamp(i, -d, d), n.position.y = x.clamp(s, -p, p), this.setWallTvDepthOffset(n), this.refreshWallTvUI();
+      n.position.x = S.clamp(i, -d, d), n.position.y = S.clamp(s, -p, p), this.setWallTvDepthOffset(n), this.refreshWallTvUI();
     }
     attachTvToWall(e, t) {
       var _a;
@@ -1428,7 +1428,7 @@ let __tla = (async () => {
     getClampedTvWallIndex(e) {
       var _a, _b;
       const t = ((_b = (_a = this.gameContext.sceneClass) == null ? void 0 : _a.walls) == null ? void 0 : _b.length) || 4;
-      return x.clamp(Math.round(Number(e) || 0), 0, Math.max(t - 1, 0));
+      return S.clamp(Math.round(Number(e) || 0), 0, Math.max(t - 1, 0));
     }
     updatePointer(e) {
       const i = this.gameContext.renderer.domElement.getBoundingClientRect();
@@ -2066,10 +2066,10 @@ let __tla = (async () => {
           r.z
         ].filter((p) => p > 0).sort((p, y) => y - p), g = c[1] || c[0] || 1, d = this.panelTargetSize / g;
         return n.scale.multiplyScalar(d), l.forEach((p) => {
-          const y = p.material, S = Array.isArray(y) ? y : [
+          const y = p.material, x = Array.isArray(y) ? y : [
             y
           ];
-          p.material = S.map((v) => {
+          p.material = x.map((v) => {
             var _a;
             const w = new ye({
               color: 9548181,
@@ -2443,11 +2443,11 @@ let __tla = (async () => {
   async function dt() {
     h.gui = new Ve({
       title: "\u0425\u0430\u0440\u0430\u043A\u0442\u0435\u0440\u0438\u0441\u0442\u0438\u043A\u0438"
-    }), h.initClass = new _e(h), h.scene = h.initClass.scene, h.camera = h.initClass.camera, h.renderer = h.initClass.renderer, h.assetManager = new rt(h), h.sceneClass = new at(h), h.keyboardOrbitMove = new ot(h), xe(), h.renderer.localClippingEnabled = true, h.guiClass = new nt(h);
+    }), h.initClass = new _e(h), h.scene = h.initClass.scene, h.camera = h.initClass.camera, h.renderer = h.initClass.renderer, h.assetManager = new rt(h), h.sceneClass = new at(h), h.keyboardOrbitMove = new ot(h), Se(), h.renderer.localClippingEnabled = true, h.guiClass = new nt(h);
   }
   async function ut() {
     var _a, _b;
-    await h.assetManager.loadModels(), St(), xt(), Mt(), vt(), Ct(), h.sceneClass.createScene(), h.sceneClass.onPanelsChanged = H, H(), h.guiClass && (h.guiClass.refresh(), h.guiClass.refreshLight(), (_b = (_a = h.guiClass).refreshAmbient) == null ? void 0 : _b.call(_a));
+    await h.assetManager.loadModels(), xt(), St(), Mt(), vt(), Ct(), h.sceneClass.createScene(), h.sceneClass.onPanelsChanged = H, H(), h.guiClass && (h.guiClass.refresh(), h.guiClass.refreshLight(), (_b = (_a = h.guiClass).refreshAmbient) == null ? void 0 : _b.call(_a));
   }
   function gt() {
     yt(), ft(), pt(), It();
@@ -2492,7 +2492,7 @@ let __tla = (async () => {
     u && (u.onclick = () => {
       var _a, _b;
       const d = ((_b = (_a = h.sceneClass) == null ? void 0 : _a.toggleSceneLock) == null ? void 0 : _b.call(_a)) || false;
-      xe(d);
+      Se(d);
     }), document.getElementById("random_rotate").onclick = () => {
       var _a, _b;
       (_b = (_a = P()) == null ? void 0 : _a.randomRotate) == null ? void 0 : _b.call(_a);
@@ -2567,7 +2567,7 @@ let __tla = (async () => {
     const t = u != null ? u : !!((_b = (_a = h.sceneClass) == null ? void 0 : _a.lightManager) == null ? void 0 : _b.areLightBulbMeshesVisible), i = e.querySelector(".btn-text");
     e.firstChild.textContent = t ? "\u{1F648} " : "\u{1F441} ", i && (i.textContent = t ? "\u0421\u043A\u0440\u044B\u0442\u044C \u043B\u0430\u043C\u043F\u043E\u0447\u043A\u0438" : "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043B\u0430\u043C\u043F\u043E\u0447\u043A\u0438");
   }
-  function xe(u = null) {
+  function Se(u = null) {
     var _a;
     const e = u != null ? u : !!((_a = h.sceneClass) == null ? void 0 : _a.isSceneLocked), t = document.getElementById("btn-scene-lock"), i = document.getElementById("bottom_panel");
     document.body.classList.toggle("scene-locked", e), i && (i.classList.toggle("closed", e), e && i.classList.remove("compact")), t && (t.textContent = e ? "\u{1F512}" : "\u{1F513}", t.title = e ? "\u0420\u0430\u0437\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u0446\u0435\u043D\u044B" : "\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u0446\u0435\u043D\u044B", t.setAttribute("aria-pressed", String(e)), t.classList.toggle("active", e)), document.querySelectorAll(ct.join(",")).forEach((s) => {
@@ -2634,7 +2634,7 @@ let __tla = (async () => {
     const t = document.getElementById(u);
     t && t.style.setProperty("--preview-color", e);
   }
-  function St() {
+  function xt() {
     var _a;
     if (!document.getElementById("light-selection-ui")) return;
     const e = ((_a = h.sceneConfig) == null ? void 0 : _a.worldScale) || 1, i = 18 * (e * e), s = 6 * e, a = document.getElementById("light-intensity");
@@ -2685,7 +2685,7 @@ let __tla = (async () => {
       r !== -1 && h.sceneClass.lightBulbs.splice(r, 1), h.sceneClass.lightManager.fillLights = h.sceneClass.lightManager.fillLights.filter((c) => c !== o.pointLight), h.sceneClass.lightManager.disposeLightBulbMesh(o.bulbMesh), h.sceneClass.deselectLightBulb();
     };
   }
-  function xt() {
+  function St() {
     const u = document.getElementById("btn-close-rug");
     if (!u) return;
     const { widthWallFront: e, widthWallSide: t } = h.sceneClass.config, i = document.getElementById("rug-width"), s = document.getElementById("rug-depth"), a = document.getElementById("rug-pos-x"), n = document.getElementById("rug-pos-z");
@@ -2760,7 +2760,7 @@ let __tla = (async () => {
     }, p = (m) => "roomcfg:" + btoa(unescape(encodeURIComponent(JSON.stringify(m)))), y = (m) => {
       const b = m.trim().replace(/^roomcfg:/, "");
       return JSON.parse(decodeURIComponent(escape(atob(b))));
-    }, S = () => {
+    }, x = () => {
       const m = P();
       if (!(m == null ? void 0 : m.getSceneState)) throw new Error("\u0410\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C \u0435\u0449\u0435 \u043D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D");
       return {
@@ -2850,7 +2850,7 @@ let __tla = (async () => {
     };
     e.onclick = Ce, t && (t.onclick = de), i && (i.onclick = de), s && (s.onclick = async () => {
       try {
-        const m = p(S()), { alreadyExists: b } = X(m);
+        const m = p(x()), { alreadyExists: b } = X(m);
         r.value = m, B(), d(b ? "\u0422\u0430\u043A\u043E\u0435 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0443\u0436\u0435 \u0435\u0441\u0442\u044C \u0432 \u043F\u0430\u043C\u044F\u0442\u0438. \u0421\u0442\u0440\u043E\u043A\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0430 \u043D\u0438\u0436\u0435." : "\u0421\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E \u0432 \u043F\u0430\u043C\u044F\u0442\u044C \u0438 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0432 \u0441\u043F\u0438\u0441\u043E\u043A.");
       } catch (m) {
         d("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u0435."), console.error(m);
@@ -2869,7 +2869,7 @@ let __tla = (async () => {
     }), n && (n.onclick = async () => {
       try {
         if (!r.value.trim()) {
-          const m = p(S());
+          const m = p(x());
           X(m), r.value = m, B();
         }
         await navigator.clipboard.writeText(r.value), d("\u0421\u0442\u0440\u043E\u043A\u0430 \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430.");
