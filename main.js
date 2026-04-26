@@ -84,8 +84,10 @@ async function startScene() {
     await initClases();
     await initSceneFunctions();
     startAnimationLoop();
+    return true;
   } catch (error) {
     console.error("Init error", error);
+    return false;
   }
 }
 
@@ -146,10 +148,21 @@ function initAppModeChooser() {
   };
 
   start3dBtn.onclick = async () => {
-    closeChooser();
+    chooser.classList.add("loading");
+    start3dBtn.disabled = true;
+    start2dBtn.disabled = true;
     document.body.classList.remove("mode-2d");
     gameContext.appMode = "3d";
-    await startScene();
+    const isStarted = await startScene();
+
+    if (isStarted) {
+      closeChooser();
+      return;
+    }
+
+    chooser.classList.remove("loading");
+    start3dBtn.disabled = false;
+    start2dBtn.disabled = false;
   };
 
   start2dBtn.onclick = () => {

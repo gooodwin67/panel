@@ -2435,9 +2435,9 @@ let __tla = (async () => {
   mt();
   async function ht() {
     try {
-      await dt(), await ut(), Et();
+      return await dt(), await ut(), Et(), true;
     } catch (u) {
-      console.error("Init error", u);
+      return console.error("Init error", u), false;
     }
   }
   async function dt() {
@@ -2459,7 +2459,11 @@ let __tla = (async () => {
       u.style.display = "none";
     };
     e.onclick = async () => {
-      i(), document.body.classList.remove("mode-2d"), h.appMode = "3d", await ht();
+      if (u.classList.add("loading"), e.disabled = true, t.disabled = true, document.body.classList.remove("mode-2d"), h.appMode = "3d", await ht()) {
+        i();
+        return;
+      }
+      u.classList.remove("loading"), e.disabled = false, t.disabled = false;
     }, t.onclick = () => {
       i(), document.body.classList.add("mode-2d"), h.appMode = "2d", h.panel2dApp = new lt(h), h.panel2dApp.onPanelsChanged = H, h.panel2dApp.init(), h.panel2dApp.show(), H();
     };

@@ -152,6 +152,56 @@ canvas {
     background: rgba(0, 229, 255, 0.08);
 }
 
+.app-mode-loader {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 229, 255, 0.24);
+    background: rgba(0, 229, 255, 0.08);
+}
+
+.app-mode-modal.loading .app-mode-loader {
+    display: flex;
+}
+
+.app-mode-modal.loading .app-mode-actions,
+.app-mode-modal.loading .app-mode-secondary-actions {
+    opacity: 0.48;
+    pointer-events: none;
+}
+
+.app-loader-spinner {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.18);
+    border-top-color: #00E5FF;
+    animation: appLoaderSpin 0.8s linear infinite;
+}
+
+.app-loader-title {
+    color: #fff;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.app-loader-text {
+    margin-top: 3px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+@keyframes appLoaderSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .panel-2d-app {
     position: absolute;
     inset: 0;
