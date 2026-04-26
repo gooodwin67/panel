@@ -121,6 +121,37 @@ canvas {
     font-size: 15px;
 }
 
+.app-mode-secondary-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.app-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.86);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.app-link-btn:hover {
+    border-color: rgba(0, 229, 255, 0.7);
+    color: #00E5FF;
+    background: rgba(0, 229, 255, 0.08);
+}
+
 .panel-2d-app {
     position: absolute;
     inset: 0;
@@ -734,6 +765,53 @@ body.scene-locked .panel {
     color: #fff;
 }
 
+.about-app-dialog {
+    width: min(520px, calc(100vw - 24px));
+}
+
+.about-app-modal {
+    z-index: 1000002;
+}
+
+.about-app-body {
+    gap: 16px;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.55;
+}
+
+.about-app-mark {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 229, 255, 0.55);
+    background: rgba(0, 229, 255, 0.1);
+    color: #00E5FF;
+    font-weight: 800;
+}
+
+.about-app-contact {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-app-contact span {
+    color: rgba(255, 255, 255, 0.58);
+}
+
+.about-app-contact a,
+.about-app-contact strong {
+    color: #00E5FF;
+    font-weight: 800;
+    text-decoration: none;
+    text-align: right;
+}
+
 .scene-state-text {
     width: 100%;
     min-height: 96px;
@@ -850,6 +928,12 @@ body.scene-locked .panel {
     .action-btn {
         padding: 8px;
         font-size: 12px;
+    }
+
+    .app-mode-actions,
+    .app-mode-secondary-actions {
+        grid-template-columns: 1fr;
+        display: grid;
     }
 
     .ui-tab-content {

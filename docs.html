@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Документация - 3D Панели Квик Клик</title>
+   <base href="./">
+   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+   <style>
+      @font-face {
+         font-family: "Nunito Sans";
+         font-style: normal;
+         font-weight: 400;
+         font-display: swap;
+         src: url("fonts/nunito-sans-v18-cyrillic_latin-regular.woff2") format("woff2");
+      }
+
+      @font-face {
+         font-family: "Nunito Sans";
+         font-style: normal;
+         font-weight: 800;
+         font-display: swap;
+         src: url("fonts/nunito-sans-v18-cyrillic_latin-800.woff2") format("woff2");
+      }
+
+      :root {
+         color-scheme: dark;
+         --bg: #111217;
+         --panel: #1c1d21;
+         --panel-2: #24262c;
+         --line: rgba(255, 255, 255, 0.1);
+         --text: rgba(255, 255, 255, 0.9);
+         --muted: rgba(255, 255, 255, 0.62);
+         --accent: #00e5ff;
+         --green: #91b195;
+      }
+
+      * {
+         box-sizing: border-box;
+      }
+
+      html {
+         scroll-behavior: smooth;
+      }
+
+      body {
+         margin: 0;
+         background:
+            radial-gradient(circle at 20% 0%, rgba(0, 229, 255, 0.12), transparent 34rem),
+            linear-gradient(180deg, #15161b 0%, var(--bg) 42%, #0d0e12 100%);
+         color: var(--text);
+         font-family: "Nunito Sans", Tahoma, sans-serif;
+         line-height: 1.65;
+      }
+
+      a {
+         color: var(--accent);
+         text-decoration: none;
+      }
+
+      .page {
+         width: min(1180px, calc(100% - 32px));
+         margin: 0 auto;
+      }
+
+      .topbar {
+         position: sticky;
+         top: 0;
+         z-index: 10;
+         border-bottom: 1px solid var(--line);
+         background: rgba(17, 18, 23, 0.82);
+         backdrop-filter: blur(16px);
+      }
+
+      .topbar-inner {
+         width: min(1180px, calc(100% - 32px));
+         min-height: 64px;
+         margin: 0 auto;
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         gap: 18px;
+      }
+
+      .brand {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         font-weight: 800;
+      }
+
+      .brand-icon {
+         width: 34px;
+         height: 34px;
+      }
+
+      .topnav {
+         display: flex;
+         gap: 8px;
+         flex-wrap: wrap;
+         justify-content: flex-end;
+      }
+
+      .topnav a,
+      .btn {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         min-height: 38px;
+         padding: 0 13px;
+         border-radius: 8px;
+         border: 1px solid var(--line);
+         background: rgba(255, 255, 255, 0.04);
+         color: var(--text);
+         font-weight: 800;
+      }
+
+      .topnav a:hover,
+      .btn:hover {
+         border-color: rgba(0, 229, 255, 0.72);
+         color: var(--accent);
+      }
+
+      .hero {
+         padding: 76px 0 48px;
+      }
+
+      .eyebrow {
+         color: var(--accent);
+         font-weight: 800;
+         margin-bottom: 12px;
+      }
+
+      h1,
+      h2,
+      h3 {
+         margin: 0;
+         line-height: 1.12;
+      }
+
+      h1 {
+         font-size: clamp(38px, 6vw, 72px);
+         letter-spacing: 0;
+      }
+
+      h2 {
+         font-size: clamp(28px, 3vw, 42px);
+         margin-bottom: 18px;
+      }
+
+      h3 {
+         font-size: 20px;
+         margin-bottom: 8px;
+      }
+
+      .lead {
+         max-width: 700px;
+         margin: 22px 0 0;
+         color: var(--muted);
+         font-size: 19px;
+      }
+
+      .hero-actions {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 12px;
+         margin-top: 28px;
+      }
+
+      .btn.primary {
+         border-color: rgba(0, 229, 255, 0.78);
+         background: rgba(0, 229, 255, 0.14);
+         color: var(--accent);
+      }
+
+      section {
+         padding: 42px 0;
+      }
+
+      .section-card {
+         border: 1px solid var(--line);
+         border-radius: 14px;
+         background: rgba(28, 29, 33, 0.74);
+         padding: clamp(22px, 4vw, 36px);
+      }
+
+      .grid {
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
+         gap: 16px;
+      }
+
+      .grid.two {
+         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card {
+         border: 1px solid var(--line);
+         border-radius: 8px;
+         background: rgba(255, 255, 255, 0.04);
+         padding: 18px;
+      }
+
+      .card p,
+      .section-card p {
+         color: var(--muted);
+      }
+
+      .steps {
+         counter-reset: step;
+         display: grid;
+         gap: 14px;
+      }
+
+      .step {
+         counter-increment: step;
+         display: grid;
+         grid-template-columns: auto 1fr;
+         gap: 14px;
+         align-items: start;
+         padding: 16px;
+         border-radius: 10px;
+         background: rgba(255, 255, 255, 0.04);
+         border: 1px solid var(--line);
+      }
+
+      .step::before {
+         content: counter(step);
+         width: 34px;
+         height: 34px;
+         border-radius: 8px;
+         display: grid;
+         place-items: center;
+         border: 1px solid rgba(0, 229, 255, 0.7);
+         color: var(--accent);
+         font-weight: 800;
+      }
+
+      .feature-list {
+         margin: 14px 0 0;
+         padding: 0;
+         list-style: none;
+         display: grid;
+         gap: 10px;
+      }
+
+      .feature-list li {
+         padding-left: 24px;
+         position: relative;
+         color: var(--muted);
+      }
+
+      .feature-list li::before {
+         content: "";
+         position: absolute;
+         left: 0;
+         top: 0.72em;
+         width: 8px;
+         height: 8px;
+         border-radius: 2px;
+         background: var(--accent);
+      }
+
+      .note {
+         margin-top: 18px;
+         padding: 16px 18px;
+         border-left: 3px solid var(--accent);
+         background: rgba(0, 229, 255, 0.08);
+         color: rgba(255, 255, 255, 0.78);
+      }
+
+      .kbd {
+         display: inline-flex;
+         min-width: 28px;
+         justify-content: center;
+         padding: 2px 8px;
+         border-radius: 6px;
+         border: 1px solid var(--line);
+         background: rgba(255, 255, 255, 0.08);
+         color: var(--text);
+         font-weight: 800;
+      }
+
+      footer {
+         padding: 36px 0 60px;
+         color: var(--muted);
+      }
+
+      @media (max-width: 880px) {
+         .topbar {
+            position: static;
+         }
+
+         .topbar-inner {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 14px 0;
+         }
+
+         .topnav {
+            justify-content: flex-start;
+         }
+
+         .grid,
+         .grid.two {
+            grid-template-columns: 1fr;
+         }
+
+         .hero {
+            padding-top: 44px;
+         }
+      }
+
+      @media (max-width: 560px) {
+         .page,
+         .topbar-inner {
+            width: min(100% - 20px, 1180px);
+         }
+
+         .hero-actions,
+         .topnav {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+         }
+
+      }
+   </style>
+</head>
+
+<body>
+   <header class="topbar">
+      <div class="topbar-inner">
+         <a class="brand" href="index.html">
+            <img class="brand-icon" src="favicon.svg" alt="">
+            <span>3D Панели Квик Клик</span>
+         </a>
+         <nav class="topnav" aria-label="Разделы документации">
+            <a href="#start">Старт</a>
+            <a href="#three-d">3D</a>
+            <a href="#two-d">2D</a>
+            <a href="#characteristics">Характеристики</a>
+            <a href="#save">Сохранение</a>
+            <a href="#about">Контакты</a>
+         </nav>
+      </div>
+   </header>
+
+   <main class="page">
+      <section class="hero">
+         <div>
+            <div class="eyebrow">Документация пользователя</div>
+            <h1>Как пользоваться конфигуратором панелей</h1>
+            <p class="lead">Приложение помогает разложить декоративные панели на стенах, подобрать цвет, оценить интерьер в 3D, добавить свет и мебель, а также быстро собрать 2D-схему рисунка.</p>
+            <div class="hero-actions">
+               <a class="btn primary" href="index.html">Открыть приложение</a>
+            </div>
+         </div>
+      </section>
+
+      <section id="start">
+         <div class="section-card">
+            <h2>Стартовый экран</h2>
+            <div class="grid two">
+               <div class="card">
+                  <h3>3D конфигуратор</h3>
+                  <p>Открывает комнату со стенами, полом, потолком, ковром, освещением и нижней панелью инструментов. Этот режим нужен для визуальной демонстрации интерьера.</p>
+               </div>
+               <div class="card">
+                  <h3>2D раскладка</h3>
+                  <p>Открывает плоскую доску с сеткой. Этот режим удобен, когда нужно быстро собрать схему рисунка из панелей без 3D-сцены.</p>
+               </div>
+            </div>
+            <p class="note">Кнопка Документация открывает эту страницу в новой вкладке. Кнопка О приложении показывает информацию о разработчике и ссылку для связи.</p>
+         </div>
+      </section>
+
+      <section id="three-d">
+         <div class="section-card">
+            <h2>Работа в 3D</h2>
+            <div class="grid">
+               <div class="card">
+                  <h3>Навигация</h3>
+                  <ul class="feature-list">
+                     <li>Вращайте камеру мышью или касанием по сцене.</li>
+                     <li>Приближайте и отдаляйте колесом мыши или жестом масштабирования.</li>
+                     <li>На клавиатуре можно перемещаться клавишами <span class="kbd">W</span> <span class="kbd">A</span> <span class="kbd">S</span> <span class="kbd">D</span>.</li>
+                  </ul>
+               </div>
+               <div class="card">
+                  <h3>Стены и сетка</h3>
+                  <ul class="feature-list">
+                     <li>Клик по стене делает ее активной.</li>
+                     <li>Сетка помогает попадать панелями в ячейки.</li>
+                     <li>Кнопка Вкл/выкл сетку скрывает или показывает разметку.</li>
+                  </ul>
+               </div>
+               <div class="card">
+                  <h3>Панели</h3>
+                  <ul class="feature-list">
+                     <li>Перетащите панель из вкладки Панели на видимую сторону стены.</li>
+                     <li>Если ячейка занята, новая панель туда не поставится.</li>
+                     <li>Установленную панель можно снова перетащить на другое место.</li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <section id="panels">
+         <div class="section-card">
+            <h2>Настройка панелей</h2>
+            <div class="grid two">
+               <div class="card">
+                  <h3>Выбор панели</h3>
+                  <p>Кликните по установленной панели. Появится окно Настройки панели с поворотом, цветом и применением цвета ко всем панелям.</p>
+                  <ul class="feature-list">
+                     <li>Влево и Вправо поворачивают выбранную панель на 90 градусов.</li>
+                     <li>Цвет меняет оттенок выбранной панели.</li>
+                     <li>Применить ко всем задает единый цвет для всех уже размещенных панелей.</li>
+                  </ul>
+               </div>
+               <div class="card">
+                  <h3>Случайные действия</h3>
+                  <p>Во вкладке Сцена есть две быстрые команды для экспериментов с раскладкой.</p>
+                  <ul class="feature-list">
+                     <li>Случайный поворот меняет ориентацию размещенных панелей.</li>
+                     <li>Случайное расположение перемешивает панели между занятыми ячейками.</li>
+                     <li>Счетчик Комплектов показывает максимальное количество панелей одного типа.</li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <section id="objects">
+         <div class="section-card">
+            <h2>Объекты, мебель и свет</h2>
+            <div class="grid">
+               <div class="card">
+                  <h3>Мебель</h3>
+                  <p>Во вкладке Объекты можно добавить стол, диваны, стул, шкаф, настольные лампы и телевизор. После выбора объекта появляется окно с размерами, положением и удалением.</p>
+               </div>
+               <div class="card">
+                  <h3>Лампочки</h3>
+                  <p>Кнопка Лампочка добавляет источник света. Его можно выбрать, перетаскивать и настраивать цвет, температуру, яркость, дальность, затухание и видимость колбы.</p>
+               </div>
+               <div class="card">
+                  <h3>Скрыть лампочки</h3>
+                  <p>Эта команда оставляет свет в сцене, но скрывает визуальные модели лампочек. Полезно для чистого вида интерьера.</p>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <section id="scene">
+         <div class="section-card">
+            <h2>Вкладка Сцена</h2>
+            <div class="grid two">
+               <div class="card">
+                  <h3>Цвета</h3>
+                  <p>Можно изменить цвет всех стен и общий цвет панелей. Готовые цветовые пресеты позволяют быстро проверить популярные оттенки: зеленый, черный, белый, бежевый, синий, терракот, дуб и другие.</p>
+               </div>
+               <div class="card">
+                  <h3>Блокировка сцены</h3>
+                  <p>Кнопка с замком в верхней части нижней панели блокирует редактирование и сворачивает интерфейс. Повторное нажатие возвращает возможность менять сцену.</p>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <section id="characteristics">
+         <div class="section-card">
+            <h2>Панель Характеристики</h2>
+            <p>Справа в 3D-режиме находится техническая панель тонкой настройки сцены. Она нужна для аккуратной доводки света, теней и рендера, когда базовых кнопок нижней панели недостаточно.</p>
+            <div class="grid">
+               <div class="card">
+                  <h3>Сетка</h3>
+                  <p>Показывает выбранную стену. Сначала кликните по стене в 3D-сцене, после этого в панели появится активная стена. Сетка используется как ориентир для раскладки панелей по ячейкам.</p>
+               </div>
+               <div class="card">
+                  <h3>Рендер</h3>
+                  <p>Экспозиция меняет общую яркость изображения. Тени включает или отключает расчет теней в сцене. Если картинка выглядит слишком темной или пересвеченной, начните с экспозиции.</p>
+               </div>
+               <div class="card">
+                  <h3>Свет комнаты</h3>
+                  <p>Раздел управляет базовым освещением интерьера. Пресеты День, Вечер и Ночь быстро меняют настроение сцены без ручной настройки каждого параметра.</p>
+               </div>
+            </div>
+            <div class="grid two" style="margin-top:16px;">
+               <div class="card">
+                  <h3>Фоновый свет</h3>
+                  <p>Фоновый свет мягко подсвечивает всю комнату. Яркость отвечает за силу заполнения, Цвет задает общий оттенок. Теплый цвет делает интерьер уютнее, холодный цвет визуально строже.</p>
+               </div>
+               <div class="card">
+                  <h3>Потолочный свет</h3>
+                  <p>Потолочный источник освещает комнату сверху. В нем настраиваются позиция X, Y, Z, угол луча, мягкость края, направление луча, яркость, дальность, затухание и цвет.</p>
+               </div>
+            </div>
+            <div class="grid two" style="margin-top:16px;">
+               <div class="card">
+                  <h3>Тени</h3>
+                  <p>Параметр Отбрасывать включает тень от потолочного света. Размер карты влияет на качество тени: большее значение дает более четкую тень, но требует больше ресурсов. Смещение и смещение нормали помогают убрать артефакты на поверхностях.</p>
+               </div>
+               <div class="card">
+                  <h3>Практический порядок настройки</h3>
+                  <ul class="feature-list">
+                     <li>Выберите пресет День, Вечер или Ночь.</li>
+                     <li>Подстройте экспозицию, если вся сцена слишком темная или яркая.</li>
+                     <li>Настройте яркость и цвет фонового света.</li>
+                     <li>Отрегулируйте потолочный свет и тени, если нужен более выразительный интерьер.</li>
+                  </ul>
+               </div>
+            </div>
+            <p class="note">Панель Характеристики предназначена для расширенной настройки. Для обычной раскладки панелей достаточно нижней панели: Панели, Объекты и Сцена.</p>
+         </div>
+      </section>
+
+      <section id="two-d">
+         <div class="section-card">
+            <h2>2D раскладка</h2>
+            <div class="grid two">
+               <div class="card">
+                  <h3>Размещение</h3>
+                  <p>Перетащите панель из нижней палитры на поле. Панели привязываются к сетке, соседним панелям и краям поля, чтобы раскладка получалась ровной.</p>
+               </div>
+               <div class="card">
+                  <h3>Редактирование</h3>
+                  <p>Клик по панели выбирает ее. Можно повернуть панель, удалить ее кнопкой в окне настроек или клавишами <span class="kbd">Delete</span> и <span class="kbd">Backspace</span>.</p>
+               </div>
+            </div>
+            <p class="note">В 2D-режиме вкладка Объекты скрыта, потому что мебель, свет и телевизор относятся только к 3D-комнате.</p>
+         </div>
+      </section>
+
+      <section id="save">
+         <div class="section-card">
+            <h2>Сохранение и обмен</h2>
+            <div class="grid">
+               <div class="card">
+                  <h3>Сохранить</h3>
+                  <p>Кнопка с дискетой открывает окно сохранений. Команда Сохранить записывает текущую сцену в память устройства и добавляет ее в список.</p>
+               </div>
+               <div class="card">
+                  <h3>Копировать строку</h3>
+                  <p>Состояние можно превратить в строку формата roomcfg. Эту строку удобно отправить другому человеку или сохранить отдельно.</p>
+               </div>
+               <div class="card">
+                  <h3>Загрузить</h3>
+                  <p>Можно загрузить последнее состояние из памяти, выбрать сохранение из списка, вставить строку из буфера или загрузить строку из текстового поля.</p>
+               </div>
+            </div>
+            <p class="note">Сохранения 3D и 2D хранятся отдельно. Если вставить строку от другого режима, приложение предупредит, что сохранение не подходит.</p>
+         </div>
+      </section>
+
+      <section id="about">
+         <div class="section-card">
+            <h2>О приложении</h2>
+            <div class="grid two">
+               <div class="card">
+                  <h3>Назначение</h3>
+                  <p>3D Панели Квик Клик предназначен для интерактивной демонстрации декоративных панелей, подбора цвета, проверки рисунка и подготовки простой раскладки.</p>
+               </div>
+               <div class="card">
+                  <h3>Разработчик</h3>
+                  <p>Алейник Андрей Иванович</p>
+                  <p><a href="https://lcfc.ru" target="_blank" rel="noopener">lcfc.ru</a></p>
+                  <p><a href="mailto:sn67@inbox.ru">sn67@inbox.ru</a></p>
+               </div>
+            </div>
+         </div>
+      </section>
+   </main>
+
+   <footer class="page">
+      <p>Документация для приложения 3D Панели Квик Клик. Вернуться к приложению: <a href="index.html">index.html</a>.</p>
+   </footer>
+</body>
+
+</html>

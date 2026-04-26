@@ -5,11 +5,10 @@
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
    <meta name="mobile-web-app-capable" content="yes">
-   <title>Шаблон</title>
+   <title>3D Панели Квик Клик</title>
 
    <base href="./" />
-   <link rel="icon" type="image/x-icon" href="favicon.ico">
-   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+   <link rel="icon" type="image/svg+xml" href="favicon.svg">
    <link href="style.css" rel="stylesheet" />
 
    <script type="module" src="./main.js"></script>
@@ -24,6 +23,10 @@
             <div class="app-mode-actions">
                <button id="btn-start-3d" class="action-btn primary">3D конфигуратор</button>
                <button id="btn-start-2d" class="action-btn">2D раскладка</button>
+            </div>
+            <div class="app-mode-secondary-actions">
+               <a class="app-link-btn" href="docs.html" target="_blank" rel="noopener">Документация</a>
+               <button id="btn-about-app" class="app-link-btn" type="button">О приложении</button>
             </div>
          </div>
       </div>
@@ -376,6 +379,32 @@
                   <div id="scene-state-saved-list" class="scene-state-saved-list"></div>
                </div>
                <div id="scene-state-status" class="scene-state-status"></div>
+            </div>
+         </div>
+      </div>
+
+      <div class="save-load-modal about-app-modal" id="about-app-modal" style="display:none;">
+         <div class="save-load-backdrop" id="about-app-backdrop"></div>
+         <div class="save-load-dialog about-app-dialog">
+            <div class="ui-header">
+               <span class="ui-title">О приложении</span>
+               <button id="btn-close-about-app" class="ui-close-btn">✖</button>
+            </div>
+            <div class="ui-body about-app-body">
+               <div class="about-app-mark">3D Панели Квик Клик</div>
+               <p>Интерактивный конфигуратор для подбора, раскладки и демонстрации декоративных панелей в 3D и 2D.</p>
+               <div class="about-app-contact">
+                  <span>Разработка</span>
+                  <strong>Алейник Андрей Иванович</strong>
+               </div>
+               <div class="about-app-contact">
+                  <span>Сайт</span>
+                  <a href="https://lcfc.ru" target="_blank" rel="noopener">lcfc.ru</a>
+               </div>
+               <div class="about-app-contact">
+                  <span>Email</span>
+                  <a href="mailto:sn67@inbox.ru">sn67@inbox.ru</a>
+               </div>
             </div>
          </div>
       </div>

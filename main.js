@@ -131,6 +131,7 @@ function initStaticUI() {
   initBottomBtns();
   initPanelPalette();
   initSaveLoadUI();
+  initAboutUI();
 }
 
 function initAppModeChooser() {
@@ -161,6 +162,27 @@ function initAppModeChooser() {
     gameContext.panel2dApp.show();
     refreshPanelKitCounter();
   };
+}
+
+function initAboutUI() {
+  const modal = document.getElementById("about-app-modal");
+  const openBtn = document.getElementById("btn-about-app");
+  const closeBtn = document.getElementById("btn-close-about-app");
+  const backdrop = document.getElementById("about-app-backdrop");
+
+  if (!modal || !openBtn) return;
+
+  const openModal = () => {
+    modal.style.display = "block";
+  };
+
+  const closeModal = () => {
+    modal.style.display = "none";
+  };
+
+  openBtn.onclick = openModal;
+  if (closeBtn) closeBtn.onclick = closeModal;
+  if (backdrop) backdrop.onclick = closeModal;
 }
 
 function getActiveConfigurator() {
